@@ -18,6 +18,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "docs", "docs.vcproj", "{AD6
 		{C0DA2659-EB6A-4725-A822-9C086E5F5EFD} = {C0DA2659-EB6A-4725-A822-9C086E5F5EFD}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cpgen", "C:\Documents and Settings\rgibson\My Documents\Visual Studio Projects\yacg\build\vc71\cpgen.vcproj", "{94908DD9-90B5-4E0C-A7D9-D64A04BBD202}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -36,6 +40,10 @@ Global
 		{C0DA2659-EB6A-4725-A822-9C086E5F5EFD}.Release.Build.0 = Release|Win32
 		{AD6ED4FC-B882-4B15-893F-CAE04288DCCC}.Debug.ActiveCfg = Debug|Win32
 		{AD6ED4FC-B882-4B15-893F-CAE04288DCCC}.Release.ActiveCfg = Release|Win32
+		{94908DD9-90B5-4E0C-A7D9-D64A04BBD202}.Debug.ActiveCfg = Debug|Win32
+		{94908DD9-90B5-4E0C-A7D9-D64A04BBD202}.Debug.Build.0 = Debug|Win32
+		{94908DD9-90B5-4E0C-A7D9-D64A04BBD202}.Release.ActiveCfg = Release|Win32
+		{94908DD9-90B5-4E0C-A7D9-D64A04BBD202}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
