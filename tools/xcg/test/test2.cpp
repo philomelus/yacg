@@ -41,7 +41,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-//void copy(const testSuite::TestSuite& o, const char* f);
+void copy(const testSuite::TestSuite& o, const char* f);
 
 void Test2()
 {
@@ -53,12 +53,12 @@ void Test2()
 		testSuite::TestSuite ts("test2.xml");
 		
 		// Write it out ourself to test the generated code
-//		copy(ctrl, "copy1.xml");
+		copy(ts, "test2copy1.xml");
 		
 		// Ask libxml to write it to test write functions
 		ts.write("test2copy2.xml");
 		
-		std::cout << "test2: Check 'test2copy2.xml'" << std::endl;
+		std::cout << "test2: Check 'test2copy1.xml' and 'test2copy2.xml'" << std::endl;
 		std::cout << "test2: Otherwise it appears successful" << std::endl;
 	}
 	catch (const std::runtime_error& e)
@@ -71,238 +71,263 @@ void Test2()
 	}
 }
 
-#if 0
-void dump_constructors(const control::Constructor& a, std::ofstream& o, indent& l)
+void dump_documentations(const testSuite::Documentation& a, std::ofstream& o, indent& l)
 {
-	o << l << "<constructor>";
+	o << l << "<documentation>";
 	std::string v;
 	a.value(v);
 	o << v;
-	o << "</constructor>" << endl;
+	o << "</documentation>" << endl;
 }
 
-void dump_names(const control::Name& a, std::ofstream& o, indent& l)
+void dump_params(const testSuite::Param& p, std::ofstream& o, indent& l)
 {
-	o << l << "<name>";
+	o << l << "<param";
+	if (!p.name().empty())
+		o << " name=\"" << p.name() << "\"";
+	o << ">";
 	std::string v;
-	a.value(v);
-	o << v;
-	o << "</name>" << endl;
-}
-
-void dump_params(const control::Param& a, std::ofstream& o, indent& l)
-{
-	o << l << "<param>";
-	std::string v;
-	a.value(v);
-	o << v;
+	p.value(v);
+	if (!v.empty())
+		o << v;
 	o << "</param>" << endl;
 }
 
-void dump_returns(const control::Return& a, std::ofstream& o, indent& l)
+void dump_datas(const testSuite::Data& d, std::ofstream& o, indent& l)
 {
-	o << l << "<return>";
+	o << l << "<data";
+	if (!d.type().empty())
+		o << " type=\"" << d.type() << "\"";
 	std::string v;
-	a.value(v);
-	o << v;
-	o << "</return>" << endl;
+	d.value(v);
+	if (v.empty() && d.params().empty())
+	{
+		o << "/>" << endl;
+	}
+	else
+	{
+		o << ">" << endl;
+		if (!v.empty())
+			o << l << v << endl;
+		{
+			auto_indent i(l);
+			std::for_each(d.params().begin(), d.params().end(),
+					bind(dump_params, _1, ref(o), ref(l)));
+		}
+		o << l << "</data>" << endl;
+	}
 }
 
-void dump_styles(const control::Style& a, std::ofstream& o, indent& l)
+void dump_values(const testSuite::Value& v, std::ofstream& o, indent& l)
 {
-	o << l << "<style";
-	if (!a.unique().empty())
-		o << " unique=\"" << a.unique() << "\"";
+	o << l << "<value";
+	if (!v.type().empty())
+		o << " type=\"" << v.type() << "\"";
 	o << ">";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</style>" << endl;
+	std::string vv;
+	v.value(vv);
+	if (!vv.empty())
+		o << vv;
+	o << "</value>" << endl;
 }
 
-void dump_types(const control::Type& a, std::ofstream& o, indent& l)
+void dump_elements(const testSuite::Element& e, std::ofstream& o, indent& l)
 {
-	o << l << "<type>";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</type>" << endl;
-}
-
-void dump_attributes(const control::Attribute& a, std::ofstream& o, indent& l)
-{
-	o << l << "<attribute";
-	if (!a.editable().empty())
-		o << " editable=\"" << a.editable() << "\"";
-	if (!a.Virtual().empty())
-		o << " virtual=\"" << a.Virtual() << "\"";
+	o << l << "<element";
+	if (!e.datatypeLibrary().empty())
+		o << " datatypeLibrary=\"" << e.datatypeLibrary() << "\"";
+	if (!e.name().empty())
+		o << " name=\"" << e.name() << "\"";
 	o << ">" << endl;
-	{
-		auto_indent i(l);
-		std::for_each(a.constructors().begin(), a.constructors().end(),
-				bind(dump_constructors, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.names().begin(), a.names().end(),
-				bind(dump_names, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.params().begin(), a.params().end(),
-				bind(dump_params, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.Returns().begin(), a.Returns().end(),
-				bind(dump_returns, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.styles().begin(), a.styles().end(),
-				bind(dump_styles, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.types().begin(), a.types().end(),
-				bind(dump_types, _1, ref(o), ref(l)));
-	}
-	o << l << "</attribute>" << endl;
-}
-
-void dump_base(const control::Base& a, std::ofstream& o, indent& l)
-{
-	o << l << "<base>";
 	std::string v;
-	a.value(v);
-	o << v;
-	o << "</base>" << endl;
+	e.value(v);
+	if (!v.empty())
+		o << l << v << endl;
+	{
+		auto_indent i(l);
+		std::for_each(e.datas().begin(), e.datas().end(),
+				bind(dump_datas, _1, ref(o), ref(l)));
+	}
+	{
+		auto_indent i(l);
+		std::for_each(e.Values().begin(), e.Values().end(),
+				bind(dump_values, _1, ref(o), ref(l)));
+	}
+	o << l << "</element>" << endl;
 }
 
-void dump_bits(const control::Bits& a, std::ofstream& o, indent& l)
+void dump_corrects(const testSuite::Correct& c, std::ofstream& o, indent& l)
 {
-	o << l << "<bits>";
+	o << l << "<correct>" << endl;
 	std::string v;
-	a.value(v);
-	o << v;
-	o << "</bits>" << endl;
-}
-
-void dump_flag(const control::Flag& a, std::ofstream& o, indent& l)
-{
-	o << l << "<flag>" << endl;
+	c.value(v);
+	if (!v.empty())
+		o << v;
 	{
 		auto_indent i(l);
-		std::for_each(a.bits().begin(), a.bits().end(),
-				bind(dump_bits, _1, ref(o), ref(l)));
+		std::for_each(c.elements().begin(), c.elements().end(),
+				bind(dump_elements, _1, ref(o), ref(l)));
 	}
-	{
-		auto_indent i(l);
-		std::for_each(a.names().begin(), a.names().end(),
-				bind(dump_names, _1, ref(o), ref(l)));
-	}
-	o << l << "</flag>" << endl;
+	o << l << "</correct>" << endl;
 }
 
-void dump_flags(const control::Flags& a, std::ofstream& o, indent& l)
+void dump_docs(const testSuite::Doc& r, std::ofstream& o, indent& l)
 {
-	o << l << "<flags";
-	if (!a.group().empty())
-		o << " group=\"" << a.group() << "\"";
-	o << ">" << endl;
-	{
-		auto_indent i(l);
-		std::for_each(a.flags().begin(), a.flags().end(),
-				bind(dump_flag, _1, ref(o), ref(l)));
-	}
-	o << l << "</flags>" << endl;
-}
-
-void dump_header(const control::Header& a, std::ofstream& o, indent& l)
-{
-	o << l << "<header";
-	if (!a.type().empty())
-		o << " type=\"" << a.type() << "\"";
-	o << ">";
 	std::string v;
-	a.value(v);
-	o << v;
-	o << "</header>" << endl;
+	r.value(v);
+	if (v.empty())
+		o << l << "<doc/>" << endl;
+	else
+		o << l << "<doc>" << v << "</doc>" << endl;
 }
 
-void dump_implementation(const control::Implementation& a, std::ofstream& o, indent& l)
+void dump_invalids(const testSuite::Invalid& i, std::ofstream& o, indent& l)
 {
-	o << l << "<implementation";
-	if (!a.type().empty())
-		o << " type=\"" << a.type() << "\"";
-	o << ">";
 	std::string v;
-	a.value(v);
-	o << v;
-	o << "</implementation>" << endl;
+	i.value(v);
+	if (i.docs().empty())
+	{
+		if (v.empty())
+			o << l << "<invalid/>" << endl;
+		else
+			o << l << "<invalid>" << v << "</invalid>" << endl;
+	}
+	else
+	{
+		o << l << "<invalid>" << endl;
+		if (!v.empty())
+			o << l << v << endl;
+		{
+			auto_indent in(l);
+			std::for_each(i.docs().begin(), i.docs().end(),
+					bind(dump_docs, _1, ref(o), ref(l)));
+		}
+		o << l << "</invalid>" << endl;
+	}
 }
 
-void dump_theme(const control::Theme& a, std::ofstream& o, indent& l)
+void dump_requires(const testSuite::Requires& r, std::ofstream& o, indent& l)
 {
-	o << l << "<theme>" << endl;
+	o << l << "<requires";
+	if (!r.datatypeLibrary().empty())
+		o << " datatypeLibrary=\"" << r.datatypeLibrary() << "\"";
+	std::string v;
+	r.value(v);
+	if (v.empty())
+		o << "/>" << endl;
+	else
+		o << ">" << v << "</requires>" << endl;
+}
+
+void dump_valids(const testSuite::Valid& v, std::ofstream& o, indent& l)
+{
+	o << l << "<valid";
+	if (!v.dtd().empty())
+		o << " dtd=\"" << v.dtd() << "\"";
+	std::string vv;
+	v.value(vv);
+	if (v.docs().empty())
+	{
+		if (vv.empty())
+			o << "/>" << endl;
+		else
+			o << ">" << vv << "</valid>" << endl;
+	}
+	else
+	{
+		o << ">" << endl;
+		if (!vv.empty())
+			o << l << vv << endl;
+		{
+			auto_indent in(l);
+			std::for_each(v.docs().begin(), v.docs().end(),
+					bind(dump_docs, _1, ref(o), ref(l)));
+		}
+		o << l << "</valid>" << endl;
+	}
+}
+
+void dump_testCases(const testSuite::TestCase& t, std::ofstream& o, indent& l)
+{
+	o << l << "<testCase>" << endl;
+	std::string v;
+	t.value(v);
+	if (!v.empty())
+		o << v;
 	{
 		auto_indent i(l);
-		std::for_each(a.names().begin(), a.names().end(),
-				bind(dump_names, _1, ref(o), ref(l)));
+		std::for_each(t.corrects().begin(), t.corrects().end(),
+				bind(dump_corrects, _1, ref(o), ref(l)));
 	}
 	{
 		auto_indent i(l);
-		std::for_each(a.types().begin(), a.types().end(),
-				bind(dump_types, _1, ref(o), ref(l)));
+		std::for_each(t.invalids().begin(), t.invalids().end(),
+				bind(dump_invalids, _1, ref(o), ref(l)));
 	}
-	o << l << "</theme>" << endl;
+	{
+		auto_indent i(l);
+		std::for_each(t.requires().begin(), t.requires().end(),
+				bind(dump_requires, _1, ref(o), ref(l)));
+	}
+	{
+		auto_indent i(l);
+		std::for_each(t.valids().begin(), t.valids().end(),
+				bind(dump_valids, _1, ref(o), ref(l)));
+	}
+	o << l << "</testCase>" << endl;
 }
 
-void copy(const control::Control& c, const char* f)
+void dump_testSuites(const testSuite::TestSuite& t, std::ofstream& o, indent& l)
 {
-	typedef std::vector<std::string> VS;
+	o << l << "<testSuite>" << endl;
+	std::string v;
+	t.value(v);
+	if (!v.empty())
+		o << v;
+	{
+		auto_indent i1(l);
+		std::for_each(t.documentations().begin(), t.documentations().end(),
+				bind(dump_documentations, _1, ref(o), ref(l)));
+	}
+	{
+		auto_indent i1(l);
+		std::for_each(t.testCases().begin(), t.testCases().end(),
+				bind(dump_testCases, _1, ref(o), ref(l)));
+	}
+	{
+		auto_indent i1(l);
+		std::for_each(t.testSuites().begin(), t.testSuites().end(),
+				bind(dump_testSuites, _1, ref(o), ref(l)));
+	}
+	o << l << "</testSuite>" << endl;
+}
 
+void copy(const testSuite::TestSuite& t, const char* f)
+{
 	indent level;
 	
-	std::ofstream o("copy1.xml", std::ios_base::out | std::ios_base::trunc);
+	std::ofstream o(f, std::ios_base::out | std::ios_base::trunc);
 	
-	o << "<?xml version=\"1.0\">" << endl;
-	o << "<control>" << endl;
+	o << "<?xml version=\"1.0\" encoding=\"iso8859-1\" standalone=\"yes\"?>" << endl;
+	o << "<testSuite>" << endl;
+	std::string v;
+	t.value(v);
+	if (!v.empty())
+		o << v << endl;
 	{
 		auto_indent i1(level);
-		std::for_each(c.attributes().begin(), c.attributes().end(),
-				bind(dump_attributes, _1, ref(o), ref(level)));
+		std::for_each(t.documentations().begin(), t.documentations().end(),
+				bind(dump_documentations, _1, ref(o), ref(level)));
 	}
 	{
 		auto_indent i1(level);
-		std::for_each(c.bases().begin(), c.bases().end(),
-				bind(dump_base, _1, ref(o), ref(level)));
+		std::for_each(t.testCases().begin(), t.testCases().end(),
+				bind(dump_testCases, _1, ref(o), ref(level)));
 	}
 	{
 		auto_indent i1(level);
-		std::for_each(c.flags().begin(), c.flags().end(),
-				bind(dump_flags, _1, ref(o), ref(level)));
+		std::for_each(t.testSuites().begin(), t.testSuites().end(),
+				bind(dump_testSuites, _1, ref(o), ref(level)));
 	}
-	{
-		auto_indent i1(level);
-		std::for_each(c.headers().begin(), c.headers().end(),
-				bind(dump_header, _1, ref(o), ref(level)));
-	}
-	{
-		auto_indent i1(level);
-		std::for_each(c.implementations().begin(), c.implementations().end(),
-				bind(dump_implementation, _1, ref(o), ref(level)));
-	}
-	{
-		auto_indent i1(level);
-		std::for_each(c.names().begin(), c.names().end(),
-				bind(dump_names, _1, ref(o), ref(level)));
-	}
-	{
-		auto_indent i1(level);
-		std::for_each(c.themes().begin(), c.themes().end(),
-				bind(dump_theme, _1, ref(o), ref(level)));
-	}
-	o << "</control>" << endl;
+	o << "</testSuite>" << endl;
 }
-#endif

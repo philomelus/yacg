@@ -41,7 +41,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-//void copy(const tv::Tv& o, const char* f);
+void copy(const tv::Tv& t, const char* f);
 
 void Test3()
 {
@@ -53,7 +53,7 @@ void Test3()
 		tv::Tv tv("test3.xml");
 		
 		// Write it out ourself to test the generated code
-//		copy(ctrl, "copy1.xml");
+		copy(tv, "test3copy1.xml");
 		
 		// Ask libxml to write it to test write functions
 		tv.write("test3copy2.xml");
@@ -71,238 +71,237 @@ void Test3()
 	}
 }
 
-#if 0
-void dump_constructors(const control::Constructor& a, std::ofstream& o, indent& l)
+template <typename T>
+void dumpValue(const T& v, const char* n, std::ostream& o, indent& l)
 {
-	o << l << "<constructor>";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</constructor>" << endl;
+	o << l << "<" << n;
+	std::string val;
+	v.value(val);
+	if (val.empty())
+		o << "/>" << endl;
+	else
+		o << ">" << val << "</" << n << ">" << endl;
 }
 
-void dump_names(const control::Name& a, std::ofstream& o, indent& l)
+void dump_audios(const tv::Audio& a, std::ofstream& o, indent& l)
 {
-	o << l << "<name>";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</name>" << endl;
+	o << l << "<audio>";
+	o << "</audio>" << endl;
 }
 
-void dump_params(const control::Param& a, std::ofstream& o, indent& l)
+void dump_categorys(const tv::Category& c, std::ofstream& o, indent& l)
 {
-	o << l << "<param>";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</param>" << endl;
+	o << l << "<category>";
+	o << "</category>" << endl;
 }
 
-void dump_returns(const control::Return& a, std::ofstream& o, indent& l)
+void dump_credits(const tv::Credits& c, std::ofstream& o, indent& l)
 {
-	o << l << "<return>";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</return>" << endl;
+	o << l << "<credits>";
+	o << "</credits>" << endl;
 }
 
-void dump_styles(const control::Style& a, std::ofstream& o, indent& l)
+void dump_dates(const tv::Date& d, std::ofstream& o, indent& l)
 {
-	o << l << "<style";
-	if (!a.unique().empty())
-		o << " unique=\"" << a.unique() << "\"";
-	o << ">";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</style>" << endl;
+	o << l << "<date>";
+	o << "</date>" << endl;
 }
 
-void dump_types(const control::Type& a, std::ofstream& o, indent& l)
+void dump_descs(const tv::Desc& d, std::ofstream& o, indent& l)
 {
-	o << l << "<type>";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</type>" << endl;
+	o << l << "<desc>";
+	o << "</desc>" << endl;
 }
 
-void dump_attributes(const control::Attribute& a, std::ofstream& o, indent& l)
+void dump_episode_nums(const tv::Episode_num& e, std::ofstream& o, indent& l)
 {
-	o << l << "<attribute";
-	if (!a.editable().empty())
-		o << " editable=\"" << a.editable() << "\"";
-	if (!a.Virtual().empty())
-		o << " virtual=\"" << a.Virtual() << "\"";
+	o << l << "<episode-num>";
+	o << "</episode-num>" << endl;
+}
+
+void dump_lengths(const tv::Length& len, std::ofstream& o, indent& l)
+{
+	o << l << "<length>";
+	o << "</length>" << endl;
+}
+
+void dump_previously_showns(const tv::Previously_shown& p, std::ofstream& o, indent& l)
+{
+	o << l << "<previously-shown>";
+	o << "</previously-shown>" << endl;
+}
+
+void dump_ratings(const tv::Rating& p, std::ofstream& o, indent& l)
+{
+	o << l << "<rating>";
+	o << "</rating>" << endl;
+}
+
+void dump_star_ratings(const tv::Star_rating& s, std::ofstream& o, indent& l)
+{
+	o << l << "<star-rating>";
+	o << "</star-rating>" << endl;
+}
+
+void dump_sub_titles(const tv::Sub_title& s, std::ofstream& o, indent& l)
+{
+	o << l << "<sub-titles>";
+	o << "</sub-titles>" << endl;
+}
+
+void dump_subtitles(const tv::Subtitles& s, std::ofstream& o, indent& l)
+{
+	o << l << "<subtitles>";
+	o << "</subtitles>" << endl;
+}
+
+void dump_titles(const tv::Title& p, std::ofstream& o, indent& l)
+{
+	o << l << "<title>";
+	o << "</title>" << endl;
+}
+
+void dump_videos(const tv::Video& p, std::ofstream& o, indent& l)
+{
+	o << l << "<video>";
+	o << "</video>" << endl;
+}
+
+void dump_channels(const tv::Channel& c, std::ofstream& o, indent& l)
+{
+	o << l << "<channel";
+	if (!c.id().empty())
+		o << " id=\"" << c.id() << "\"";
 	o << ">" << endl;
-	{
-		auto_indent i(l);
-		std::for_each(a.constructors().begin(), a.constructors().end(),
-				bind(dump_constructors, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.names().begin(), a.names().end(),
-				bind(dump_names, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.params().begin(), a.params().end(),
-				bind(dump_params, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.Returns().begin(), a.Returns().end(),
-				bind(dump_returns, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.styles().begin(), a.styles().end(),
-				bind(dump_styles, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.types().begin(), a.types().end(),
-				bind(dump_types, _1, ref(o), ref(l)));
-	}
-	o << l << "</attribute>" << endl;
-}
-
-void dump_base(const control::Base& a, std::ofstream& o, indent& l)
-{
-	o << l << "<base>";
 	std::string v;
-	a.value(v);
-	o << v;
-	o << "</base>" << endl;
-}
-
-void dump_bits(const control::Bits& a, std::ofstream& o, indent& l)
-{
-	o << l << "<bits>";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</bits>" << endl;
-}
-
-void dump_flag(const control::Flag& a, std::ofstream& o, indent& l)
-{
-	o << l << "<flag>" << endl;
+	c.value(v);
+	if (!v.empty())
+		o << l << v << endl;
 	{
-		auto_indent i(l);
-		std::for_each(a.bits().begin(), a.bits().end(),
-				bind(dump_bits, _1, ref(o), ref(l)));
+		auto_indent i1(l);
+		std::for_each(c.display_names().begin(), c.display_names().end(),
+				bind(dumpValue<tv::Display_name>, _1, "display_name", ref(o), ref(l)));
 	}
-	{
-		auto_indent i(l);
-		std::for_each(a.names().begin(), a.names().end(),
-				bind(dump_names, _1, ref(o), ref(l)));
-	}
-	o << l << "</flag>" << endl;
+	o << l << "</channel>" << endl;
 }
 
-void dump_flags(const control::Flags& a, std::ofstream& o, indent& l)
+void dump_programmes(const tv::Programme& p, std::ofstream& o, indent& l)
 {
-	o << l << "<flags";
-	if (!a.group().empty())
-		o << " group=\"" << a.group() << "\"";
+	o << l << "<programme";
+	if (!p.channel().empty())
+		o << " channel=\"" << p.channel() << "\"";
+	if (!p.start().empty())
+		o << " start=\"" << p.start() << "\"";
+	if (!p.stop().empty())
+		o << " stop=\"" << p.stop() << "\"";
 	o << ">" << endl;
-	{
-		auto_indent i(l);
-		std::for_each(a.flags().begin(), a.flags().end(),
-				bind(dump_flag, _1, ref(o), ref(l)));
-	}
-	o << l << "</flags>" << endl;
-}
-
-void dump_header(const control::Header& a, std::ofstream& o, indent& l)
-{
-	o << l << "<header";
-	if (!a.type().empty())
-		o << " type=\"" << a.type() << "\"";
-	o << ">";
 	std::string v;
-	a.value(v);
-	o << v;
-	o << "</header>" << endl;
-}
-
-void dump_implementation(const control::Implementation& a, std::ofstream& o, indent& l)
-{
-	o << l << "<implementation";
-	if (!a.type().empty())
-		o << " type=\"" << a.type() << "\"";
-	o << ">";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</implementation>" << endl;
-}
-
-void dump_theme(const control::Theme& a, std::ofstream& o, indent& l)
-{
-	o << l << "<theme>" << endl;
+	p.value(v);
+	if (!v.empty())
+		o << l << v << endl;
 	{
-		auto_indent i(l);
-		std::for_each(a.names().begin(), a.names().end(),
-				bind(dump_names, _1, ref(o), ref(l)));
+		auto_indent i1(l);
+		std::for_each(p.audios().begin(), p.audios().end(),
+				bind(dump_audios, _1, ref(o), ref(l)));
 	}
 	{
-		auto_indent i(l);
-		std::for_each(a.types().begin(), a.types().end(),
-				bind(dump_types, _1, ref(o), ref(l)));
+		auto_indent i1(l);
+		std::for_each(p.categorys().begin(), p.categorys().end(),
+				bind(dump_categorys, _1, ref(o), ref(l)));
 	}
-	o << l << "</theme>" << endl;
+	{
+		auto_indent i1(l);
+		std::for_each(p.credits().begin(), p.credits().end(),
+				bind(dump_credits, _1, ref(o), ref(l)));
+	}
+	{
+		auto_indent i1(l);
+		std::for_each(p.dates().begin(), p.dates().end(),
+				bind(dump_dates, _1, ref(o), ref(l)));
+	}
+	{
+		auto_indent i1(l);
+		std::for_each(p.descs().begin(), p.descs().end(),
+				bind(dump_descs, _1, ref(o), ref(l)));
+	}
+	{
+		auto_indent i1(l);
+		std::for_each(p.episode_nums().begin(), p.episode_nums().end(),
+				bind(dump_episode_nums, _1, ref(o), ref(l)));
+	}
+	{
+		auto_indent i1(l);
+		std::for_each(p.lengths().begin(), p.lengths().end(),
+				bind(dump_lengths, _1, ref(o), ref(l)));
+	}
+	{
+		auto_indent i1(l);
+		std::for_each(p.previously_showns().begin(), p.previously_showns().end(),
+				bind(dump_previously_showns, _1, ref(o), ref(l)));
+	}
+	{
+		auto_indent i1(l);
+		std::for_each(p.ratings().begin(), p.ratings().end(),
+				bind(dump_ratings, _1, ref(o), ref(l)));
+	}
+	{
+		auto_indent i1(l);
+		std::for_each(p.star_ratings().begin(), p.star_ratings().end(),
+				bind(dump_star_ratings, _1, ref(o), ref(l)));
+	}
+	{
+		auto_indent i1(l);
+		std::for_each(p.sub_titles().begin(), p.sub_titles().end(),
+				bind(dump_sub_titles, _1, ref(o), ref(l)));
+	}
+	{
+		auto_indent i1(l);
+		std::for_each(p.subtitles().begin(), p.subtitles().end(),
+				bind(dump_subtitles, _1, ref(o), ref(l)));
+	}
+	{
+		auto_indent i1(l);
+		std::for_each(p.titles().begin(), p.titles().end(),
+				bind(dump_titles, _1, ref(o), ref(l)));
+	}
+	{
+		auto_indent i1(l);
+		std::for_each(p.videos().begin(), p.videos().end(),
+				bind(dump_videos, _1, ref(o), ref(l)));
+	}
+	o << l << "</programme>" << endl;
 }
 
-void copy(const control::Control& c, const char* f)
+void copy(const tv::Tv& t, const char* f)
 {
-	typedef std::vector<std::string> VS;
-
 	indent level;
+
+	std::ofstream o(f, std::ios_base::out | std::ios_base::trunc);
 	
-	std::ofstream o("copy1.xml", std::ios_base::out | std::ios_base::trunc);
-	
-	o << "<?xml version=\"1.0\">" << endl;
-	o << "<control>" << endl;
+	o << "<?xml version=\"1.0\" encoding=\"iso8859-1\" standalone=\"yes\"?>" << endl;
+	o << "<tv";
+	if (!t.generator_info_name().empty())
+		o << " generator_info_name=\"" << t.generator_info_name() << "\"";
+	if (!t.generator_info_url().empty())
+		o << " generator_info_url=\"" << t.generator_info_url() << "\"";
+	if (!t.source_info_name().empty())
+		o << " source_info_name=\"" << t.source_info_name() << "\"";
+	if (!t.source_info_url().empty())
+		o << " source_info_url=\"" << t.source_info_url() << "\"";
+	o << ">" << endl;
+	std::string v;
+	t.value(v);
+	if (!v.empty())
+		o << v << endl;
 	{
 		auto_indent i1(level);
-		std::for_each(c.attributes().begin(), c.attributes().end(),
-				bind(dump_attributes, _1, ref(o), ref(level)));
+		std::for_each(t.channels().begin(), t.channels().end(),
+				bind(dump_channels, _1, ref(o), ref(level)));
 	}
 	{
 		auto_indent i1(level);
-		std::for_each(c.bases().begin(), c.bases().end(),
-				bind(dump_base, _1, ref(o), ref(level)));
+		std::for_each(t.programmes().begin(), t.programmes().end(),
+				bind(dump_programmes, _1, ref(o), ref(level)));
 	}
-	{
-		auto_indent i1(level);
-		std::for_each(c.flags().begin(), c.flags().end(),
-				bind(dump_flags, _1, ref(o), ref(level)));
-	}
-	{
-		auto_indent i1(level);
-		std::for_each(c.headers().begin(), c.headers().end(),
-				bind(dump_header, _1, ref(o), ref(level)));
-	}
-	{
-		auto_indent i1(level);
-		std::for_each(c.implementations().begin(), c.implementations().end(),
-				bind(dump_implementation, _1, ref(o), ref(level)));
-	}
-	{
-		auto_indent i1(level);
-		std::for_each(c.names().begin(), c.names().end(),
-				bind(dump_names, _1, ref(o), ref(level)));
-	}
-	{
-		auto_indent i1(level);
-		std::for_each(c.themes().begin(), c.themes().end(),
-				bind(dump_theme, _1, ref(o), ref(level)));
-	}
-	o << "</control>" << endl;
+	o << "</tv>" << endl;
 }
-#endif

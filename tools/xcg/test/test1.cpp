@@ -259,13 +259,11 @@ void dump_theme(const control::Theme& a, std::ofstream& o, indent& l)
 
 void copy(const control::Control& c, const char* f)
 {
-	typedef std::vector<std::string> VS;
-
 	indent level;
 	
 	std::ofstream o(f, std::ios_base::out | std::ios_base::trunc);
 	
-	o << "<?xml version=\"1.0\">" << endl;
+	o << "<?xml version=\"1.0\" encoding=\"iso8859-1\" standalone=\"yes\"?>" << endl;
 	o << "<control>" << endl;
 	{
 		auto_indent i1(level);
