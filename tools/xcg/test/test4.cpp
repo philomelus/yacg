@@ -21,7 +21,7 @@
 // THE SOFTWARE.
 //
 
-#include "Tv.hpp"
+#include "code.hpp"
 
 #include <fstream>
 #include <ios>
@@ -42,31 +42,31 @@ using std::endl;
 
 //void copy(const tv::Tv& o, const char* f);
 
-void Test3()
+void Test4()
 {
-	cout << "test3: Executing" << endl;
+	cout << "test4: Executing" << endl;
 
 	try
 	{
 		// Read in file to test read functions
-		tv::Tv tv("test3.xml");
+		code::Code c("test4.xml");
 		
 		// Write it out ourself to test the generated code
 //		copy(ctrl, "copy1.xml");
 		
 		// Ask libxml to write it to test write functions
-		tv.write("test3copy2.xml");
+		c.write("test4copy2.xml");
 		
-		std::cout << "test3: Check 'test3copy2.xml'" << std::endl;
-		std::cout << "test3: Otherwise it appears successful" << std::endl;
+		std::cout << "test4: Check 'test4copy2.xml'" << std::endl;
+		std::cout << "test4: Otherwise it appears successful" << std::endl;
 	}
 	catch (const std::runtime_error& e)
 	{
-		std::cerr << "test3: Exception: " << e.what() << std::endl;
+		std::cerr << "test4: Exception: " << e.what() << std::endl;
 	}
 	catch (...)
 	{
-		std::cerr << "test3: unknown exception caught" << std::endl;
+		std::cerr << "test4: unknown exception caught" << std::endl;
 	}
 }
 

@@ -158,6 +158,9 @@
 			RelativePath="..\..\tools\xcg\temp.xml">
 		</File>
 		<File
+			RelativePath="..\..\tools\xcg\todo.txt">
+		</File>
+		<File
 			RelativePath="..\..\tools\xcg\xcg.cpp">
 		</File>
 		<File

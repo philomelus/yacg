@@ -1,0 +1,11 @@
+
+1.  Convert all code over to using unsigned char, so that internally
+everything is UTF8 compatible.
+
+2.  Make all text go through a conversion function.
+
+3.  Convert generation to use a suite of structures/classes/collections.  This
+will make the addition of the xml based generation abilities much less
+difficult to add on later.
+
+4.  Handle CDATA in value sections.

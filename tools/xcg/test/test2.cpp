@@ -40,7 +40,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-void copy(const testSuite::TestSuite& o, const char* f);
+//void copy(const testSuite::TestSuite& o, const char* f);
 
 void Test2()
 {
@@ -62,11 +62,11 @@ void Test2()
 	}
 	catch (const std::runtime_error& e)
 	{
-		std::cerr << "test1: Exception: " << e.what() << std::endl;
+		std::cerr << "test2: Exception: " << e.what() << std::endl;
 	}
 	catch (...)
 	{
-		std::cerr << "test1: unknown exception caught" << std::endl;
+		std::cerr << "test2: unknown exception caught" << std::endl;
 	}
 }
 
