@@ -142,7 +142,11 @@
 				Name="Debug|Win32"
 				ExcludedFromBuild="TRUE">
 				<Tool
-					Name="VCCustomBuildTool"/>
+					Name="VCCustomBuildTool"
+					Description="Generating XML source..."
+					CommandLine="..\..\bin\vc71\debug\xcg.exe -g e:/source/yacg/tools/cpgen/box.xml
+"
+					Outputs="$(SolutionDir)\tools\cpgen\box\attribute.hpp;$(SolutionDir)\tools\cpgen\box\Attribute.inl;$(SolutionDir)\tools\cpgen\box\base.hpp;$(SolutionDir)\tools\cpgen\box\Base.inl;$(SolutionDir)\tools\cpgen\box\comment.hpp;$(SolutionDir)\tools\cpgen\box\Comment.inl;$(SolutionDir)\tools\cpgen\box\constructor.hpp;$(SolutionDir)\tools\cpgen\box\Constructor.inl;$(SolutionDir)\tools\cpgen\box\control.hpp;$(SolutionDir)\tools\cpgen\box\Control.inl;$(SolutionDir)\tools\cpgen\box\flag.hpp;$(SolutionDir)\tools\cpgen\box\Flag.inl;$(SolutionDir)\tools\cpgen\box\flags.hpp;$(SolutionDir)\tools\cpgen\box\Flags.inl;$(SolutionDir)\tools\cpgen\box\header.hpp;$(SolutionDir)\tools\cpgen\box\Header.inl;$(SolutionDir)\tools\cpgen\box\implementation.hpp;$(SolutionDir)\tools\cpgen\box\Implementation.inl;$(SolutionDir)\tools\cpgen\box\name.hpp;$(SolutionDir)\tools\cpgen\box\Name.inl;$(SolutionDir)\tools\cpgen\box\param.hpp;$(SolutionDir)\tools\cpgen\box\Param.inl;$(SolutionDir)\tools\cpgen\box\return.hpp;$(SolutionDir)\tools\cpgen\box\Return.inl;$(SolutionDir)\tools\cpgen\box\style.hpp;$(SolutionDir)\tools\cpgen\box\Style.inl;$(SolutionDir)\tools\cpgen\box\text.hpp;$(SolutionDir)\tools\cpgen\box\Text.inl;$(SolutionDir)\tools\cpgen\box\theme.hpp;$(SolutionDir)\tools\cpgen\box\Theme.inl;$(SolutionDir)\tools\cpgen\box\type.hpp;$(SolutionDir)\tools\cpgen\box\Type.inl;$(SolutionDir)\tools\cpgen\box\value.hpp;$(SolutionDir)\tools\cpgen\box\Value.inl;"/>
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|Win32"

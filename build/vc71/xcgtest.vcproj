@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="xcg"
+	Name="xcgtest"
 	ProjectGUID="{C8D8D6D2-F721-4902-99E5-7B8A195DBCF4}"
-	RootNamespace="xcg"
+	RootNamespace="xcgtest"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -14,7 +14,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)..\..\bin\vc71\debug"
-			IntermediateDirectory="$(SolutionDir)..\..\obj\vc71\debug\xcg"
+			IntermediateDirectory="$(SolutionDir)..\..\obj\vc71\debug\xcgtest"
 			ConfigurationType="1"
 			CharacterSet="2">
 			<Tool
@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="&quot;$(SolutionDir)..\..\lib\vc71\debug\libxml2\libxml2.lib&quot;"
-				OutputFile="$(OutDir)/xcg.exe"
+				OutputFile="$(OutDir)/xcgtest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\..\lib\vc71\debug\boost&quot;"
@@ -72,7 +72,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)..\..\bin\vc71\release"
-			IntermediateDirectory="$(SolutionDir)..\..\obj\vc71\release\xcg"
+			IntermediateDirectory="$(SolutionDir)..\..\obj\vc71\release\xcgtest"
 			ConfigurationType="1"
 			CharacterSet="2">
 			<Tool
@@ -99,7 +99,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="&quot;$(SolutionDir)..\..\lib\vc71\release\libxml2\libxml2.lib&quot;"
-				OutputFile="$(OutDir)/xcg.exe"
+				OutputFile="$(OutDir)/xcgtest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\..\lib\vc71\release\boost&quot;"
@@ -136,62 +136,90 @@
 	<References>
 	</References>
 	<Files>
-		<File
-			RelativePath="..\..\tools\xcg\Common.hpp">
-		</File>
-		<File
-			RelativePath="..\..\tools\xcg\default.cpp">
-		</File>
-		<File
-			RelativePath="..\..\tools\xcg\generate.cpp">
-		</File>
-		<File
-			RelativePath="..\..\tools\xcg\generate.hpp">
-		</File>
-		<File
-			RelativePath="..\..\tools\xcg\parse.cpp">
-		</File>
-		<File
-			RelativePath="..\..\tools\xcg\parse.hpp">
-		</File>
-		<File
-			RelativePath="..\..\tools\xcg\temp.xml">
-		</File>
-		<File
-			RelativePath="..\..\tools\xcg\xcg.cpp">
-		</File>
-		<File
-			RelativePath="..\..\tools\xcg\xcg.xml">
-			<FileConfiguration
-				Name="Debug|Win32"
-				ExcludedFromBuild="TRUE">
-				<Tool
-					Name="VCCustomBuildTool"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				ExcludedFromBuild="TRUE">
-				<Tool
-					Name="VCCustomBuildTool"/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\..\tools\xcg\xcg.xsd">
-			<FileConfiguration
-				Name="Debug|Win32"
-				ExcludedFromBuild="TRUE">
-				<Tool
-					Name="VCXMLDataGeneratorTool"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				ExcludedFromBuild="TRUE">
-				<Tool
-					Name="VCXMLDataGeneratorTool"/>
-			</FileConfiguration>
+		<Filter
+			Name="test1"
+			Filter="">
 			<File
-				RelativePath="..\..\tools\xcg\xcg.xsx">
+				RelativePath="..\..\tools\xcg\test\test1\control.cpp">
 			</File>
+			<File
+				RelativePath="..\..\tools\xcg\test\test1\control.hpp">
+			</File>
+			<File
+				RelativePath="..\..\tools\xcg\test\test1\control.inl">
+			</File>
+			<File
+				RelativePath="..\..\tools\xcg\test\test1.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories="..\..\tools\xcg\test\test1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories="..\..\tools\xcg\test\test1"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\tools\xcg\test\test1.xml">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="$(OutDir)\xcg.exe -g ..\..\tools\xcg\test\test1.xml"
+						Outputs="$(SolutionDir)../../tools/xcg/test/test1/control.hpp;$(SolutionDir)../../tools/xcg/test/test1/control.cpp;"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="test2"
+			Filter="">
+			<File
+				RelativePath="..\..\tools\xcg\test\test2.xml">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="test3"
+			Filter="">
+			<File
+				RelativePath="..\..\tools\xcg\test\test3.xml">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<File
+			RelativePath="..\..\tools\xcg\test\test.cpp">
 		</File>
 	</Files>
 	<Globals>

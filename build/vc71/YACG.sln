@@ -2,6 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 8.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "eddw", "eddw.vcproj", "{4591703E-A71B-4E2C-AD96-006B0CD32DDC}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C0DA2659-EB6A-4725-A822-9C086E5F5EFD} = {C0DA2659-EB6A-4725-A822-9C086E5F5EFD}
+		{C8D8D6D2-F721-4902-99E5-7B8A195DBCF4} = {C8D8D6D2-F721-4902-99E5-7B8A195DBCF4}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test.vcproj", "{5BF1DD08-9110-4F61-96A9-97A87BF73866}"
@@ -11,6 +12,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test.vcproj", "{5BF
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yacg", "yacg.vcproj", "{C0DA2659-EB6A-4725-A822-9C086E5F5EFD}"
 	ProjectSection(ProjectDependencies) = postProject
+		{C8D8D6D2-F721-4902-99E5-7B8A195DBCF4} = {C8D8D6D2-F721-4902-99E5-7B8A195DBCF4}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "docs", "docs.vcproj", "{AD6ED4FC-B882-4B15-893F-CAE04288DCCC}"
@@ -20,10 +22,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "docs", "docs.vcproj", "{AD6
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cpgen", "cpgen.vcproj", "{94908DD9-90B5-4E0C-A7D9-D64A04BBD202}"
 	ProjectSection(ProjectDependencies) = postProject
+		{C8D8D6D2-F721-4902-99E5-7B8A195DBCF4} = {C8D8D6D2-F721-4902-99E5-7B8A195DBCF4}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xcg", "xcg.vcproj", "{C8D8D6D2-F721-4902-99E5-7B8A195DBCF4}"
 	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xcgtest", "xcgtest.vcproj", "{C8D8D6D2-F721-4902-99E5-7B8A195DBCF4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C8D8D6D2-F721-4902-99E5-7B8A195DBCF4} = {C8D8D6D2-F721-4902-99E5-7B8A195DBCF4}
 	EndProjectSection
 EndProject
 Global
@@ -42,6 +50,10 @@ Global
 		{AD6ED4FC-B882-4B15-893F-CAE04288DCCC}.Release.ActiveCfg = Release|Win32
 		{94908DD9-90B5-4E0C-A7D9-D64A04BBD202}.Debug.ActiveCfg = Debug|Win32
 		{94908DD9-90B5-4E0C-A7D9-D64A04BBD202}.Release.ActiveCfg = Release|Win32
+		{C8D8D6D2-F721-4902-99E5-7B8A195DBCF4}.Debug.ActiveCfg = Debug|Win32
+		{C8D8D6D2-F721-4902-99E5-7B8A195DBCF4}.Debug.Build.0 = Debug|Win32
+		{C8D8D6D2-F721-4902-99E5-7B8A195DBCF4}.Release.ActiveCfg = Release|Win32
+		{C8D8D6D2-F721-4902-99E5-7B8A195DBCF4}.Release.Build.0 = Release|Win32
 		{C8D8D6D2-F721-4902-99E5-7B8A195DBCF4}.Debug.ActiveCfg = Debug|Win32
 		{C8D8D6D2-F721-4902-99E5-7B8A195DBCF4}.Debug.Build.0 = Debug|Win32
 		{C8D8D6D2-F721-4902-99E5-7B8A195DBCF4}.Release.ActiveCfg = Release|Win32
