@@ -6,14 +6,68 @@
 #include <string>
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
 namespace impl
 {
 //=============================================================================
-// Schema and default code generator
+// Temporary constant declarations
 
-	extern const char* xmlSchema;
-	extern const char* xmlDefault;
+	extern const char* const Header_Prefix;
+	extern const char* const Header_Element_Prefix;
+	extern const char* const Header_Attribute;
+	extern const char* const Header_Child;
+	extern const char* const Header_Element_Postfix;
+	extern const char* const Header_Postfix;
+
+	extern const char* const Inline_Prefix;
+	extern const char* const Inline_Element_Prefix;
+	extern const char* const Inline_Attribute;
+	extern const char* const Inline_Child;
+	extern const char* const Inline_Element_Postfix;
+	extern const char* const Inline_Postfix;
+
+	extern const char* const Source_File;
+	extern const char* const Source_Prefix;
+	extern const char* const Source_OperatorEqual_Prefix;
+	extern const char* const Source_OperatorEqual_Postfix;
+	extern const char* const Source_OperatorEqual_Attribute;
+	extern const char* const Source_OperatorEqual_Child;
+	extern const char* const Source_Read_Prefix;
+	extern const char* const Source_Read_Postfix;
+	extern const char* const Source_Read_Attribute;
+	extern const char* const Source_Read_Element_Prefix;
+	extern const char* const Source_Read_Element;
+	extern const char* const Source_Read_Element_Postfix;
+	extern const char* const Source_Value;
+	extern const char* const Source_Write;
+	extern const char* const Source_Write_Start;
+	extern const char* const Source_Write_Middle;
+	extern const char* const Source_Write_End;
+	extern const char* const Source_Write_Attribute;
+	extern const char* const Source_Write_Element_Prefix;
+	extern const char* const Source_Write_Element;
+	extern const char* const Source_Write_Element_Postfix;
+
+//=============================================================================
+// Keyword update function
+
+	void update_keywords(std::string& s, const std::string& r = std::string(),
+			const std::string& a = std::string(), const std::string& c = std::string(),
+			const std::string& e = std::string());
 	
+//=============================================================================
+// KEYWORD[s] structure
+
+	struct KEYWORD
+	{
+		bool fail;
+		const char* name;
+		const char* replacement;
+	};
+	typedef std::vector<KEYWORD> KEYWORDS;
+	const KEYWORDS& Keywords();
+
 //=============================================================================
 // Attributes for an element
 

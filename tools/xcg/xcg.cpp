@@ -234,6 +234,7 @@ void Operation::write_default(int c, const char** a, int& i)
 		return;
 	}
 
+#if 0
 	// This is an autonomous operation	
 	_abort = true;
 
@@ -248,6 +249,7 @@ void Operation::write_default(int c, const char** a, int& i)
 	
 	// Write the file
 	f << xmlDefault;
+#endif
 }
 
 //=============================================================================

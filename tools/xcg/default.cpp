@@ -1,37 +1,681 @@
 #include "Common.hpp"
 
-// TODO:  Create this file during build process.  sed, awk, or python will work.
+using namespace impl;
 
-// To import xcg.xml:
-//   1.  Select all lines between braces
-//   2.  Select menu item "Edit | Insert File As Text"
-//   3.  Select "xcg.xml"
-//   4.  Use regular expression search/replace with the following replacements:
-//     (a) Repalce /"/ with /\\"/
-//     (b) Replace /^\(.\)/ with /"\1/
-//     (c) Replace /\(.\)$/ with /\1\\n/
-//     (d) Replace /\\t/ with /&tab;/
-//     (e) Replace /\t/ with /\\t/
-//     (f) Replace /&tab;/ with /\\\\t/
-
-const char* impl::xmlDefault =
+namespace
 {
-"<?xml version=\"1.0\"?>\n"
-};
+//=============================================================================
+// Default c++ keyword list
 
-// To import xcg.csd:
-//   1.  Select all lines between braces
-//   2.  Select menu item "Edit | Insert File As Text"
-//   3.  Select "xcg.xsd"
-//   4.  Use regular expression search/replace with the following replacements:
-//     (a) Repalce /"/ with /\\"/
-//     (b) Replace /^\(.\)/ with /"\1/
-//     (c) Replace /\(.\)$/ with /\1\\n/
-//     (d) Replace /\\t/ with /&tab;/
-//     (e) Replace /\t/ with /\\t/
-//     (f) Replace /&tab;/ with /\\\\t/
+	typedef const char* DEFAULT_KEYWORD[2];
+	const DEFAULT_KEYWORD default_cpp_keywords[] =
+	{
+		{ "auto", "Auto" },
+		{ "bool", "Bool" },
+		{ "break", "Break" },
+		{ "case", "Case" },
+		{ "catch", "Catch" },
+		{ "char", "Char" },
+		{ "class", "Class" },
+		{ "const", "Const" },
+		{ "const_cast", "Const_cast" },
+		{ "continue", "Continue" },
+		{ "default", "Cefault" },
+		{ "delete", "Celete" },
+		{ "do", "Do" },
+		{ "double", "Double" },
+		{ "dynamic_cast", "Dynamic_cast" },
+		{ "else", "Else" },
+		{ "enum", "Enum" },
+		{ "explicit", "Explicit" },
+		{ "export", "Export" },
+		{ "extern", "Extern" },
+		{ "false", "False" },
+		{ "float", "Float" },
+		{ "for", "For" },
+		{ "friend", "Friend" },
+		{ "goto", "Goto" },
+		{ "if", "If" },
+		{ "inline", "Inline" },
+		{ "int", "Int" },
+		{ "long", "Long" },
+		{ "mutable", "Mutable" },
+		{ "namespace", "Namespace" },
+		{ "new ", "New " },
+		{ "operator", "Operator" },
+		{ "private", "Private" },
+		{ "protected", "Protected" },
+		{ "public", "Public" },
+		{ "register", "Register" },
+		{ "reinterpret_cast", "Reinterpret_cast" },
+		{ "return", "Return" },
+		{ "short", "Short" },
+		{ "signed", "Signed" },
+		{ "sizeof", "Sizeof" },
+		{ "static", "Static" },
+		{ "static_cast", "Static_cast" },
+		{ "struct", "Struct" },
+		{ "switch", "Switch" },
+		{ "template", "Template" },
+		{ "this", "This" },
+		{ "throw", "Throw" },
+		{ "true", "True" },
+		{ "try", "Try" },
+		{ "typedef", "Typedef" },
+		{ "typeid", "Typeid" },
+		{ "typename", "Typename" },
+		{ "union", "Union" },
+		{ "unsigned", "Unsigned" },
+		{ "using", "Using" },
+		{ "virtual", "Virtual" },
+		{ "void", "Void" },
+		{ "volatile", "Volatile" },
+		{ "wchar_t", "Wchar_t" },
+		{ "while", "While" },
+		{ "value", "Value" },
+		{ 0, 0 }
+	};
+}
 
-const char* impl::xmlSchema =
+//=============================================================================
+
+const KEYWORDS& impl::Keywords()
 {
-"<?xml version=\"1.0\"?>\n"
-};
+	static KEYWORDS keywords;
+	if (keywords.empty())
+	{
+		for (int i = 0; default_cpp_keywords[i][0]; ++i)
+		{
+			KEYWORD k =
+			{
+				false,
+				default_cpp_keywords[i][0],
+				default_cpp_keywords[i][1]
+			};
+			keywords.push_back(k);
+		}
+	}
+	return keywords;
+}
+
+//=============================================================================
+// Commong difines
+
+#define	COMMENT_EMPTY	"//\n"
+#define	BLANK			"\n"
+#define	MAJOR_DIVIDER	"//=============================================================================\n"
+#define	MINOR_DIVIDER	"\t//-------------------------------------------------------------------------\n"
+
+//=============================================================================
+// Start of header file
+
+const char* const impl::Header_Prefix =
+COMMENT_EMPTY
+"// Copyright (c) 2004 Russell E. Gibson\n"
+"// email: russg@rnstech.com\n"
+COMMENT_EMPTY
+"// Permission is hereby granted, free of charge, to any person obtaining a copy\n"
+"// of this software and associated documentation files (the \"Software\"), to deal\n"
+"// in the Software without restriction, including without limitation the rights\n"
+"// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n"
+"// copies of the Software, and to permit persons to whom the Software is furnished\n"
+"// to do so, subject to the following conditions:\n"
+COMMENT_EMPTY
+"// The above copyright notice and this permission notice shall be included in all\n"
+"// copies or substantial portions of the Software.\n"
+COMMENT_EMPTY
+"// THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
+"// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n"
+"// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n"
+"// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n"
+"// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n"
+"// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\n"
+"// THE SOFTWARE.\n"
+COMMENT_EMPTY
+//"// This file was originally machine generated by XCG: <date-time>\n"
+//COMMENT_EMPTY
+BLANK
+"#ifndef\t__<root-C>_HPP__\n"
+"#define\t__<root-C>_HPP__\n"
+BLANK
+"#include <string>\n"	
+"#include <vector>\n"
+"#include <libxml/parser.h>\n"
+"#include <libxml/xmlwriter.h>\n"
+BLANK
+"namespace <root>\n"
+"{\n";
+
+//=============================================================================
+// End of header file
+
+const char* const impl::Header_Postfix =
+"}\n"
+BLANK
+"#include \"<root>.inl\"\n"
+BLANK
+"#endif		// __<root-C>_HPP__\n";
+
+//=============================================================================
+// Start of header element class declaration
+
+const char* const impl::Header_Element_Prefix =
+MAJOR_DIVIDER
+"// Element '<child>' encapsulation\n"
+BLANK
+"	class <child-c>\n"
+"	{\n"
+MINOR_DIVIDER
+"	// Construction & operators\n"
+"	public:\n"
+"		<child-c>();\n"
+"		<child-c>(const char* f);\n"
+"		<child-c>(xmlNodePtr n);\n"
+"		<child-c>(const <child-c>& c);\n"
+"		virtual ~<child-c>() throw ();\n"
+BLANK
+"		<child-c>& operator=(const <child-c>& r);\n"
+BLANK;
+
+//=============================================================================
+// End of header element class declaration
+
+const char* const impl::Header_Element_Postfix =
+MINOR_DIVIDER
+"	// Read from node\n"
+"	public:\n"
+"		void read(xmlNodePtr p);\n"
+BLANK
+MINOR_DIVIDER
+"	// Value of this element\n"
+"	private:\n"
+"		typedef std::pair<bool, std::string> VALUE;\t\t// (element here?, text)\n"
+"		typedef std::vector<VALUE> VALUES;\n"
+BLANK
+"	public:\n"
+"		VALUES& values();\n"
+"		const VALUES& values() const;\n"
+"		void value(std::string& v) const;\n"
+BLANK
+"	private:\n"
+"		VALUES _values;\n"
+BLANK
+MINOR_DIVIDER
+"	// Write to file or node\n"
+"	public:\n"
+"		void write(const char* f, bool i = true, const char* t = \"\\t\") const;\n"
+"		void write(xmlTextWriterPtr w) const;\n"
+"	};\n";
+
+//=============================================================================
+// Element attribute
+
+const char* const impl::Header_Attribute =
+MINOR_DIVIDER
+"	// Attribute <attribute-vt>\n"					// BUGBUG:  should be <attribute>
+"	public:\n"
+"		const std::string& <attribute-vt>() const;\n"
+"		void <attribute-vt>(const char* <a-t>);\n"		// BUGBUG:  should be <a>
+BLANK
+"	private:\n"
+"		std::string _<attribute-Vt>;\n"
+BLANK;
+
+//=============================================================================
+// Element child element
+
+const char* const impl::Header_Child =
+MINOR_DIVIDER
+"	// Child element <child>\n"
+"	public:\n"
+"		std::vector<<<child-vct>>& <child-vtp>();\n"
+"		const std::vector<<<child-vct>>& <child-vtp>() const;\n"
+BLANK
+"	private:\n"
+"		std::vector<<<child-vct>> _<child-vtp>;\n"
+BLANK;
+
+//=============================================================================
+// Start of Inline file
+
+const char* const impl::Inline_Prefix =
+COMMENT_EMPTY
+"// Copyright (c) 2004 Russell E. Gibson\n"
+"// email: russg@rnstech.com\n"
+COMMENT_EMPTY
+"// Permission is hereby granted, free of charge, to any person obtaining a copy\n"
+"// of this software and associated documentation files (the \"Software\"), to deal\n"
+"// in the Software without restriction, including without limitation the rights\n"
+"// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n"
+"// copies of the Software, and to permit persons to whom the Software is furnished\n"
+"// to do so, subject to the following conditions:\n"
+COMMENT_EMPTY
+"// The above copyright notice and this permission notice shall be included in all\n"
+"// copies or substantial portions of the Software.\n"
+COMMENT_EMPTY
+"// THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
+"// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n"
+"// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n"
+"// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n"
+"// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n"
+"// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\n"
+"// THE SOFTWARE.\n"
+COMMENT_EMPTY
+//"// This file was originally machine generated by XCG: <date-time>\n"
+//COMMENT_EMPTY
+BLANK
+"#ifndef\t__<root-C>_INL__\n"
+"#define\t__<root-C>_INL__\n"
+BLANK
+"namespace <root>\n"
+"{\n";
+
+//=============================================================================
+// End of Inline file
+
+const char* const impl::Inline_Postfix =
+"}\n"
+BLANK
+"#endif		// __<root-C>_INL__\n";
+
+//=============================================================================
+// Start of Inline Element
+
+const char* const impl::Inline_Element_Prefix =
+MAJOR_DIVIDER
+"// class <element-vc> inline implementation\n"
+BLANK
+"	inline <element-vc>::<element-vc>()\n"
+"	{\n"
+"	}\n"
+BLANK
+"	inline <element-vc>::<element-vc>(const <element-vc>& r)\n"
+"	{\n"
+"		*this = r;\n"
+"	}\n"
+BLANK
+"	inline <element-vc>::~<element-vc>()\n"
+"	{\n"
+"	}\n"
+BLANK;
+
+//=============================================================================
+// End of Inline Element
+
+const char* const impl::Inline_Element_Postfix =
+"	inline <element-vc>::VALUES& <element-vc>::values()\n"
+"	{\n"
+"		return _values;\n"
+"	}\n"
+BLANK
+"	inline const <element-vc>::VALUES& <element-vc>::values() const\n"
+"	{\n"
+"		return _values;\n"
+"	}\n";
+
+//=============================================================================
+// Inline Attribute
+
+const char* const impl::Inline_Attribute =
+"	inline const std::string& <element-vc>::<attribute-vt>() const\n"
+"	{\n"
+"		return _<attribute-V>;\n"
+"	}\n"
+BLANK
+"	inline void <element-vc>::<attribute-vt>(const char* <a-t>)\n"
+"	{\n"
+"		_<attribute-V> = <a-t>;\n"
+"	}\n"
+BLANK;
+
+//=============================================================================
+// Inline Child Element
+
+const char* const impl::Inline_Child =
+"	inline std::vector<<<child-vc>>& <element-vc>::<child-vtp>()\n"
+"	{\n"
+"	\treturn _<child-vtp>;\n"
+"	}\n"
+BLANK
+"	inline const std::vector<<<child-vc>>& <element-vc>::<child-vtp>() const\n"
+"	{\n"
+"		return _<child-vtp>;\n"
+"	}\n"
+BLANK;
+
+//=============================================================================
+// Source File
+
+const char* const impl::Source_File =
+COMMENT_EMPTY
+"// Copyright (c) 2004 Russell E. Gibson\n"
+"// email: russg@rnstech.com\n"
+COMMENT_EMPTY
+"// Permission is hereby granted, free of charge, to any person obtaining a copy\n"
+"// of this software and associated documentation files (the \"Software\"), to deal\n"
+"// in the Software without restriction, including without limitation the rights\n"
+"// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n"
+"// copies of the Software, and to permit persons to whom the Software is furnished\n"
+"// to do so, subject to the following conditions:\n"
+COMMENT_EMPTY
+"// The above copyright notice and this permission notice shall be included in all\n"
+"// copies or substantial portions of the Software.\n"
+COMMENT_EMPTY
+"// THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
+"// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n"
+"// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n"
+"// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n"
+"// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n"
+"// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\n"
+"// THE SOFTWARE.\n"
+COMMENT_EMPTY
+//"// This file was originally machine generated by XCG: <date-time>\n"
+//COMMENT_EMPTY
+BLANK
+"#include <algorithm>\n"
+"#include <locale>\n"
+"#include \"<root>.hpp\"\n"
+BLANK
+"using namespace <root>;\n"
+BLANK
+MAJOR_DIVIDER
+"// Local functions\n"
+BLANK
+"namespace\n"
+"{\n"
+"	// Called on reading to clear out whitespace and control characters from\n"
+"	// a XML_TEXT_NODE.  The idea is to get the actual value of an element\n"
+"	// rather than the whitespace used in formatting the file its in.\n"
+"	xmlChar* trim(xmlChar* t)\n"
+"	{\n"
+"		std::locale l = std::locale();\n"
+"		while (*t && (std::iscntrl(*t, l) || *t == ' '))\n"
+"			++t;\n"
+"		return t;\n"
+"	}\n"
+BLANK
+"	// Functor to call write on each child element\n"
+"	template <typename T>\n"
+"	class writer\n"
+"	{\n"
+"	public:\n"
+"		writer(xmlTextWriterPtr w)\n"
+"				:\n"
+"				_w(w)\n"
+"		{\n"
+"		}\n"
+"		void operator()(const T& t)\n"
+"		{\n"
+"			t.write(_w);\n"
+"		}\n"
+"	private:\n"
+"		xmlTextWriterPtr _w;\n"
+"	};\n"
+"}\n"
+BLANK;
+
+//=============================================================================
+// Source Prefix
+
+const char* const impl::Source_Prefix =
+MAJOR_DIVIDER
+"// Element class <element-vc> implementation\n"
+BLANK
+"<element-vc>::<element-vc>(const char* f)\n"
+"{\n"
+"	// Read in document\n"
+"	xmlDocPtr d = xmlParseFile(f);\n"
+"	if (!d)\n"
+"		throw std::runtime_error(\"file parse failed\");\n"
+BLANK
+"	try\n"
+"	{\n"
+"		// Initialize from root node\n"
+"		xmlNodePtr r = xmlDocGetRootElement(d);\n"
+"		if (r)\n"
+"			read(r);\n"
+BLANK
+"		// Clean up\n"
+"		xmlFreeDoc(d);\n"
+"	}\n"
+"	catch (...)\n"
+"	{\n"
+"		xmlFreeDoc(d);\n"
+"		throw;\n"
+"	}\n"
+"}\n"
+BLANK
+"<element-vc>::<element-vc>(xmlNodePtr n)\n"
+"{\n"
+"	// Initialize from node\n"
+"	read(n);\n"
+"}\n"
+BLANK;
+
+//=============================================================================
+// Source Operator Equal Prefix
+
+const char* const impl::Source_OperatorEqual_Prefix =
+"<element-vc>& <element-vc>::operator=(const <element-vc>& r)\n"
+"{\n"
+"	if (this != &r)\n"
+"	{\n";
+
+//=============================================================================
+// Source Operator Equal Postfix
+	
+const char* const impl::Source_OperatorEqual_Postfix =
+"		_values = r._values;\n"
+"	}\n"
+"	return *this;\n"
+"}\n"
+BLANK;
+
+//=============================================================================
+// Source Operator Equal Attribute
+
+const char* const impl::Source_OperatorEqual_Attribute =
+"		_<attribute-V> = r._<attribute-V>;\n";
+
+//=============================================================================
+// Source Operator Equal Attribute
+
+const char* const impl::Source_OperatorEqual_Child =
+"		_<child-vtp> = r._<child-vtp>;\n";
+
+//=============================================================================
+// Source Read Prefix
+
+const char* const impl::Source_Read_Prefix =
+"void <element-vc>::read(xmlNodePtr n)\n"
+"{\n"
+"	// Make sure node is this element\n"
+"	if (xmlStrcmp(n->name, reinterpret_cast<const xmlChar*>(\"<element>\")) != 0)\n"
+"		throw std::runtime_error(\"expecting node '<element-v>'\");\n"		// BUGBUG:  Should be "node '<element>'" not <element-v>
+BLANK;
+
+//=============================================================================
+// Source Read Postfix
+
+const char* const impl::Source_Read_Postfix =
+"	// Retreive value\n"
+"	for (xmlNodePtr c = n->children; c; c = c->next)\n"
+"	{\n"
+"		if (c->type == XML_TEXT_NODE)\n"
+"		{\n"
+"			xmlChar* t = trim(c->content);\n"
+"			if (*t)\n"
+"			{\n"
+"				_values.push_back(std::make_pair(false,\n"
+"						reinterpret_cast<const char*>(t)));\n"
+"			}\n"
+"		}\n"
+"		else if (c->type == XML_ELEMENT_NODE)\n"
+"			_values.push_back(std::make_pair(true, std::string()));\n"
+"	}\n"
+"}\n"
+BLANK;
+
+//=============================================================================
+// Source Read Attribute
+
+const char* const impl::Source_Read_Attribute =
+"a = xmlGetProp(n, reinterpret_cast<xmlChar*>(\"<attribute>\"));\n"
+"	if (a)\n"
+"	{\n"
+"		_<attribute-V> = reinterpret_cast<const char*>(a);\n"
+"		xmlFree(a);\n"
+"	}\n";
+
+//=============================================================================
+// Source Read Element Prefix
+
+const char* const impl::Source_Read_Element_Prefix =
+"	// Read the child elements\n"
+"	for (xmlNodePtr s = n->children; s; s = s->next)\n"
+"	{\n"
+"		// Ignore non-element children\n"
+"		if (s->type != XML_ELEMENT_NODE)\n"
+"			continue;\n"
+BLANK;
+
+//=============================================================================
+// Source Read Element
+
+const char* const impl::Source_Read_Element =
+"		if (xmlStrcmp(s->name, reinterpret_cast<const xmlChar*>(\"<child>\")) == 0)\n"
+"		{\n"
+"			_<child-vtp>.push_back(<child-vc>(s));\n"
+"			continue;\n"
+"		}\n";
+
+//=============================================================================
+// Source Read Element Postfix
+
+const char* const impl::Source_Read_Element_Postfix =
+"	}\n"
+BLANK;
+
+//=============================================================================
+// Source Value
+
+const char* const impl::Source_Value =
+"void <element-vc>::value(std::string& v) const\n"
+"{\n"
+"	const VALUES::const_iterator end = _values.end();\n"
+"	for (VALUES::const_iterator i = _values.begin(); i != end; ++i)\n"
+"		v += i->second;\n"
+"}\n"
+BLANK;
+
+//=============================================================================
+// Source Write Text
+
+const char* const impl::Source_Write =
+"void <element-vc>::write(const char* f, bool i, const char* t) const\n"
+"{\n"
+"	// Create a new writer\n"
+"	xmlTextWriterPtr w = xmlNewTextWriterFilename(f, 0);\n"
+"	if (!w)\n"
+"		throw std::runtime_error(\"unable to create xmlTextWriter\");\n"
+BLANK
+"	// Set indentation if desired\n"
+"	if (i)\n"
+"	{\n"
+"		xmlTextWriterSetIndent(w, 1);\n"
+"		xmlTextWriterSetIndentString(w, reinterpret_cast<xmlChar*>(t ? t : \"\\t\"));\n"
+"	}\n"
+BLANK
+"	try\n"
+"	{\n"
+"		// Create document\n"
+"		int r = xmlTextWriterStartDocument(w, \"1.0\", \"iso8859-1\", \"yes\");\n"
+"		if (r < 0)\n"
+"			throw std::runtime_error(\"unable to start document\");\n"
+BLANK
+"		// Add the child elements\n"
+"		write(w);\n"
+BLANK
+"		// Close the writer\n"
+"		xmlFreeTextWriter(w);\n"
+"	}\n"
+"	catch (...)\n"
+"	{\n"
+"		xmlFreeTextWriter(w);\n"
+"		throw;\n"
+"	}\n"
+"}\n"
+BLANK;
+
+//=============================================================================
+// Source Write Start
+
+const char* const impl::Source_Write_Start =
+"void <element-vc>::write(xmlTextWriterPtr w) const\n"
+"{\n"
+"	// Create element\n"
+"	int r = xmlTextWriterStartElement(w, reinterpret_cast<const xmlChar*>(\"<element-v>\"));\n"	// BUGBUG: <element> NOT <element-v>
+"	if (r < 0)\n"
+"		throw std::runtime_error(\"creation of element '<element-v>' failed\");\n"	// BUGBUG: <element> NOT <element-v>
+BLANK;
+	
+//=============================================================================
+// Source Write Middle
+
+const char* const impl::Source_Write_Middle =
+"	// Write value if needed\n"
+"	std::string v;\n"
+"	value(v);\n"
+"	if (!v.empty())\n"
+"	{\n"
+"		r = xmlTextWriterWriteString(w, reinterpret_cast<const xmlChar*>(v.c_str()));\n"
+"		if (r < 0)\n"
+"			throw std::runtime_error(\"failed writing '<element-v>' value\");\n"		// BUGBUG: <element> NOT <element-v>
+"	}\n"
+BLANK;
+
+//=============================================================================
+// Source Write End
+
+const char* const impl::Source_Write_End =
+"	// All done!\n"
+"	r = xmlTextWriterEndElement(w);\n"
+"	if (r < 0)\n"
+"		throw std::runtime_error(\"failed closing '<element-v>' element\");\n"	// BUGBUG: <element> NOT <element-v>
+"}\n"
+BLANK;
+
+//=============================================================================
+// Source Write Attribute
+
+const char* const impl::Source_Write_Attribute =
+"	// Add attribute <attribute> if needed\n"
+"	if (!_<attribute-V>.empty())\n"
+"	{\n"
+"		r = xmlTextWriterWriteAttribute(w, reinterpret_cast<const xmlChar*>(\"<attribute>\"),\n"
+"				reinterpret_cast<const xmlChar*>(_<attribute-V>.c_str()));\n"
+"		if (r < 0)\n"
+"		{\n"
+"			throw std::runtime_error(\"addition of attribute '<attribute>' \"\n"
+"					\"to element '<element>' failed\");\n"
+"		}\n"
+"	}\n"
+BLANK;
+
+//=============================================================================
+// Source Write Element Prefix
+
+const char* const impl::Source_Write_Element_Prefix =
+"	// Add child elements\n";
+
+//=============================================================================
+// Source Write Element Postfix
+
+const char* const impl::Source_Write_Element_Postfix =
+BLANK;
+
+//=============================================================================
+// Source Write Element Postfix
+
+const char* const impl::Source_Write_Element =
+"	std::for_each(_<child-vtp>.begin(), _<child-vtp>.end(), writer<<<child-vc>>(w));\n";

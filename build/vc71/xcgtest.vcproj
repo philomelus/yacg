@@ -141,6 +141,11 @@
 			Filter="">
 			<File
 				RelativePath="..\..\tools\xcg\test\test1\control.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\tools\xcg\test\test1\control.hpp">
@@ -230,6 +235,11 @@
 			</File>
 			<File
 				RelativePath="..\..\tools\xcg\test\test2\testSuite.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\tools\xcg\test\test2\testSuite.hpp">
@@ -281,6 +291,11 @@
 			</File>
 			<File
 				RelativePath="..\..\tools\xcg\test\test3\tv.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\tools\xcg\test\test3\tv.hpp">
@@ -294,6 +309,11 @@
 			Filter="">
 			<File
 				RelativePath="..\..\tools\xcg\test\test4\code.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\tools\xcg\test\test4\code.hpp">
@@ -323,7 +343,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating libxml wrappers"
-						CommandLine="$(OutDir)\xcg.exe -g ..\..\tools\xcg\test\test4.xml"
+						CommandLine="$(OutDir)\xcg.exe -g ..\..\tools\xcg\test\test4.xml
+"
 						AdditionalDependencies="$(SolutionDir)../../bin/vc71/debug/xcg.exe"
 						Outputs="$(SolutionDir)../../tools/xcg/test/test4/code.hpp;$(SolutionDir)../../tools/xcg/test/test4/code.cpp;$(SolutionDir)../../tools/xcg/test/test4/code.inl"/>
 				</FileConfiguration>
@@ -332,7 +353,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Generating libxml wrappers"
-						CommandLine="$(OutDir)\xcg.exe -g ..\..\tools\xcg\test\test4.xml"
+						CommandLine="$(OutDir)\xcg.exe -g ..\..\tools\xcg\test\test4.xml
+"
 						AdditionalDependencies="$(SolutionDir)../../bin/vc71/release/xcg.exe"
 						Outputs="$(SolutionDir)../../tools/xcg/test/test4/code.hpp;$(SolutionDir)../../tools/xcg/test/test4/code.cpp;$(SolutionDir)../../tools/xcg/test/test4/code.inl"/>
 				</FileConfiguration>

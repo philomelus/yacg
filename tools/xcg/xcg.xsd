@@ -237,6 +237,18 @@ the same format that attributes and children are added.
 			<xs:attribute name="file" type="xs:string" use="required"/>
 		</xs:complexType>
 	</xs:element>
+<!-- PLURALS ***************************************************************-->
+<!--
+	Section to provide plural name replacements.  Maybe it should be a sub-type
+	of replacement (attribute "type" being an enumeration in replacements), or
+	maybe a seperate section.  An example:  What's the plural of
+	"documentation"?  Yup, "documentation" but how would a non-complex dictionary
+	type application have any clue?  EXACTLY!
+	
+	This brings up another point:  Maybe its time to use sqllite or some such to
+	keep track of some of these, as they are a bit more global than just one
+	language.  I dunno, just a thought.
+-->
 <!-- ATTRIBUTE *************************************************************-->
 <!-- ELEMENT ***************************************************************-->
 <!-- PHASES ****************************************************************-->

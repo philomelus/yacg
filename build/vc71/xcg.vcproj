@@ -149,6 +149,9 @@
 			RelativePath="..\..\tools\xcg\generate.hpp">
 		</File>
 		<File
+			RelativePath="..\..\tools\xcg\keywords.cpp">
+		</File>
+		<File
 			RelativePath="..\..\tools\xcg\parse.cpp">
 		</File>
 		<File
