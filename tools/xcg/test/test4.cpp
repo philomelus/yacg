@@ -21,8 +21,11 @@
 // THE SOFTWARE.
 //
 
+// This tests the CDATA capabilities, which currently fail
+
 #include "code.hpp"
 
+#include <algorithm>
 #include <fstream>
 #include <ios>
 #include <iostream>

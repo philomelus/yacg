@@ -1,5 +1,6 @@
 #include "Common.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <ctime>
 #include <boost/bind.hpp>

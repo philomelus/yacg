@@ -23,6 +23,7 @@
 
 #include "Control.hpp"
 
+#include <algorithm>
 #include <fstream>
 #include <ios>
 #include <iostream>
