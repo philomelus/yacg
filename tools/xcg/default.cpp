@@ -163,18 +163,18 @@ const char* const impl::Header_Element_Prefix =
 MAJOR_DIVIDER
 "// Element '<child>' encapsulation\n"
 BLANK
-"	class <child-c>\n"
+"	class <child-vc>\n"
 "	{\n"
 MINOR_DIVIDER
 "	// Construction & operators\n"
 "	public:\n"
-"		<child-c>();\n"
-"		<child-c>(const char* f);\n"
-"		<child-c>(xmlNodePtr n);\n"
-"		<child-c>(const <child-c>& c);\n"
-"		virtual ~<child-c>() throw ();\n"
+"		<child-vc>();\n"
+"		<child-vc>(const char* f);\n"
+"		<child-vc>(xmlNodePtr n);\n"
+"		<child-vc>(const <child-vc>& c);\n"
+"		virtual ~<child-vc>() throw ();\n"
 BLANK
-"		<child-c>& operator=(const <child-c>& r);\n"
+"		<child-vc>& operator=(const <child-vc>& r);\n"
 BLANK;
 
 //=============================================================================
@@ -212,10 +212,10 @@ MINOR_DIVIDER
 
 const char* const impl::Header_Attribute =
 MINOR_DIVIDER
-"	// Attribute <attribute-vt>\n"					// BUGBUG:  should be <attribute>
+"	// Attribute <attribute>\n"
 "	public:\n"
 "		const std::string& <attribute-vt>() const;\n"
-"		void <attribute-vt>(const char* <a-t>);\n"		// BUGBUG:  should be <a>
+"		void <attribute-vt>(const char* <a>);\n"
 BLANK
 "	private:\n"
 "		std::string _<attribute-Vt>;\n"
@@ -319,12 +319,12 @@ BLANK
 const char* const impl::Inline_Attribute =
 "	inline const std::string& <element-vc>::<attribute-vt>() const\n"
 "	{\n"
-"		return _<attribute-V>;\n"
+"		return _<attribute-tV>;\n"
 "	}\n"
 BLANK
 "	inline void <element-vc>::<attribute-vt>(const char* <a-t>)\n"
 "	{\n"
-"		_<attribute-V> = <a-t>;\n"
+"		_<attribute-tV> = <a-t>;\n"
 "	}\n"
 BLANK;
 
@@ -511,7 +511,7 @@ BLANK;
 // Source Operator Equal Attribute
 
 const char* const impl::Source_OperatorEqual_Attribute =
-"		_<attribute-V> = r._<attribute-V>;\n";
+"		_<attribute-tV> = r._<attribute-tV>;\n";
 
 //=============================================================================
 // Source Operator Equal Attribute
@@ -527,7 +527,7 @@ const char* const impl::Source_Read_Prefix =
 "{\n"
 "	// Make sure node is this element\n"
 "	if (xmlStrcmp(n->name, reinterpret_cast<const xmlChar*>(\"<element>\")) != 0)\n"
-"		throw std::runtime_error(\"expecting node '<element-v>'\");\n"		// BUGBUG:  Should be "node '<element>'" not <element-v>
+"		throw std::runtime_error(\"expecting node '<element>'\");\n"
 BLANK;
 
 //=============================================================================
@@ -576,7 +576,7 @@ const char* const impl::Source_Read_Attribute =
 "a = xmlGetProp(n, reinterpret_cast<xmlChar*>(\"<attribute>\"));\n"
 "	if (a)\n"
 "	{\n"
-"		_<attribute-V> = reinterpret_cast<const char*>(a);\n"
+"		_<attribute-tV> = reinterpret_cast<const char*>(a);\n"
 "		xmlFree(a);\n"
 "	}\n";
 
@@ -667,9 +667,9 @@ const char* const impl::Source_Write_Start =
 "void <element-vc>::write(xmlTextWriterPtr w) const\n"
 "{\n"
 "	// Create element\n"
-"	int r = xmlTextWriterStartElement(w, reinterpret_cast<const xmlChar*>(\"<element-v>\"));\n"	// BUGBUG: <element> NOT <element-v>
+"	int r = xmlTextWriterStartElement(w, reinterpret_cast<const xmlChar*>(\"<element>\"));\n"
 "	if (r < 0)\n"
-"		throw std::runtime_error(\"creation of element '<element-v>' failed\");\n"	// BUGBUG: <element> NOT <element-v>
+"		throw std::runtime_error(\"creation of element '<element>' failed\");\n"
 BLANK;
 	
 //=============================================================================
@@ -683,7 +683,7 @@ const char* const impl::Source_Write_Middle =
 "	{\n"
 "		r = xmlTextWriterWriteString(w, reinterpret_cast<const xmlChar*>(v.c_str()));\n"
 "		if (r < 0)\n"
-"			throw std::runtime_error(\"failed writing '<element-v>' value\");\n"		// BUGBUG: <element> NOT <element-v>
+"			throw std::runtime_error(\"failed writing '<element>' value\");\n"
 "	}\n"
 BLANK;
 
@@ -694,7 +694,7 @@ const char* const impl::Source_Write_End =
 "	// All done!\n"
 "	r = xmlTextWriterEndElement(w);\n"
 "	if (r < 0)\n"
-"		throw std::runtime_error(\"failed closing '<element-v>' element\");\n"	// BUGBUG: <element> NOT <element-v>
+"		throw std::runtime_error(\"failed closing '<element>' element\");\n"
 "}\n"
 BLANK;
 
@@ -703,10 +703,10 @@ BLANK;
 
 const char* const impl::Source_Write_Attribute =
 "	// Add attribute <attribute> if needed\n"
-"	if (!_<attribute-V>.empty())\n"
+"	if (!_<attribute-tV>.empty())\n"
 "	{\n"
 "		r = xmlTextWriterWriteAttribute(w, reinterpret_cast<const xmlChar*>(\"<attribute>\"),\n"
-"				reinterpret_cast<const xmlChar*>(_<attribute-V>.c_str()));\n"
+"				reinterpret_cast<const xmlChar*>(_<attribute-tV>.c_str()));\n"
 "		if (r < 0)\n"
 "		{\n"
 "			throw std::runtime_error(\"addition of attribute '<attribute>' \"\n"

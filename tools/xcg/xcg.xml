@@ -1,40 +1,165 @@
-<?xml version="1.0"?>
+<?xml version="1.0" standalone="yes"?>
 <generator>
-	<!-- Replacements -->
-	<replacements>
-		<char text="-" fail="false" context="global/attribute/element/classname/filename">_</char>
-		<string text="foo" fail="false"context="">foo</string>
-		<pattern text="pattern" fail="false" context="">replacement</pattern>
-	</replacements>
-	
-	<!-- Templates -->
-	<templates>
-		<!-- Header -->
-		<!-- Inline -->
-		<!-- TODO -->
-		
-		<!-- Source -->
-		<!-- TODO -->
-	</templates>
+<!--FILE ***********************************************************************************************************-->
+	<!--header *************************************************************************************-->
+	<file name="&lt;root-c&gt;.hpp">
+		<content type="constant">license</content>
+		<content type="">
+<![CDATA[
+#ifndef	__<root-C>_HPP__
+#define	__<root-C>_HPP__
 
-	<!-- Phases -->
-	<phases>
-		<!-- Header phase -->
-		<!-- Inline phase -->
-		<!-- Source phase -->
-	</phases>
-	
-	<!-- Attribute specific information -->
-	<attribute name="">
-		<type>std::string</type>
-		<name></name>
-	</attribute>
-	
-	<!-- Element specific information -->
-	<element name="" count="">
-		<type></type>
-		<prefix></prefix>
-		<postfix></postfix>
-		<array></array>
+#include <string>
+#include <vector>
+#include <libxml/parser.h>
+#include <libxml/xmlwriter.h>
+
+namespace <root>
+{
+]]>
+		</content>
+		<content type="template">header-elements</content>
+		<content type="">
+<![CDATA[
+}
+
+#include "<root>.inl"
+
+#endif		// __<root-C>_HPP__
+]]>
+		</content>
+	</file>
+<!--inline *************************************************************************************-->
+	<file name="&lt;root-c&gt;.inl">
+		<content type="constant">license</content>
+		<content>
+<![CDATA[
+#ifndef	__<root-C>_INL__
+#define	__<root-C>_INL__
+
+namespace <root>
+{
+]]>
+		</content>
+		<content type="template">inline-elements</content>
+		<content>
+<![CDATA[
+}
+
+#endif		// __<root-C>_INL__
+]]>
+		</content>
+	</file>
+<!--source *************************************************************************************-->
+	<file name="&lt;root-c&gt;.cpp">
+	</file>
+<!--TEMPLATE *******************************************************************************************************-->
+<!--header-elements ****************************************************************************-->
+	<template name="header-elements" type="elements">
+		<content type="">
+<![CDATA[
+//=============================================================================
+// Element '<element>' encapsulation
+
+	class <element-c>
+	{
+	//-------------------------------------------------------------------------
+	// Construction & operators
+	public:
+		<element-c>();
+		<element-c>(const char* f);
+		<element-c>(xmlNodePtr n);
+		<element-c>(const <element-c>& c);
+		virtual ~<element-c>() throw ();
+
+		<element-c>& operator=(const <element-c>& r);
+]]>
+		</content>
+		<content type="template">header-elements-attributes</content>
+		<content type="template">header-elements-children</content>
+		<content type="">
+<![CDATA[
+	//-------------------------------------------------------------------------
+	// Read from node
+	public:
+		void read(xmlNodePtr p);
+
+	//-------------------------------------------------------------------------
+	// Value of this element
+	private:
+		typedef std::pair<bool, std::string> VALUE;
+		typedef std::vector<VALUE> VALUES;
+
+	public:
+		VALUES& values();
+		const VALUES& values() const;
+		void value(std::string& v) const;
+
+	private:
+		VALUES _values;
+
+	//-------------------------------------------------------------------------
+	// Write to file or node
+	public:
+		void write(const char* f, bool i = true, const char* t = "\t") const;
+		void write(xmlTextWriterPtr w) const;
+	};
+]]>
+		</content>
+	</template>
+<!--header-elements-attributes *****************************************************************-->
+	<template name="header-elements-attributes" type="attributes">
+	</template>
+<!--header-elements-elements *******************************************************************-->
+	<template name="header-elements-elements" type="children">
+	</template>
+<!--inline-elements ****************************************************************************-->
+	<template name="inline-elements" type="elements">
+	</template>
+<!--ROOT ***********************************************************************************************************-->
+	<root name="">
+	</root>
+<!--ELEMENT ********************************************************************************************************-->
+	<element name="">
 	</element>
+<!--ATTRIBUTE ******************************************************************************************************-->
+	<attribute name="">
+	</attribute>
+<!-- REPLACEMENT ***************************************************************************************************-->
+	<replacement name="">
+	</replacement>
+<!--CONSTANT *******************************************************************************************************-->
+<!--major divider ******************************************************************************-->
+	<constant name="major divider"><![CDATA[
+//=============================================================================
+	]]></constant>
+<!--minor divider ******************************************************************************-->
+	<constant name="minor divider"><![CDATA[
+//-----------------------------------------------------------------------------
+	]]></constant>
+<!--license ************************************************************************************-->
+	<constant name="license"><![CDATA[
+//
+// Copyright (c) 2004 Russell E. Gibson
+// email: russg@rnstech.com
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is furnished
+// to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+	]]></constant>
 </generator>
