@@ -7,7 +7,15 @@
 
 namespace impl
 {
-	void gen_code(const std::string& d, ELEMENTS& elements);
+//=============================================================================
+// Given a root ELEMENT, generate the appropriate class source and headers.
+
+	class Generater
+	{
+	//----------------------------------------------------------------------------
+	public:
+		Generater(const std::string& d, const ELEMENTS& e);
+	};
 }
 
 #endif

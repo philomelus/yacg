@@ -1,7 +1,6 @@
 
 #include <ios>
 #include <iostream>
-#include <locale>
 
 #include "Common.hpp"
 #include "Generate.hpp"
@@ -17,57 +16,6 @@ using std::cout;
 using std::cerr;
 using boost::filesystem::path;
 using boost::filesystem::filesystem_error;
-
-//=============================================================================
-// LOCAL
-//=============================================================================
-
-namespace
-{
-	void dump(ELEMENTS& elements)
-	{
-		int i;
-		ELEMENTS::iterator node_map_it;
-		SUBS::iterator subs_it;
-
-		for (node_map_it = elements.begin(); node_map_it != elements.end();
-				node_map_it ++)
-		{
-			Element& r = (*node_map_it).second;
-//			printf("Node Name: %s\n", r.name.c_str());
-			printf("Node Name: %s\n", node_map_it->first.c_str());
-
-			for (i = 0; i < (int)r.attributes().size(); i++)
-			{
-				printf("Attribute: %s\n", r.attributes()[i].c_str());
-			}
-
-			for (subs_it = r.subs().begin();subs_it != r.subs().end();subs_it++)
-			{
-				printf("Sub-Nodes: %s %d\n", (*subs_it).first.c_str(),
-					(*subs_it).second);
-			}
-
-			printf("\n\n");
-		}
-	}
-
-	std::string& str_lower(std::string& s)
-	{
-		std::locale l;
-		const std::string::iterator e = s.end();
-		for (std::string::iterator i = s.begin(); i != e; ++i)
-			*i = std::tolower(*i, l);
-		return s;
-	}
-	
-	std::string str_dir(const char* f)
-	{
-		std::string dir(f);
-		str_lower(dir);
-		return std::string(f, dir.rfind(".") == 0 ? dir.size() : dir.rfind("."));
-	}
-}
 
 //=============================================================================
 // function	main
@@ -156,22 +104,11 @@ int	main (int argc,	char** argv)
 		return 3;
 
 	// Generate source for each XML file
-	ELEMENTS elements;
 	for (int i = 1; i < argc; ++i)
 	{
-		elements.clear();
-		std::string dir = str_dir(argv[i]);
-		xmlDocPtr doc = xmlParseFile(argv[i]);
-		xmlNodePtr root = xmlDocGetRootElement(doc);
-		if (root)
-		{
-			// Generate internal structure
-			find_nodes(elements, root);
-			
-			// Generate code
-			gen_code(dir, elements);
-		}
-		xmlFreeDoc(doc);
+		ELEMENTS e;
+		impl::Parser p(argv[i], e);
+		impl::Generater(str_dir(argv[i]), e);
 	}
 	
 	return 0;

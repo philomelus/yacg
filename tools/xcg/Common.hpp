@@ -1,6 +1,7 @@
 #ifndef	__COMMON_HPP__
 #define	__COMMON_HPP__
 
+#include <locale>
 #include <map>
 #include <string>
 #include <vector>
@@ -8,14 +9,14 @@
 namespace impl
 {
 //=============================================================================
-// List of attributes for an element
+// Attributes for an element
 
 	typedef std::vector<std::string> ATTRIBUTES;
 	
 //=============================================================================
-// List of elements for an element
+// Elements contained within a root element
 
-	typedef	std::map<std::string, int> SUBS;
+	typedef	std::map<std::string, int> SUBELEMENTS;
 	
 //=============================================================================
 // Root element
@@ -40,20 +41,20 @@ namespace impl
 
 	//-------------------------------------------------------------------------
 	public:
+		SUBELEMENTS& elements();
+		const SUBELEMENTS& elements() const;
+					
+	private:
+		SUBELEMENTS _e;
+
+	//-------------------------------------------------------------------------
+	public:
 		const std::string& name() const;
 		void name(const char* n);
 		void name(const std::string& n);
 		
 	private:
 		std::string _n;
-	
-	//-------------------------------------------------------------------------
-	public:
-		SUBS& subs();
-		const SUBS& subs() const;
-					
-	private:
-		SUBS _s;
 	};
 
 //=============================================================================
@@ -62,7 +63,27 @@ namespace impl
 	typedef	std::map<std::string, Element> ELEMENTS;
 
 //=============================================================================
+// Useful functions
+
+	inline std::string& str_lower(std::string& s)
+	{
+		std::locale l;
+		const std::string::iterator e = s.end();
+		for (std::string::iterator i = s.begin(); i != e; ++i)
+			*i = std::tolower(*i, l);
+		return s;
+	}
+	
+	inline std::string str_dir(const char* f)
+	{
+		std::string dir(f);
+		str_lower(dir);
+		return std::string(f, dir.rfind(".") == 0 ? dir.size() : dir.rfind("."));
+	}
+	
+//=============================================================================
 // class Element inline implementation
+//=============================================================================
 
 	inline Element::Element()
 	{
@@ -83,7 +104,8 @@ namespace impl
 	{
 		if (this != &r)
 		{
-			_s = r._s;
+			_n = r._n;
+			_e = r._e;
 			_a = r._a;
 		}
 		return *this;
@@ -99,6 +121,16 @@ namespace impl
 		return _a;
 	}
 
+	inline SUBELEMENTS& Element::elements()
+	{
+		return _e;
+	}
+
+	inline const SUBELEMENTS& Element::elements() const
+	{
+		return _e;
+	}
+
 	inline const std::string& Element::name() const
 	{
 		return _n;
@@ -112,16 +144,6 @@ namespace impl
 	inline void Element::name(const char* n)
 	{
 		_n = n;
-	}
-	
-	inline SUBS& Element::subs()
-	{
-		return _s;
-	}
-
-	inline const SUBS& Element::subs() const
-	{
-		return _s;
 	}
 }
 

@@ -8,7 +8,7 @@ namespace
 	void gen_header(const std::string& d, const Element& n, const std::string& name)
 	{
 		int	i;
-		SUBS::const_iterator subs_it;
+		SUBELEMENTS::const_iterator subs_it;
 		std::string	filename(d);
 		filename += "\\";
 		filename +=	name;
@@ -45,7 +45,7 @@ namespace
 				ifdefname.c_str(), ifdefname.c_str());
 
 		fprintf(outfile, "// Includes for the sub-nodes:\n");
-		for	(subs_it = n.subs().begin(); subs_it != n.subs().end(); ++subs_it)
+		for	(subs_it = n.elements().begin(); subs_it != n.elements().end(); ++subs_it)
 		{
 			fprintf(outfile, "#include \"%s.h\"\n",
 					(*subs_it).first.c_str());
@@ -96,7 +96,7 @@ namespace
 
 		fprintf(outfile, "\n\t\t// And the sub nodes:\n");
 
-		for	(subs_it = n.subs().begin();subs_it != n.subs().end();subs_it++)
+		for	(subs_it = n.elements().begin();subs_it != n.elements().end();subs_it++)
 		{
 			fprintf(outfile, "\t\tvector < %s >	%s_list;\n",
 					subs_it->first.c_str(),
@@ -117,7 +117,7 @@ namespace
 	void gen_body(const std::string& d, const Element& n, const std::string& name)
 	{
 		int	i;
-		SUBS::const_iterator subs_it;
+		SUBELEMENTS::const_iterator subs_it;
 		std::string	filename(d);
 		filename += "\\";
 		filename +=	name;
@@ -159,7 +159,7 @@ namespace
 				"\n"
 				"\t// copy all sub-nodes:\n");
 
-		for	(subs_it = n.subs().begin();subs_it != n.subs().end();subs_it++)
+		for	(subs_it = n.elements().begin();subs_it != n.elements().end();subs_it++)
 		{
 			fprintf(outfile,
 					"\t%s_list = c.%s_list;\n",
@@ -197,7 +197,7 @@ namespace
 				"\n"
 				"\t// copy all sub-nodes:\n");
 
-		for	(subs_it = n.subs().begin();subs_it != n.subs().end();subs_it++)
+		for	(subs_it = n.elements().begin();subs_it != n.elements().end();subs_it++)
 		{
 			fprintf(outfile,
 					"\t%s_list = c.%s_list;\n",
@@ -239,13 +239,13 @@ namespace
 					n.attributes()[i].c_str());
 		}
 
-		if (n.subs().size() >	0)
+		if (n.elements().size() >	0)
 		{
 			fprintf(outfile,
 					"\t// Get the sub nodes:\n"
 					"\tfor(sub = node->xmlChildrenNode;	sub	!= NULL; sub = sub->next){\n");
 
-			for	(subs_it = n.subs().begin();subs_it != n.subs().end();subs_it++)
+			for	(subs_it = n.elements().begin();subs_it != n.elements().end();subs_it++)
 			{
 				fprintf(outfile,
 						"\t\tif(strcmp(reinterpret_cast<const char*>(sub->name), \"%s\") ==	0){\n"
@@ -315,13 +315,13 @@ namespace
 					n.attributes()[i].c_str());
 		}
 
-		if (n.subs().size() >	0)
+		if (n.elements().size() >	0)
 		{
 			fprintf(outfile,
 					"\t// Create the sub nodes:\n"
 					"\tint i;\n\n");
 
-			for	(subs_it = n.subs().begin();subs_it != n.subs().end();subs_it++)
+			for	(subs_it = n.elements().begin();subs_it != n.elements().end();subs_it++)
 			{
 				fprintf(outfile,
 						"\tfor(i = 0; i	< (int)%s_list.size(); i++){\n"
@@ -362,13 +362,13 @@ namespace
 					n.attributes()[i].c_str());
 		}
 
-		if (n.subs().size() >	0)
+		if (n.elements().size() >	0)
 		{
 			fprintf(outfile,
 					"\t// Create the sub nodes:\n"
 					"\tint i;\n\n");
 
-			for	(subs_it = n.subs().begin();subs_it != n.subs().end();subs_it++)
+			for	(subs_it = n.elements().begin();subs_it != n.elements().end();subs_it++)
 			{
 				fprintf(outfile,
 						"\tfor(i = 0; i	< (int)%s_list.size(); i++){\n"
@@ -384,15 +384,24 @@ namespace
 		// That's it.
 		fclose(outfile);
 	}
+
+	void gen_code(const std::string& d, const ELEMENTS& elements)
+	{
+		ELEMENTS::const_iterator node_map_it;
+		for	(node_map_it = elements.begin(); node_map_it !=	elements.end();
+				node_map_it	++)
+		{
+			gen_header(d, node_map_it->second, node_map_it->first);
+			gen_body(d, node_map_it->second, node_map_it->first);
+		}
+	}
 }
 
-void impl::gen_code(const std::string& d, ELEMENTS& elements)
+//=============================================================================
+// class Generater implementation
+//=============================================================================
+
+Generater::Generater(const std::string& d, const ELEMENTS& e)
 {
-	ELEMENTS::iterator	node_map_it;
-	for	(node_map_it = elements.begin(); node_map_it !=	elements.end();
-			node_map_it	++)
-	{
-		gen_header(d, node_map_it->second, node_map_it->first);
-		gen_body(d, node_map_it->second, node_map_it->first);
-	}
+	gen_code(d, e);
 }

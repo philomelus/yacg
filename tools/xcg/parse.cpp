@@ -3,68 +3,67 @@
 
 using namespace impl;
 
-namespace
+//=============================================================================
+// class Parser implementation
+//=============================================================================
+
+Parser::Parser(const char* f, ELEMENTS& e)
+		:
+		_elements(e)
 {
-	void log_attrs(xmlNodePtr node, ELEMENTS& elements)
-	{
-		// Ignore white space
-		if (node->name == NULL)
-			return;
-
-		// Locate node, creating it if needed
-		ELEMENTS::iterator ei = elements.find(reinterpret_cast<const char*>(node->name));
-		if (ei == elements.end())
-		{
-			ei = elements.insert(std::make_pair(reinterpret_cast<const char*>(node->name),
-					Element(reinterpret_cast<const char*>(node->name)))).first;
-		}
-
-		// Add attributes
-		if (node->properties)
-		{
-			for (xmlAttrPtr prop = node->properties; prop; prop = prop->next)
-			{
-				std::string	attr_name(reinterpret_cast<const char*>(prop->name));
-				ei->second.attributes().push_back(attr_name);
-			}
-		}
-	}
-
-	void add_sub(ELEMENTS& elements, xmlNodePtr node, xmlNodePtr sub)
-	{
-		if (sub->name == NULL)
-			return ;
-
-		if (xmlNodeIsText(sub))
-			return ;
-
-		std::string	name(reinterpret_cast<const	char*>(node->name));
-		Element& r	= elements[name];
-		std::string	subname(reinterpret_cast<const char*>(sub->name));
-		if (r.subs().count(subname) == 0)
-		{
-			r.subs()[subname]	= 1;
-		}
-		else
-		{
-			r.subs()[subname]++;
-		}
-	}
+	xmlDocPtr doc = xmlParseFile(f);
+	xmlNodePtr root = xmlDocGetRootElement(doc);
+	if (root)
+		recurse(root);
+	xmlFreeDoc(doc);
 }
 
-void impl::find_nodes(ELEMENTS& elements, xmlNodePtr node)
+void Parser::recurse(xmlNodePtr n)
 {
+#define	xmlChar2char(c)	reinterpret_cast<const char*>(c)
+
 	// Ignore white space
-	if (node->name == NULL)
+	if (n->name == NULL)
 		return;
 
-	// Save attributes
-	log_attrs(node, elements);
-
-	// Look for sub-nodes
-	for	(xmlNodePtr sub = node->xmlChildrenNode; sub; sub = sub->next)
+	// Locate node, creating it if needed
+	std::string name(xmlChar2char(n->name));
+	ELEMENTS::iterator ei = _elements.find(name);
+	if (ei == _elements.end())
 	{
-		add_sub(elements, node, sub);
-		find_nodes(elements, sub);
+		ei = _elements.insert(std::make_pair(xmlChar2char(n->name), Element(
+				xmlChar2char(n->name)))).first;
 	}
+
+	// Add attributes
+	if (n->properties)
+	{
+		ATTRIBUTES& attr = ei->second.attributes();
+		for (xmlAttrPtr a = n->properties; a; a = a->next)
+			attr.push_back(xmlChar2char(a->name));
+	}
+
+	// Parse sub-elements if needed
+	if (n->xmlChildrenNode)
+	{
+		for	(xmlNodePtr s = n->xmlChildrenNode; s; s = s->next)
+		{
+			// Add sub-element info
+			if (s->name && !xmlNodeIsText(s))
+			{
+				Element& r = _elements[xmlChar2char(n->name)];
+				std::string	sname(xmlChar2char(s->name));
+				SUBELEMENTS& e = r.elements();
+				if (e.count(sname) == 0)
+					e[sname] = 1;
+				else
+					++(e[sname]);
+			}
+
+			// Check for recursive sub-elements
+			recurse(s);
+		}
+	}
+
+#undef xmlChar2char
 }
