@@ -1,64 +1,222 @@
 <?xml version="1.0" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="qualified">
-<!--
+<!ENTITY atr "@attribute@">
+<!ENTITY Atr "@Attribute@">
+<!ENTITY ATR "@ATTRIBUTE@">
+<!ENTITY atrs "@attributes@">
+<!ENTITY Atrs "@Attributes@">
+<!ENTITY ATRS "@ATTRIBUTES@">
+<!ENTITY A "@A@>
+<!ENTITY a "@a@">
+<!ENTITY ele "@element@">
+<!ENTITY Ele "@Element@">
+<!ENTITY ELE "@ELEMENT@">
+<!ENTITY eles "@elements@">
+<!ENTITY Eles "@Elements@">
+<!ENTITY ELES "@ELEMENTS@">
+<!ENTITY typ "@type@">
 	<xs:annotation>
 		<xs:documentation xml:lang="en">
-		YACG Schema for Control Prototype Generater
-		Copyright 2004 Russell E. Gibson
+Schema for XCG libxml2 Code Generator
+Copyright 2004 Russell E. Gibson
 		</xs:documentation>
 	</xs:annotation>
-	<xs:simpleType name="source_type">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="cpp" />
-			<xs:enumeration value="theme" />
-		</xs:restriction>
-	</xs:simpleType>
-	<xs:element name="control">
+<!--************************************************************************-->
+<!-- REPLACEMENT ***********************************************************-->
+<!--************************************************************************-->
+	<xs:attribute name="context">
+		<xs:annotation>
+			<xs:documentation>
+Specifies where a replacement will be used;  It will only be used
+in the context specified and nowhere else.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="global">
+					<xs:annotation>
+						<xs:documentation>
+Replacement will be used through all phases.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:enumeration>
+				<xs:enumeration value="attribute">
+					<xs:annotation>
+						<xs:documentation>
+Replacement will be used only within attribute names, through all phases.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:enumeration>
+				<xs:enumeration value="element">
+					<xs:annotation>
+						<xs:documentation>
+Replacement will be used only within element names, through all phases.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:enumeration>
+				<xs:enumeration value="phase">
+					<xs:annotation>
+						<xs:documentation>
+Replacement will be used only within specified phase.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:enumeration>
+				<xs:enumeration value="attribute+phase">
+					<xs:annotation>
+						<xs:documentation>
+Replacement will be used only within attribtues, duing the specified phase.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:enumeration>
+				<xs:enumeration value="element+phase">
+					<xs:annotation>
+						<xs:documentation>
+Replacement will be used only within elements, during the specified phase.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:enumeration>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:attribute>
+	<xs:attributeGroup name="restrictionAttributes">
+		<xs:annotation>
+			<xs:documentation>
+These attributes can be applied to replacement elements, and modify the behavior
+of the element.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="text" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>
+This required attribute specifies that actual character, string, or pattern to
+match for replacement.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="fail" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>
+This optional attribute specifies whether to report a failure when the search
+character, string, or pattern is found.  If unspecified, the default is false.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute ref="context" use="optional" default="global">
+			<xs:annotation>
+				<xs:documentation>
+This optional attribute determines where the character, string, or pattern seach
+will be used.  See the docuemntation for attribute "context" for details.  When
+not specified, the context is "global".
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:attributeGroup>
+	<xs:element name="char">
+		<xs:annotation>
+			<xs:documentation>
+Represents replacement of a single character.  The replacement can consist of a
+character or string.
+			</xs:documentation>
+		</xs:annotation>
 		<xs:complexType>
-			<xs:sequence>
-				<xs:element name="name" type="xs:string" minOccurs="1" />
-				<xs:element name="base" type="xs:string" minOccurs="0" />
-				<xs:element name="theme" minOccurs="0" maxOccurs="unbounded">
-					<xs:complexType>
-						<xs:sequence>
-							<xs:element name="type" type="xs:string" minOccurs="1" />
-							<xs:element name="name" type="xs:string" minOccurs="1" />
-						</xs:sequence>
-					</xs:complexType>
-				</xs:element>
-				<xs:element name="implementation" type="source_type" maxOccurs="2" />
-				<xs:element name="header" type="source_type" maxOccurs="2" />
-				<xs:element name="attribute" minOccurs="0" maxOccurs="unbounded">
-					<xs:complexType>
-						<xs:sequence minOccurs="1" maxOccurs="1">
-							<xs:element name="type" nillable="false" type="xs:string" minOccurs="1" maxOccurs="1" />
-							<xs:element name="name" nillable="false" type="xs:string" minOccurs="1" maxOccurs="1" />
-							<xs:element name="constructor" nillable="false" type="xs:short" minOccurs="0" maxOccurs="1" />
-							<xs:element name="param" nillable="false" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-							<xs:element name="return" nillable="false" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-							<xs:element name="style" nillable="false" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-						</xs:sequence>
-						<xs:attribute name="editable" form="qualified" type="xs:boolean" default="false" use="optional" />
-						<xs:attribute name="virtual" form="qualified" type="xs:boolean" default="false" use="optional" />
-					</xs:complexType>
-				</xs:element>
-				<xs:element name="flags" minOccurs="0" maxOccurs="unbounded">
-					<xs:complexType>
-						<xs:sequence>
-							<xs:element name="flag" minOccurs="0" maxOccurs="unbounded">
-								<xs:complexType>
-									<xs:sequence>
-										<xs:element name="name" type="xs:string" minOccurs="0" />
-										<xs:element name="value" type="xs:string" minOccurs="0" />
-									</xs:sequence>
-								</xs:complexType>
-							</xs:element>
-						</xs:sequence>
-						<xs:attribute name="group" form="unqualified" type="xs:string" />
-					</xs:complexType>
-				</xs:element>
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<xs:attributeGroup ref="restrictionAttributes"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="pattern">
+		<xs:annotation>
+			<xs:documentation>
+Represents a regular expression pattern.  The replacement text can also contain
+a regular expression (for exmaple, to use sub-grouping).
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<xs:attributeGroup ref="restrictionAttributes"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="string">
+		<xs:annotation>
+			<xs:documentation>
+Represents a straight literal string for string replacement.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<xs:attributeGroup ref="restrictionAttributes"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="replacements">
+		<xs:annotation>
+			<xs:documentation>
+This element should be present if the generated code will be used in an
+environment where keywords exist, or if there are certian words, characters,
+or patterns that need to be changed within the attribute and element names.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded" minOccurs="0">
+				<xs:element ref="char" />
+				<xs:element ref="pattern" />
+				<xs:element ref="string" />
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+<!--************************************************************************-->
+<!-- TEMPLATES *************************************************************-->
+<!--************************************************************************-->
+	<xs:element name="repeat">
+	</xs:element>
+	
+	<xs:element name="code">
+	</xs:element>
+
+	<xs:element name="conditional">
+	</xs:element>
+	
+	<xs:element name="children">
+	</xs:element>
+
+	<xs:element name="attribute">
+	</xs:element>
+
+	<xs:element name="template">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded" minOccurs="0">
+				<xs:element ref="children"/>
+				<xs:element ref="attribute"/>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="templates">
+		<xs:complexType>
+			<xs:sequence minOccurs="1" maxOccurs="unbounded">
+				<xs:element ref="template"/>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
--->
+	<!-- HEADER ****************************************************************-->
+	<!-- INLINE ****************************************************************-->
+	<!-- SOURCE ****************************************************************-->
+	<!-- ATTRIBUTE *************************************************************-->
+	<!-- ELEMENT ***************************************************************-->
+	<!-- PHASES ****************************************************************-->
+	<!-- GENERATOR *************************************************************-->
+	<xs:element name="generator">
+		<xs:complexType>
+			<xs:choice maxOccurs="1" minOccurs="0">
+				<xs:element ref="replacements"/>
+				<xs:element ref="templates"/>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
 </xs:schema>

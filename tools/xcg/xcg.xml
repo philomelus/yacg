@@ -1,295 +1,67 @@
 <?xml version="1.0"?>
-<source>
-	<!-- Keywords -->
-	<keywords>
-		<keyword>
-			<name>auto</name>
-			<attribute fail="true">Auto</attribute>
-			<element fail="false">Auto</element>
-		</keyword>
-		<keyword>
-			<name>bool</name>
-			<replacement>Bool</replacement>
-		</keyword>
-		<keyword>
-			<name>break</name>
-			<replacement>Break</replacement>
-		</keyword>
-		<keyword>
-			<name>case</name>
-			<replacement>Case</replacement>
-		</keyword>
-		<keyword>
-			<name>catch</name>
-			<replacement>Catch</replacement>
-		</keyword>
-		<keyword>
-			<name>char</name>
-			<replacement>Char</replacement>
-		</keyword>
-		<keyword>
-			<name>class</name>
-			<replacement>Class</replacement>
-		</keyword>
-		<keyword>
-			<name>const</name>
-			<replacement>Const</replacement>
-		</keyword>
-		<keyword>
-			<name>const_cast</name>
-			<replacement>Const_cast</replacement>
-		</keyword>
-		<keyword>
-			<name>continue</name>
-			<replacement>Continue</replacement>
-		</keyword>
-		<keyword>
-			<name>default</name>
-			<replacement>Default</replacement>
-		</keyword>
-		<keyword>
-			<name>delete</name>
-			<replacement>Delete</replacement>
-		</keyword>
-		<keyword>
-			<name>do</name>
-			<replacement>Do</replacement>
-		</keyword>
-		<keyword>
-			<name>double</name>
-			<replacement>Double</replacement>
-		</keyword>
-		<keyword>
-			<name>dynamic_cast</name>
-			<replacement>Dynamic_cast</replacement>
-		</keyword>
-		<keyword>
-			<name>else</name>
-			<replacement>Else</replacement>
-		</keyword>
-		<keyword>
-			<name>enum</name>
-			<replacement>Enum</replacement>
-		</keyword>
-		<keyword>
-			<name>explicit</name>
-			<replacement>Explicit</replacement>
-		</keyword>
-		<keyword>
-			<name>export</name>
-			<replacement>Export</replacement>
-		</keyword>
-		<keyword>
-			<name>extern</name>
-			<replacement>Extern</replacement>
-		</keyword>
-		<keyword>
-			<name>false</name>
-			<replacement>False</replacement>
-		</keyword>
-		<keyword>
-			<name>float</name>
-			<replacement>Float</replacement>
-		</keyword>
-		<keyword>
-			<name>for</name>
-			<replacement>For</replacement>
-		</keyword>
-		<keyword>
-			<name>friend</name>
-			<replacement>Friend</replacement>
-		</keyword>
-		<keyword>
-			<name>goto</name>
-			<replacement>Goto</replacement>
-		</keyword>
-		<keyword>
-			<name>if</name>
-			<replacement>If</replacement>
-		</keyword>
-		<keyword>
-			<name>inline</name>
-			<replacement>Inline</replacement>
-		</keyword>
-		<keyword>
-			<name>int</name>
-			<replacement>Int</replacement>
-		</keyword>
-		<keyword>
-			<name>long</name>
-			<replacement>Long</replacement>
-		</keyword>
-		<keyword>
-			<name>mutable</name>
-			<replacement>Mutable</replacement>
-		</keyword>
-		<keyword>
-			<name>namespace</name>
-			<replacement>Namespace</replacement>
-		</keyword>
-		<keyword>
-			<name>new </name>
-			<replacement>New </replacement>
-		</keyword>
-		<keyword>
-			<name>operator</name>
-			<replacement>Operator</replacement>
-		</keyword>
-		<keyword>
-			<name>private</name>
-			<replacement>Private</replacement>
-		</keyword>
-		<keyword>
-			<name>protected</name>
-			<replacement>Protected</replacement>
-		</keyword>
-		<keyword>
-			<name>public</name>
-			<replacement>Public</replacement>
-		</keyword>
-		<keyword>
-			<name>register</name>
-			<replacement>Register</replacement>
-		</keyword>
-		<keyword>
-			<name>reinterpret_cast</name>
-			<replacement>Reinterpret_cast</replacement>
-		</keyword>
-		<keyword>
-			<name>return</name>
-			<replacement>Return</replacement>
-		</keyword>
-		<keyword>
-			<name>short</name>
-			<replacement>Short</replacement>
-		</keyword>
-		<keyword>
-			<name>signed</name>
-			<replacement>Signed</replacement>
-		</keyword>
-		<keyword>
-			<name>sizeof</name>
-			<replacement>Sizeof</replacement>
-		</keyword>
-		<keyword>
-			<name>static</name>
-			<replacement>Static</replacement>
-		</keyword>
-		<keyword>
-			<name>static_cast</name>
-			<replacement>Static_cast</replacement>
-		</keyword>
-		<keyword>
-			<name>struct</name>
-			<replacement>Struct</replacement>
-		</keyword>
-		<keyword>
-			<name>switch</name>
-			<replacement>Switch</replacement>
-		</keyword>
-		<keyword>
-			<name>template</name>
-			<replacement>Template</replacement>
-		</keyword>
-		<keyword>
-			<name>this</name>
-			<replacement>This</replacement>
-		</keyword>
-		<keyword>
-			<name>throw</name>
-			<replacement>Throw</replacement>
-		</keyword>
-		<keyword>
-			<name>true</name>
-			<replacement>True</replacement>
-		</keyword>
-		<keyword>
-			<name>try</name>
-			<replacement>Try</replacement>
-		</keyword>
-		<keyword>
-			<name>typedef</name>
-			<replacement>Typedef</replacement>
-		</keyword>
-		<keyword>
-			<name>typeid</name>
-			<replacement>Typeid</replacement>
-		</keyword>
-		<keyword>
-			<name>typename</name>
-			<replacement>Typename</replacement>
-		</keyword>
-		<keyword>
-			<name>union</name>
-			<replacement>Union</replacement>
-		</keyword>
-		<keyword>
-			<name>unsigned</name>
-			<replacement>Unsigned</replacement>
-		</keyword>
-		<keyword>
-			<name>using</name>
-			<replacement>Using</replacement>
-		</keyword>
-		<keyword>
-			<name>virtual</name>
-			<replacement>Virtual</replacement>
-		</keyword>
-		<keyword>
-			<name>void</name>
-			<replacement>Void</replacement>
-		</keyword>
-		<keyword>
-			<name>volatile</name>
-			<replacement>Volatile</replacement>
-		</keyword>
-		<keyword>
-			<name>wchar_t</name>
-			<replacement>Wchar_t</replacement>
-		</keyword>
-		<keyword>
-			<name>while</name>
-			<replacement>While</replacement>
-		</keyword>
-	</keywords>
+<!ENTITY atr "@attribute@">
+<!ENTITY Atr "@Attribute@">
+<!ENTITY ATR "@ATTRIBUTE@">
+<!ENTITY atrs "@attributes@">
+<!ENTITY Atrs "@Attributes@">
+<!ENTITY ATRS "@ATTRIBUTES@">
+<!ENTITY A "@A@>
+<!ENTITY a "@a@">
+<!ENTITY ele "@element@">
+<!ENTITY Ele "@Element@">
+<!ENTITY ELE "@ELEMENT@">
+<!ENTITY eles "@elements@">
+<!ENTITY Eles "@Elements@">
+<!ENTITY ELES "@ELEMENTS@">
+<!ENTITY typ "@type@">
+<generator>
+	<!-- Replacements -->
+	<replacements>
+		<char text="-" fail="false" context="global/attribute/element/classname/filename">_</char>
+		<string text="foo" fail="false"context="">foo</string>
+		<pattern text="pattern" fail="false" context="">replacement</pattern>
+	</replacements>
 	
-	<!-- Code types -->
-	<types>
-		<!-- Header types -->
-		<type name="SubelementIncludes">
-			<subelements>
+	<!-- Templates -->
+	<templates>
+		<!-- Header -->
+		<template name="HeaderChildrenInclude">
+			<children>
 				<code>#include &quot;@Sub.hpp&quot;</code>
-			</subelements>
-		</type>
-		<type name="AttributeMembers">
+			</children>
+		</template>
+		<template name="HeaderAttributeMembers">
 			<attributes>
 				<code>//<repeat column="80">-</repeat></code>
-				<code>// Attribute @attribute.</code>
+				<code>// Attribute &attr;.</code>
 				<code>public:</code>
-				<code>\tconst @type&amp; @attribute() const;</code>
-				<code>\tvoid @attribute(const @type&amp; @a);</code>
+				<code>\tconst &typ;&amp; &atr;() const;</code>
+				<code>\tvoid &atr;(const &typ;&amp; &a;);</code>
 				<code></code>
 				<code>private:</code>
-				<code>\t@type _@attribute;</code>
+				<code>\t&typ; _&atr;;</code>
 			</attributes>
-		</type>
-		<type name="SubelementMembers">
-			<subelements>
+		</template>
+		<template name="HeaderChildrenMembers">
+			<children>
 				<code>//<repeat column="80">-</repeat></code>
-				<code>// Element @sub.</code>
+				<code>// Element &ele;.</code>
 				<code>public:</code>
-				<code>\tstd::vector&lt;@type&gt;&amp; @sub();</code>
-				<code>\tconst std::vector&lt;@type&gt;&amp; @sub() const;</code>
+				<code>\tstd::vector&lt;&typ;&gt;&amp; &eles;();</code>
+				<code>\tconst std::vector&lt;&typ;&gt;&amp; &eles;() const;</code>
 				<code></code>
 				<code>private:</code>
-				<code>\tstd::vector&lt;@type&gt; _@sub;</code>
+				<code>\tstd::vector&lt;&typ;&gt; _&eles;;</code>
 				<code></code>
-			</subelements>
-		</type>
+			</children>
+		</template>
 		
-		<!-- Implementation types -->
+		<!-- Inline -->
 		<!-- TODO -->
-	</types>
+		
+		<!-- Source -->
+		<!-- TODO -->
+	</templates>
 
 	<!-- Header prototype -->
 	<header>
@@ -315,30 +87,32 @@
 		<code></code>
 		<code>\t@Element&amp; operator=(const @Element&amp; r);</code>
 		<code></code>
-		<code type="AttributeMembers"></code>
-		<code type="SubelementMembers"></code>
+		<code type="AttributeMembers"/>
+		<code type="SubelementMembers"/>
 		<code>};</code>
 		<code></code>
 		<code>#enidf</code>
 	</header>
 
-	<!-- Implementation prototype -->
-	<implementation>
-	</implementation>
+	<!-- Inline prototype -->
+	<inline>
+	</inline>
+	
+	<!-- Source prototype -->
+	<source>
+	</source>
 
 	<!-- Attribute specific information -->
 	<attribute name="">
 		<type>std::string</type>
+		<name></name>
 	</attribute>
 	
 	<!-- Element specific information -->
-	<element name="" multi="false">
-		<type>std::string</type>
-		<option>inline</option>
-		<array>true</array>
+	<element name="" count="">
+		<type></type>
+		<prefix></prefix>
+		<postfix></postfix>
+		<array></array>
 	</element>
-	<element name="" multi="true">
-		<type>std::string</type>
-		<option>inline</option>
-	</element>
-</source>
+</generator>

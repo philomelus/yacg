@@ -46,7 +46,8 @@ namespace impl
 		void source(const ELEMENTS::value_type& v);
 		void source_ope_attributes(const std::string& v, std::ofstream& o);
 		void source_ope_elements(const std::string& v, std::ofstream& o);
-		void source_read_attributes(const std::string& v, std::ofstream& o);
+		void source_read_attributes(const std::string& v, std::ofstream& o,
+				const ATTRIBUTES::const_iterator b, const ATTRIBUTES::const_iterator e);
 		void source_read_elements(const std::string& v, std::ofstream& o);
 		void source_write_attributes(const std::string& v, std::ofstream& o);
 		void source_write_elements(const std::string& v, std::ofstream& o);

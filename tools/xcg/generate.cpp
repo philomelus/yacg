@@ -144,6 +144,8 @@ void Generator::header(const ELEMENTS::value_type& v)
 	str_upper(nameu);
 	std::string namec = name;	// Uppercase first letter
 	namec[0] = std::toupper(namec[0], std::locale());
+	std::string ns = _directory;
+	str_lower(ns);
 	
 	// Create header multiple inclusion protection value		
 	std::string	mip =	"__";
@@ -165,7 +167,7 @@ void Generator::header(const ELEMENTS::value_type& v)
 			ref(header)));
 	
 	// Start class declaration
-	header << "namespace impl" << endl
+	header << "namespace " << ns << endl
 			<< "{" << endl
 		<< major_divider << endl
 			<< "// Element \"" << name << "\" encapsulation." << endl
@@ -327,6 +329,8 @@ void Generator::inlines(const ELEMENTS::value_type& v)
 	const SUBELEMENTS& s = v.second.elements();
 	std::string nameu = name;	// All uppercase
 	str_upper(nameu);
+	std::string ns = _directory;
+	str_lower(ns);
 	
 	// Create header multiple inclusion protection value		
 	std::string	mip =	"__";
@@ -339,7 +343,7 @@ void Generator::inlines(const ELEMENTS::value_type& v)
 			<< endl;
 
 	// Add namespace
-	header << "namespace impl" << endl	// TODO: namespace
+	header << "namespace " << ns << endl
 			<< "{" << endl;
 	
 	// Start inline implementations
@@ -477,11 +481,13 @@ void Generator::source(const ELEMENTS::value_type& v)
 	const SUBELEMENTS& s = n.elements();
 	std::string namec = name;
 	namec[0] = std::toupper(namec[0], std::locale());
+	std::string ns = _directory;
+	str_lower(ns);
 
 	// Include files
 	source << "#include \"" << name << ".hpp\"" << endl
 			<< endl
-			<< "using namespace impl;" << endl	// TODO: namespace
+			<< "using namespace " << ns << ";" << endl
 			<< endl;
 
 	// Add read from file constructor
@@ -545,13 +551,13 @@ void Generator::source(const ELEMENTS::value_type& v)
 		source << "\t// Get attributes if provided" << endl
 				<< "\txmlChar* a;" << endl;
 		std::for_each(a.begin(), a.end(), bind(source_read_attributes, this, _1,
-				ref(source)));
+				ref(source), a.begin(), a.end()));
 		source << endl;
 	}
 	if (!s.empty())
 	{
 		source << "\t// Read the child elements" << endl
-				<< "\tfor (xmlNodePtr s = n->next; s; s = s->next)" << endl
+				<< "\tfor (xmlNodePtr s = n->children; s; s = s->next)" << endl
 				<< "\t{" << endl;
 		std::for_each(s.begin(), s.end(), bind(source_read_elements, this, _1,
 				ref(source)));
@@ -646,8 +652,11 @@ void Generator::source_ope_elements(const std::string& v, std::ofstream& o)
 	o << "\t\t_" << names << " = r._" << names << ";" << endl;
 }
 
-void Generator::source_read_attributes(const std::string& v, std::ofstream& o)
+void Generator::source_read_attributes(const std::string& v, std::ofstream& o,
+		const ATTRIBUTES::const_iterator b, const ATTRIBUTES::const_iterator e)
 {
+	if (v == *b)
+		o << "xmlChar* ";
 	o << "\ta = xmlGetProp(n, reinterpret_cast<xmlChar*>(\"" << v << "\"));" << endl
 			<< "\tif (a)" << endl
 			<< "\t{" << endl
@@ -669,7 +678,7 @@ void Generator::source_read_elements(const std::string& v, std::ofstream& o)
 	
 	o << "\t\tif (strcmp(reinterpret_cast<const char*>(s->name), \"" << v << "\") == 0)" << endl
 			<< "\t\t{" << endl
-			<< "\t\t\t_" << names << ".push_back(" << namec << "(n));" << endl
+			<< "\t\t\t_" << names << ".push_back(" << namec << "(s));" << endl
 			<< "\t\t\tcontinue;" << endl
 			<< "\t\t}" << endl;
 }
