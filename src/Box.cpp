@@ -21,503 +21,534 @@ namespace yacg
 // class Base declaration
 //=============================================================================
 
-		class Base
-		{
-		public:
-			static const int dirty_frame	= 0x00000001;
-			static const int dirty_interior	= 0x00000002;
-			static const int dirty_title	= 0x00000004;
-		
-		public:
-			Base(Box& o, int x, int y, int w, int h, int f, const char* t);
-			virtual ~Base();
-			
-			int bottom() const;
-			
-#ifdef	_DEBUG
-			void dump(const std::string& i) const;
-#endif
-			
-			FONT* font() const;
-			void font(FONT* f);
-			
-			int height() const;
-			void height(int h);
-			
-			int left() const;
-			void left(int l);
-			
-			virtual void paint(BITMAP* bmp, int dirty) = 0;
-			
-			int right() const;
-			
-			virtual void theme(_BoxTheme& t);
-			
-			void theme_changed();
-
-			const char* title() const;
-			void title(const char* t);
-
-			const std::string& title_string() const;
-			
-			int top() const;
-			void top(int t);
-			
-			virtual void update_from_theme(Theme& t);
-
-			int width() const;
-			void width(int w);
-		
-		protected:
-			Box& _owner;
-			
-			int _left;
-			int _right;
-			
-			int _top;
-			int _bottom;
-			
-			int _width;
-			int _height;
+	class Base
+	{
+	//---------------------------------------------------------------------
+	public:
+		static const int dirty_frame	= 0x00000001;
+		static const int dirty_interior	= 0x00000002;
+		static const int dirty_title	= 0x00000004;
 	
-			std::string _title;
-
-			FONT* _font;
-		};
+	//-------------------------------------------------------------------------
+	public:
+		Base(Box& o, int x, int y, int w, int h, int f, const char* t);
 		
+		virtual ~Base();
+
+	//-------------------------------------------------------------------------		
+	public:
+		int bottom() const;
+
+		int top() const;
+		void top(int t);
+		
+		int height() const;
+		void height(int h);
+		
+		int left() const;
+		void left(int l);
+		
+		int width() const;
+		void width(int w);
+	
+		int right() const;
+		
+	//-------------------------------------------------------------------------		
+	public:
+#ifdef	_DEBUG
+		void dump(const std::string& i) const;
+#endif
+		
+		FONT* font() const;
+		void font(FONT* f);
+		
+		virtual void paint(BITMAP* bmp, int dirty) = 0;
+		
+		virtual void theme(_BoxTheme& t);
+		
+		void theme_changed();
+
+		const char* title() const;
+		void title(const char* t);
+
+		const std::string& title_string() const;
+		
+		virtual void update_from_theme(Theme& t);
+
+	protected:
+		Box& _owner;
+		
+		int _left;
+		int _right;
+		
+		int _top;
+		int _bottom;
+		
+		int _width;
+		int _height;
+
+		std::string _title;
+
+		FONT* _font;
+	};
+	
 //=============================================================================
 // class Impl3D declaration
 //=============================================================================
-		
-		class Impl3D : public Base
-		{
-		public:
-			Impl3D(Box& o, int x, int y, int w, int h, int f, const char* t);
+	
+	class Impl3D : public Base
+	{
+	public:
+		Impl3D(Box& o, int x, int y, int w, int h, int f, const char* t);
 
 #ifdef	_DEBUG
-			void dump(const std::string& i) const;
+		void dump(const std::string& i) const;
 #endif
 
-			void paint(BITMAP* bmp, int dirty);
+		void paint(BITMAP* bmp, int dirty);
 
-			void theme(_BoxTheme& t);
-						
-			void update_from_theme(Theme& t);
-		
-		private:
-			int _frameLightest;
-			int _frameLight;
-			int _frameDark;
-			int _frameDarkest;
+		void theme(_BoxTheme& t);
+					
+		void update_from_theme(Theme& t);
+	
+	private:
+		int _frameLightest;
+		int _frameLight;
+		int _frameDark;
+		int _frameDarkest;
 
-			int _background;
-			int _foreground;
+		int _background;
+		int _foreground;
 
-			int _inactiveBackground;
-			int _inactiveForeground;
+		int _inactiveBackground;
+		int _inactiveForeground;
 
-			int _interior;
-		};
-		
+		int _interior;
+	};
+	
 //=============================================================================
 // class ImplFlat declaration
 //=============================================================================
 
-		class ImplFlat : public Base
-		{
-		public:
-			ImplFlat(Box& o, int x, int y, int w, int h, int f, const char* t);
-			
+	class ImplFlat : public Base
+	{
+	public:
+		ImplFlat(Box& o, int x, int y, int w, int h, int f, const char* t);
+		
 #ifdef	_DEBUG
-			void dump(const std::string& i) const;
+		void dump(const std::string& i) const;
 #endif
 
-			void paint(BITMAP* bmp, int dirty);
+		void paint(BITMAP* bmp, int dirty);
 
-			void theme(_BoxTheme& t);
-			
-			void update_from_theme(Theme& t);
-			
-		private:
-			int _frame;
-
-			int _background;
-			int _foreground;
-
-			int _inactiveBackground;
-			int _inactiveForeground;
-
-			int _interior;
-		};
+		void theme(_BoxTheme& t);
 		
+		void update_from_theme(Theme& t);
+		
+	private:
+		int _frame;
+
+		int _background;
+		int _foreground;
+
+		int _inactiveBackground;
+		int _inactiveForeground;
+
+		int _interior;
+	};
+	
 //=============================================================================
 // class Base implementation
 //=============================================================================
 
-		Base::Base(Box& o, int x, int y, int w, int h, int f, const char* t)
-				:
-				_owner(o),
-				_left(x),
-				_right(x + w - 1),
-				_top(y),
-				_bottom(y + h - 1),
-				_width(w),
-				_height(h),
-				_font(0)
-		{
-			if (t)
-				_title = t;
-		}
-		
-		Base::~Base()
-		{
-		}
-		
-		int Base::bottom() const
-		{
-			return _bottom;
-		}
+	Base::Base(Box& o, int x, int y, int w, int h, int f, const char* t)
+			:
+			_owner(o),
+			_left(x),
+			_right(x + w - 1),
+			_top(y),
+			_bottom(y + h - 1),
+			_width(w),
+			_height(h),
+			_font(0)
+	{
+		if (t)
+			_title = t;
+	}
+	
+	Base::~Base()
+	{
+	}
+	
+	int Base::bottom() const
+	{
+		return _bottom;
+	}
 
 #ifdef	_DEBUG
-		void Base::dump(const std::string& i) const
-		{
+	void Base::dump(const std::string& i) const
+	{
 #if 0
-			dump_xywhrb(_left, _top, _width, _top, _right, _bottom);
-			if ((_owner.flags() & Box::t_mask) == Box::t_title)
-			{
-				TRACE(" Title: %s\n", _title.c_str());
-				TRACE(" Font: $%08X%s\n", _font, (_font == ::font ?
-						" (Allegro Global Font)" : ""));
-			}
-#endif
+		dump_xywhrb(_left, _top, _width, _top, _right, _bottom);
+		if ((_owner.flags() & Box::t_mask) == Box::t_title)
+		{
+			TRACE(" Title: %s\n", _title.c_str());
+			TRACE(" Font: $%08X%s\n", _font, (_font == ::font ?
+					" (Allegro Global Font)" : ""));
 		}
 #endif
+	}
+#endif
 
-		FONT* Base::font() const
+	FONT* Base::font() const
+	{
+		return _font;
+	}
+	
+	void Base::font(FONT* f)
+	{
+		if (_font != f)
 		{
-			return _font;
-		}
-		
-		void Base::font(FONT* f)
-		{
-			if (_font != f)
-			{
-				_font = f;
-				_owner.dirty(dirty_title | dirty_frame | _Control::update_display);
-			}
-		}
-		
-		int Base::height() const
-		{
-			return _height;
-		}
-		
-		void Base::height(int h)
-		{
-			_height = h;
-			_bottom = _top + _height - 1;
-		}
-
-		int Base::left() const
-		{
-			return _left;
-		}
-		
-		void Base::left(int l)
-		{
-			_left = l;
-			_right = _left + _width - 1;
-		}
-		
-		int Base::right() const
-		{
-			return _right;
-		}
-		
-		void Base::theme(_BoxTheme& t)
-		{
-			_font = t.font();
-		}
-		
-		void Base::theme_changed()
-		{
-			update_from_theme(_owner.manager().theme());
-			_owner.dirty(_Control::dirty_all);
-		}
-		
-		const char* Base::title() const
-		{
-			return _title.c_str();
-		}
-		
-		void Base::title(const char* t)
-		{
-			_title = t;
+			_font = f;
 			_owner.dirty(dirty_title | dirty_frame | _Control::update_display);
 		}
-		
-		const std::string& Base::title_string() const
+	}
+	
+	int Base::height() const
+	{
+		return _height;
+	}
+	
+	void Base::height(int h)
+	{
+		_height = h;
+		_bottom = _top + _height - 1;
+	}
+
+	int Base::left() const
+	{
+		return _left;
+	}
+	
+	void Base::left(int l)
+	{
+		_left = l;
+		_right = _left + _width - 1;
+	}
+	
+	int Base::right() const
+	{
+		return _right;
+	}
+	
+	void Base::theme(_BoxTheme& t)
+	{
+		_font = t.font();
+	}
+	
+	void Base::theme_changed()
+	{
+		update_from_theme(_owner.manager().theme());
+		_owner.dirty(_Control::dirty_all);
+	}
+	
+	const char* Base::title() const
+	{
+		return _title.c_str();
+	}
+	
+	void Base::title(const char* t)
+	{
+		_title = t;
+		_owner.dirty(dirty_title | dirty_frame | _Control::update_display);
+	}
+	
+	const std::string& Base::title_string() const
+	{
+		return _title;
+	}
+	
+	int Base::top() const
+	{
+		return _top;
+	}
+	
+	void Base::top(int t)
+	{
+		_top = t;
+		_bottom = _top + _height - 1;
+	}
+	
+	void Base::update_from_theme(Theme& t)
+	{
+		// Does theme contain a BoxThemeFlat?
+		Theme::iterator i = t.find(Theme::TYPE_BOX);
+		if (i != t.end())
 		{
-			return _title;
+			// Yup, so initialize colors from type
+			_BoxTheme& ti = static_cast<_BoxTheme&>(*i);
+			_font = ti.font();
 		}
-		
-		int Base::top() const
+		else
 		{
-			return _top;
+			// Locate common type
+			i = t.find(Theme::TYPE_DEFAULT);
+			ASSERT(i != t.end());
+			_DefaultTheme& ti = static_cast<_DefaultTheme&>(*i);
+			_font = ti.font();
 		}
-		
-		void Base::top(int t)
-		{
-			_top = t;
-			_bottom = _top + _height - 1;
-		}
-		
-		void Base::update_from_theme(Theme& t)
-		{
-			// Does theme contain a BoxThemeFlat?
-			Theme::iterator i = t.find(Theme::TYPE_BOX);
-			if (i != t.end())
-			{
-				// Yup, so initialize colors from type
-				_BoxTheme& ti = static_cast<_BoxTheme&>(*i);
-				_font = ti.font();
-			}
-			else
-			{
-				// Locate common type
-				i = t.find(Theme::TYPE_DEFAULT);
-				ASSERT(i != t.end());
-				_DefaultTheme& ti = static_cast<_DefaultTheme&>(*i);
-				_font = ti.font();
-			}
-		}
-		
-		int Base::width() const
-		{
-			return _width;
-		}
-		
-		void Base::width(int w)
-		{
-			_width = w;
-			_right = _left + _width - 1;
-		}
-		
+	}
+	
+	int Base::width() const
+	{
+		return _width;
+	}
+	
+	void Base::width(int w)
+	{
+		_width = w;
+		_right = _left + _width - 1;
+	}
+	
 //=============================================================================
 // class Impl3D implementation
 //=============================================================================
 
-		Impl3D::Impl3D(Box& o, int x, int y, int w, int h, int f, const char* t)
-				:
-				Base(o, x, y, w, h, f, t)
+	Impl3D::Impl3D(Box& o, int x, int y, int w, int h, int f, const char* t)
+			:
+			Base(o, x, y, w, h, f, t)
+	{
+		update_from_theme(o.manager().theme());
+	}
+	
+#ifdef	_DEBUG
+	void Impl3D::dump(const std::string& i) const
+	{
+#if 0
+		// Call base first
+		Base::dump();
+		
+		// Dump our color theme
+		TRACE(" Frame Lightest Color: %d %d %d\n", getr(_frameLightest),
+				getg(_frameLightest), getb(_frameLightest));
+		TRACE(" Frame Light Color: %d %d %d\n", getr(_frameLight),
+				getg(_frameLight), getb(_frameLight));
+		TRACE(" Frame Dark Color: %d %d %d\n", getr(_frameDark), getg(_frameDark),
+				getb(_frameDark));
+		TRACE(" Frame Darkest Color: %d %d %d\n", getr(_frameDarkest),
+				getg(_frameDarkest), getb(_frameDarkest));
+		TRACE(" Text Foreground Color: %d %d %d\n", getr(_foreground),
+				getg(_foreground), getb(_foreground));
+		TRACE(" Text Background Color: %d %d %d\n", getr(_background),
+				getg(_background), getb(_background));
+		TRACE(" Text Foreground Color (Inactive): %d %d %d\n", getr(_inactiveForeground),
+				getg(_inactiveForeground), getb(_inactiveForeground));
+		TRACE(" Text Foreground Color (Inactive): %d %d %d\n", getr(_inactiveBackground),
+				getg(_inactiveBackground), getb(_inactiveBackground));
+		TRACE(" Interior Color: %d %d %d\n", getr(_interior), getg(_interior),
+				getb(_interior));
+#endif
+	}
+#endif
+
+	void Impl3D::paint(BITMAP* bmp, int dirty)
+	{
+		const bool isFrameDirty = ((dirty & dirty_frame) != 0);
+		const bool isInteriorDirty = ((dirty & dirty_interior) != 0);
+		const bool isTitleDirty = ((dirty & dirty_title) != 0);
+		
+		const int flags = _owner.flags();
+		
+		const int font_height = text_height(_font);
+
+		const bool isTitle = ((flags & Box::t_mask) == Box::t_title);
+		const int vertical = (flags & Box::v_mask);
+		const int options = (flags & Box::o_mask);
+		
+		// Determine correct top and bottom lines
+		int t = _top;
+		int b = _bottom;
+		if (isTitle)
 		{
-			update_from_theme(o.manager().theme());
+			const bool isTop = (vertical == Box::v_top);
+			const bool isBottom = (vertical == Box::v_bottom);
+			
+			const bool isAbove = (options == Box::o_titleabove);
+			const bool isCentered = (options == Box::o_titlecentered);
+			const bool isBelow = (options == Box::o_titlebelow);
+			
+			// Adjust for top or bottom title plus options
+			if (isTop)
+			{
+				if (isAbove)
+					t += (font_height);
+				else if (isCentered)
+					t += ((font_height - 2) / 2);
+			}
+			else if (isBottom)
+			{
+				if (isCentered)
+					b -= (font_height / 2);
+				else if (isBelow)
+					b -= (font_height + 1);
+			}
+		}
+
+		// Paint frame
+		const int frame = (flags & Box::f_mask);
+		const bool isIn = (frame == Box::f_in);
+		const bool isFlat = (frame == Box::f_flat);
+		const bool isFilled = ((flags & Box::i_mask) == Box::i_filled);
+		if (isFlat)
+		{
+			if (isFrameDirty)
+			{
+				rect(bmp, _left, t, _right - 1, b - 1, _frameDark);
+				hline(bmp, _left + 1, t + 1, _right - 2, _frameLightest);
+				vline(bmp, _left + 1, t + 2, b - 2, _frameLightest);
+				hline(bmp, _left, b, _right, _frameLightest);
+				vline(bmp, _right, t, b - 1, _frameLightest);
+			}
+			if (isFilled && isInteriorDirty)
+				rectfill(bmp, _left + 2, t + 2, _right - 2, b - 2, _interior);
+		}
+		else
+		{
+			if (isFrameDirty)
+			{
+				int topLeft;
+				int bottomRight;
+				int insetTopLeft;
+				int insetBottomRight;
+				if (isIn)
+				{
+					topLeft = _frameDarkest;
+					bottomRight = _frameLightest;
+					insetTopLeft = _frameDark;
+					insetBottomRight = _frameLight;
+				}
+				else
+				{
+					topLeft = _frameLight;
+					bottomRight = _frameDarkest;
+					insetTopLeft = _frameLightest;
+					insetBottomRight = _frameDark;
+				}
+				
+				// Top/Left
+				hline(bmp, _left, t, _right - 1, topLeft);
+				vline(bmp, _left, t + 1, b - 1, topLeft);
+				
+				// Inset top/left
+				hline(bmp, _left + 1, t + 1, _right - 2, insetTopLeft);
+				vline(bmp, _left + 1, t + 2, b - 2, insetTopLeft);
+				
+				// Bottom/Right
+				hline(bmp, _left, b, _right, bottomRight);
+				vline(bmp, _right, t, b - 1, bottomRight);
+
+				// Inset bottom/right
+				hline(bmp, _left + 1, b - 1, _right - 1, insetBottomRight);
+				vline(bmp, _right - 1, t + 1, b - 2, insetBottomRight);
+			}
+			
+			// Fill interior if desired
+			if (isFilled && isInteriorDirty)
+				rectfill(bmp, _left + 2, t + 2, _right - 2, b - 2, _interior);
 		}
 		
-#ifdef	_DEBUG
-		void Impl3D::dump(const std::string& i) const
+		// Title if desired
+		if (isTitle && isTitleDirty)
 		{
-#if 0
-			// Call base first
-			Base::dump();
+			// Determine left of title
+			int x;
+			switch (flags & Box::h_mask)
+			{
+			case Box::h_left:
+				x = _left + 5;
+				break;
+				
+			case Box::h_right:
+				x = _right - 5 - text_length(_font, _title.c_str());
+				break;
+				
+			case Box::h_centered:
+				x = _left + ((_width - text_length(_font, _title.c_str())) / 2);
+				break;
+			}
 			
-			// Dump our color theme
-			TRACE(" Frame Lightest Color: %d %d %d\n", getr(_frameLightest),
-					getg(_frameLightest), getb(_frameLightest));
-			TRACE(" Frame Light Color: %d %d %d\n", getr(_frameLight),
-					getg(_frameLight), getb(_frameLight));
-			TRACE(" Frame Dark Color: %d %d %d\n", getr(_frameDark), getg(_frameDark),
-					getb(_frameDark));
-			TRACE(" Frame Darkest Color: %d %d %d\n", getr(_frameDarkest),
-					getg(_frameDarkest), getb(_frameDarkest));
-			TRACE(" Text Foreground Color: %d %d %d\n", getr(_foreground),
-					getg(_foreground), getb(_foreground));
-			TRACE(" Text Background Color: %d %d %d\n", getr(_background),
-					getg(_background), getb(_background));
-			TRACE(" Text Foreground Color (Inactive): %d %d %d\n", getr(_inactiveForeground),
-					getg(_inactiveForeground), getb(_inactiveForeground));
-			TRACE(" Text Foreground Color (Inactive): %d %d %d\n", getr(_inactiveBackground),
-					getg(_inactiveBackground), getb(_inactiveBackground));
-			TRACE(" Interior Color: %d %d %d\n", getr(_interior), getg(_interior),
-					getb(_interior));
-#endif
+			// Determine top of title
+			int y;
+			switch (vertical)
+			{
+			case Box::v_top:
+				y = _top;
+				break;
+				
+			case Box::v_bottom:
+				y = _bottom - font_height;
+				break;
+				
+			case Box::v_centered:
+				y = _top + ((_height - font_height) / 2);
+				break;
+			}
+			
+			// Adjust top for option's
+			switch (options)
+			{
+			case Box::o_titlecentered:
+				break;
+				
+			case Box::o_titleabove:
+				if (vertical == Box::v_bottom)
+					y -= 1;
+				break;
+			
+			case Box::o_titlebelow:
+				if (vertical == Box::v_top)
+					y += 3;
+				else if (vertical == Box::v_bottom)
+					y += 1;
+				break;
+			}
+
+			// Display title
+			const bool active = _owner.active();
+			const int fore = active ? _foreground : _inactiveForeground;
+			const int back = active ? _background : _inactiveBackground;
+			textout_ex(bmp, _font, _title.c_str(), x, y, fore, back);
 		}
-#endif
+	}
 
-		void Impl3D::paint(BITMAP* bmp, int dirty)
+	void Impl3D::theme(_BoxTheme& t)
+	{
+		Base::theme(t);
+		BoxTheme3D& ti = static_cast<BoxTheme3D&>(t);
+		_frameLightest = ti.frame_lightest();
+		_frameLight = ti.frame_light();
+		_frameDark = ti.frame_dark();
+		_frameDarkest = ti.frame_darkest();
+		_background = ti.interior();
+		_foreground = ti.text_foreground();
+		_inactiveBackground = ti.interior();
+		_inactiveForeground = ti.inactive_text_background();
+		_interior = ti.interior();
+	}
+	
+	void Impl3D::update_from_theme(Theme& t)
+	{
+		// NOTE:  Assumes STYLE_3D is still active style for t.
+		
+		// Let base do common stuff
+		Base::update_from_theme(t);
+		
+		// Does theme contain a BoxThemeFlat?
+		Theme::iterator i = t.find(Theme::TYPE_BOX);
+		if (i != t.end())
 		{
-			const bool isFrameDirty = ((dirty & dirty_frame) != 0);
-			const bool isInteriorDirty = ((dirty & dirty_interior) != 0);
-			const bool isTitleDirty = ((dirty & dirty_title) != 0);
-			
-			const int flags = _owner.flags();
-			
-			const int font_height = text_height(_font);
-
-			const bool isTitle = ((flags & Box::t_mask) == Box::t_title);
-			const int vertical = (flags & Box::v_mask);
-			const int options = (flags & Box::o_mask);
-			
-			// Determine correct top and bottom lines
-			int t = _top;
-			int b = _bottom;
-			if (isTitle)
-			{
-				const bool isTop = (vertical == Box::v_top);
-				const bool isBottom = (vertical == Box::v_bottom);
-				
-				const bool isAbove = (options == Box::o_titleabove);
-				const bool isCentered = (options == Box::o_titlecentered);
-				const bool isBelow = (options == Box::o_titlebelow);
-				
-				// Adjust for top or bottom title plus options
-				if (isTop)
-				{
-					if (isAbove)
-						t += (font_height);
-					else if (isCentered)
-						t += ((font_height - 2) / 2);
-				}
-				else if (isBottom)
-				{
-					if (isCentered)
-						b -= (font_height / 2);
-					else if (isBelow)
-						b -= (font_height + 1);
-				}
-			}
-
-			// Paint frame
-			const int frame = (flags & Box::f_mask);
-			const bool isIn = (frame == Box::f_in);
-			const bool isFlat = (frame == Box::f_flat);
-			const bool isFilled = ((flags & Box::i_mask) == Box::i_filled);
-			if (isFlat)
-			{
-				if (isFrameDirty)
-				{
-					rect(bmp, _left, t, _right - 1, b - 1, _frameDark);
-					hline(bmp, _left + 1, t + 1, _right - 2, _frameLightest);
-					vline(bmp, _left + 1, t + 2, b - 2, _frameLightest);
-					hline(bmp, _left, b, _right, _frameLightest);
-					vline(bmp, _right, t, b - 1, _frameLightest);
-				}
-				if (isFilled && isInteriorDirty)
-					rectfill(bmp, _left + 2, t + 2, _right - 2, b - 2, _interior);
-			}
-			else
-			{
-				if (isFrameDirty)
-				{
-					int topLeft;
-					int bottomRight;
-					int insetTopLeft;
-					int insetBottomRight;
-					if (isIn)
-					{
-						topLeft = _frameDarkest;
-						bottomRight = _frameLightest;
-						insetTopLeft = _frameDark;
-						insetBottomRight = _frameLight;
-					}
-					else
-					{
-						topLeft = _frameLight;
-						bottomRight = _frameDarkest;
-						insetTopLeft = _frameLightest;
-						insetBottomRight = _frameDark;
-					}
-					
-					// Top/Left
-					hline(bmp, _left, t, _right - 1, topLeft);
-					vline(bmp, _left, t + 1, b - 1, topLeft);
-					
-					// Inset top/left
-					hline(bmp, _left + 1, t + 1, _right - 2, insetTopLeft);
-					vline(bmp, _left + 1, t + 2, b - 2, insetTopLeft);
-					
-					// Bottom/Right
-					hline(bmp, _left, b, _right, bottomRight);
-					vline(bmp, _right, t, b - 1, bottomRight);
-
-					// Inset bottom/right
-					hline(bmp, _left + 1, b - 1, _right - 1, insetBottomRight);
-					vline(bmp, _right - 1, t + 1, b - 2, insetBottomRight);
-				}
-				
-				// Fill interior if desired
-				if (isFilled && isInteriorDirty)
-					rectfill(bmp, _left + 2, t + 2, _right - 2, b - 2, _interior);
-			}
-			
-			// Title if desired
-			if (isTitle && isTitleDirty)
-			{
-				// Determine left of title
-				int x;
-				switch (flags & Box::h_mask)
-				{
-				case Box::h_left:
-					x = _left + 5;
-					break;
-					
-				case Box::h_right:
-					x = _right - 5 - text_length(_font, _title.c_str());
-					break;
-					
-				case Box::h_centered:
-					x = _left + ((_width - text_length(_font, _title.c_str())) / 2);
-					break;
-				}
-				
-				// Determine top of title
-				int y;
-				switch (vertical)
-				{
-				case Box::v_top:
-					y = _top;
-					break;
-					
-				case Box::v_bottom:
-					y = _bottom - font_height;
-					break;
-					
-				case Box::v_centered:
-					y = _top + ((_height - font_height) / 2);
-					break;
-				}
-				
-				// Adjust top for option's
-				switch (options)
-				{
-				case Box::o_titlecentered:
-					break;
-					
-				case Box::o_titleabove:
-					if (vertical == Box::v_bottom)
-						y -= 1;
-					break;
-				
-				case Box::o_titlebelow:
-					if (vertical == Box::v_top)
-						y += 3;
-					else if (vertical == Box::v_bottom)
-						y += 1;
-					break;
-				}
-
-				// Display title
-				const bool active = _owner.active();
-				const int fore = active ? _foreground : _inactiveForeground;
-				const int back = active ? _background : _inactiveBackground;
-				textout_ex(bmp, _font, _title.c_str(), x, y, fore, back);
-			}
-		}
-
-		void Impl3D::theme(_BoxTheme& t)
-		{
-			Base::theme(t);
-			BoxTheme3D& ti = static_cast<BoxTheme3D&>(t);
+			// Yup, so initialize colors from type
+			BoxTheme3D& ti = static_cast<BoxTheme3D&>(*i);
 			_frameLightest = ti.frame_lightest();
 			_frameLight = ti.frame_light();
 			_frameDark = ti.frame_dark();
@@ -528,211 +559,208 @@ namespace yacg
 			_inactiveForeground = ti.inactive_text_background();
 			_interior = ti.interior();
 		}
-		
-		void Impl3D::update_from_theme(Theme& t)
+		else
 		{
-			// NOTE:  Assumes STYLE_3D is still active style for t.
-			
-			// Let base do common stuff
-			Base::update_from_theme(t);
-			
-			// Does theme contain a BoxThemeFlat?
-			Theme::iterator i = t.find(Theme::TYPE_BOX);
-			if (i != t.end())
-			{
-				// Yup, so initialize colors from type
-				BoxTheme3D& ti = static_cast<BoxTheme3D&>(*i);
-				_frameLightest = ti.frame_lightest();
-				_frameLight = ti.frame_light();
-				_frameDark = ti.frame_dark();
-				_frameDarkest = ti.frame_darkest();
-				_background = ti.interior();
-				_foreground = ti.text_foreground();
-				_inactiveBackground = ti.interior();
-				_inactiveForeground = ti.inactive_text_background();
-				_interior = ti.interior();
-			}
-			else
-			{
-				// Locate flat type
-				i = t.find(Theme::TYPE_DEFAULT);
-				DefaultTheme3D& ti = static_cast<DefaultTheme3D&>(*i);
-				ASSERT(i != t.end());
-				_frameLightest = ti.frame_lightest();
-				_frameLight = ti.frame_light();
-				_frameDark = ti.frame_dark();
-				_frameDarkest = ti.frame_darkest();
-				_background = ti.interior();
-				_foreground = ti.text_foreground();
-				_inactiveBackground = ti.interior();
-				_inactiveForeground = ti.inactive_text_foreground();
-				_interior = ti.interior();
-			}
+			// Locate flat type
+			i = t.find(Theme::TYPE_DEFAULT);
+			DefaultTheme3D& ti = static_cast<DefaultTheme3D&>(*i);
+			ASSERT(i != t.end());
+			_frameLightest = ti.frame_lightest();
+			_frameLight = ti.frame_light();
+			_frameDark = ti.frame_dark();
+			_frameDarkest = ti.frame_darkest();
+			_background = ti.interior();
+			_foreground = ti.text_foreground();
+			_inactiveBackground = ti.interior();
+			_inactiveForeground = ti.inactive_text_foreground();
+			_interior = ti.interior();
 		}
+	}
 
 //=============================================================================
 // class ImplFlat implementation
 //=============================================================================
 
-		ImplFlat::ImplFlat(Box& o, int x, int y, int w, int h, int f, const char* t)
-				:
-				Base(o, x, y, w, h, f, t)
-		{
-			update_from_theme(o.manager().theme());
-		}
+	ImplFlat::ImplFlat(Box& o, int x, int y, int w, int h, int f, const char* t)
+			:
+			Base(o, x, y, w, h, f, t)
+	{
+		update_from_theme(o.manager().theme());
+	}
 
 #ifdef	_DEBUG
-		void ImplFlat::dump(const std::string& i) const
-		{
+	void ImplFlat::dump(const std::string& i) const
+	{
 #if 0
-			// Call base first
-			Base::dump();
-			
-			// Dump our color theme
-			TRACE(" Frame Color: %d %d %d\n", getr(_frame), getg(_frame), getb(_frame));
-			TRACE(" Text Foreground Color: %d %d %d\n", getr(_foreground),
-					getg(_foreground), getb(_foreground));
-			TRACE(" Text Background Color: %d %d %d\n", getr(_background),
-					getg(_background), getb(_background));
-			TRACE(" Text Foreground Color (Inactive): %d %d %d\n", getr(_inactiveForeground),
-					getg(_inactiveForeground), getb(_inactiveForeground));
-			TRACE(" Text Foreground Color (Inactive): %d %d %d\n", getr(_inactiveBackground),
-					getg(_inactiveBackground), getb(_inactiveBackground));
-			TRACE(" Interior Color: %d %d %d\n", getr(_interior), getg(_interior),
-					getb(_interior));
+		// Call base first
+		Base::dump();
+		
+		// Dump our color theme
+		TRACE(" Frame Color: %d %d %d\n", getr(_frame), getg(_frame), getb(_frame));
+		TRACE(" Text Foreground Color: %d %d %d\n", getr(_foreground),
+				getg(_foreground), getb(_foreground));
+		TRACE(" Text Background Color: %d %d %d\n", getr(_background),
+				getg(_background), getb(_background));
+		TRACE(" Text Foreground Color (Inactive): %d %d %d\n", getr(_inactiveForeground),
+				getg(_inactiveForeground), getb(_inactiveForeground));
+		TRACE(" Text Foreground Color (Inactive): %d %d %d\n", getr(_inactiveBackground),
+				getg(_inactiveBackground), getb(_inactiveBackground));
+		TRACE(" Interior Color: %d %d %d\n", getr(_interior), getg(_interior),
+				getb(_interior));
 #endif
-		}
+	}
 #endif
 
-		void ImplFlat::paint(BITMAP* bmp, int dirty)
+	void ImplFlat::paint(BITMAP* bmp, int dirty)
+	{
+		const bool isFrameDirty = ((dirty & dirty_frame) != 0);
+		const bool isInteriorDirty = ((dirty & dirty_interior) != 0);
+		const bool isTitleDirty = ((dirty & dirty_title) != 0);
+
+		const int flags = _owner.flags();
+		
+		const int font_height = text_height(_font);
+		
+		const bool isTitle = ((flags & Box::t_mask) == Box::t_title);
+		const int vertical = (flags & Box::v_mask);
+		const int options = (flags & Box::o_mask);
+		
+		// Frame
+		if (isTitle)
 		{
-			const bool isFrameDirty = ((dirty & dirty_frame) != 0);
-			const bool isInteriorDirty = ((dirty & dirty_interior) != 0);
-			const bool isTitleDirty = ((dirty & dirty_title) != 0);
-
-			const int flags = _owner.flags();
+			const bool isTop = (vertical == Box::v_top);
+			const bool isBottom = (vertical == Box::v_bottom);
 			
-			const int font_height = text_height(_font);
+			const bool isAbove = (options == Box::o_titleabove);
+			const bool isCentered = (options == Box::o_titlecentered);
+			const bool isBelow = (options == Box::o_titlebelow);
 			
-			const bool isTitle = ((flags & Box::t_mask) == Box::t_title);
-			const int vertical = (flags & Box::v_mask);
-			const int options = (flags & Box::o_mask);
+			int t = _top;
+			int b = _bottom;
 			
-			// Frame
-			if (isTitle)
+			// Adjust for top or bottom title plus options
+			if (isTop)
 			{
-				const bool isTop = (vertical == Box::v_top);
-				const bool isBottom = (vertical == Box::v_bottom);
-				
-				const bool isAbove = (options == Box::o_titleabove);
-				const bool isCentered = (options == Box::o_titlecentered);
-				const bool isBelow = (options == Box::o_titlebelow);
-				
-				int t = _top;
-				int b = _bottom;
-				
-				// Adjust for top or bottom title plus options
-				if (isTop)
-				{
-					if (isAbove)
-						t += font_height + 1;
-					else if (isCentered)
-						t += (font_height / 2);
-				}
-				else if (isBottom)
-				{
-					if (isCentered)
-						b -= (font_height / 2);
-					else if (isBelow)
-						b -= (font_height + 1);
-				}
-				
-				// Frame it
-				if (isFrameDirty)
-					rect(bmp, _left, t, _right, b, _frame);
+				if (isAbove)
+					t += font_height + 1;
+				else if (isCentered)
+					t += (font_height / 2);
 			}
-			else
+			else if (isBottom)
 			{
-				if (isFrameDirty)
-					rect(bmp, _left, _top, _right, _bottom, _frame);
+				if (isCentered)
+					b -= (font_height / 2);
+				else if (isBelow)
+					b -= (font_height + 1);
 			}
 			
-			// Interior if desired
-			if ((flags & Box::i_mask) == Box::i_filled && isInteriorDirty)
-			{
-				rectfill(bmp, _left + 1, _top + 1, _right - 1, _bottom - 1,
-						_interior);
-			}
-			
-			// Title if desired
-			if (isTitle && isTitleDirty)
-			{
-				// Determine left of title
-				int x;
-				switch (flags & Box::h_mask)
-				{
-				case Box::h_left:
-					x = _left + 5;
-					break;
-					
-				case Box::h_right:
-					x = _right - 5 - text_length(_font, _title.c_str());
-					break;
-					
-				case Box::h_centered:
-					x = _left + ((_width - text_length(_font, _title.c_str())) / 2);
-					break;
-				}
-				
-				// Determine top of title
-				int y;
-				switch (vertical)
-				{
-				case Box::v_top:
-					y = _top;
-					break;
-					
-				case Box::v_bottom:
-					y = _bottom - font_height;
-					break;
-					
-				case Box::v_centered:
-					y = _top + ((_height - font_height) / 2);
-					break;
-				}
-				
-				// Adjust top for option's
-				switch (options)
-				{
-				case Box::o_titlecentered:
-					// Nothing to do...
-					break;
-					
-				case Box::o_titleabove:
-					if (vertical == Box::v_centered)
-						y -= (font_height / 2);
-					break;
-				
-				case Box::o_titlebelow:
-					if (vertical == Box::v_centered)
-						y += (font_height / 2);
-					else
-						y += 2;
-					break;
-				}
-
-				// Display title
-				const bool active = _owner.active();
-				const int fore = active ? _foreground : _inactiveForeground;
-				const int back = active ? _background : _inactiveBackground;
-				textout_ex(bmp, _font, _title.c_str(), x, y, fore, back);
-			}
+			// Frame it
+			if (isFrameDirty)
+				rect(bmp, _left, t, _right, b, _frame);
 		}
-
-		void ImplFlat::theme(_BoxTheme& t)
+		else
 		{
-			Base::theme(t);
-			BoxThemeFlat& ti = static_cast<BoxThemeFlat&>(t);
+			if (isFrameDirty)
+				rect(bmp, _left, _top, _right, _bottom, _frame);
+		}
+		
+		// Interior if desired
+		if ((flags & Box::i_mask) == Box::i_filled && isInteriorDirty)
+		{
+			rectfill(bmp, _left + 1, _top + 1, _right - 1, _bottom - 1,
+					_interior);
+		}
+		
+		// Title if desired
+		if (isTitle && isTitleDirty)
+		{
+			// Determine left of title
+			int x;
+			switch (flags & Box::h_mask)
+			{
+			case Box::h_left:
+				x = _left + 5;
+				break;
+				
+			case Box::h_right:
+				x = _right - 5 - text_length(_font, _title.c_str());
+				break;
+				
+			case Box::h_centered:
+				x = _left + ((_width - text_length(_font, _title.c_str())) / 2);
+				break;
+			}
+			
+			// Determine top of title
+			int y;
+			switch (vertical)
+			{
+			case Box::v_top:
+				y = _top;
+				break;
+				
+			case Box::v_bottom:
+				y = _bottom - font_height;
+				break;
+				
+			case Box::v_centered:
+				y = _top + ((_height - font_height) / 2);
+				break;
+			}
+			
+			// Adjust top for option's
+			switch (options)
+			{
+			case Box::o_titlecentered:
+				// Nothing to do...
+				break;
+				
+			case Box::o_titleabove:
+				if (vertical == Box::v_centered)
+					y -= (font_height / 2);
+				break;
+			
+			case Box::o_titlebelow:
+				if (vertical == Box::v_centered)
+					y += (font_height / 2);
+				else
+					y += 2;
+				break;
+			}
+
+			// Display title
+			const bool active = _owner.active();
+			const int fore = active ? _foreground : _inactiveForeground;
+			const int back = active ? _background : _inactiveBackground;
+			textout_ex(bmp, _font, _title.c_str(), x, y, fore, back);
+		}
+	}
+
+	void ImplFlat::theme(_BoxTheme& t)
+	{
+		Base::theme(t);
+		BoxThemeFlat& ti = static_cast<BoxThemeFlat&>(t);
+		_frame = ti.frame();
+		_background = ti.interior();
+		_foreground = ti.text_foreground();
+		_inactiveBackground = ti.interior();
+		_inactiveForeground = ti.inactive_text_background();
+		_interior = ti.interior();
+	}
+	
+	void ImplFlat::update_from_theme(Theme& t)
+	{
+		// NOTE:  Assumes STYLE_FLAT is still active style for t.
+		
+		// Let base do common stuff
+		Base::update_from_theme(t);
+		
+		// Does theme contain a BoxThemeFlat?
+		Theme::iterator i = t.find(Theme::TYPE_BOX);
+		if (i != t.end())
+		{
+			// Yup, so initialize colors from type
+			BoxThemeFlat& ti = static_cast<BoxThemeFlat&>(*i);
 			_frame = ti.frame();
 			_background = ti.interior();
 			_foreground = ti.text_foreground();
@@ -740,41 +768,21 @@ namespace yacg
 			_inactiveForeground = ti.inactive_text_background();
 			_interior = ti.interior();
 		}
-		
-		void ImplFlat::update_from_theme(Theme& t)
+		else
 		{
-			// NOTE:  Assumes STYLE_FLAT is still active style for t.
-			
-			// Let base do common stuff
-			Base::update_from_theme(t);
-			
-			// Does theme contain a BoxThemeFlat?
-			Theme::iterator i = t.find(Theme::TYPE_BOX);
-			if (i != t.end())
-			{
-				// Yup, so initialize colors from type
-				BoxThemeFlat& ti = static_cast<BoxThemeFlat&>(*i);
-				_frame = ti.frame();
-				_background = ti.interior();
-				_foreground = ti.text_foreground();
-				_inactiveBackground = ti.interior();
-				_inactiveForeground = ti.inactive_text_background();
-				_interior = ti.interior();
-			}
-			else
-			{
-				// Locate flat type
-				i = t.find(Theme::TYPE_DEFAULT);
-				DefaultThemeFlat& ti = static_cast<DefaultThemeFlat&>(*i);
-				ASSERT(i != t.end());
-				_frame = ti.frame();
-				_background = ti.interior();
-				_foreground = ti.text_foreground();
-				_inactiveBackground = ti.interior();
-				_inactiveForeground = ti.inactive_text_foreground();
-				_interior = ti.interior();
-			}
+			// Locate flat type
+			i = t.find(Theme::TYPE_DEFAULT);
+			DefaultThemeFlat& ti = static_cast<DefaultThemeFlat&>(*i);
+			ASSERT(i != t.end());
+			_frame = ti.frame();
+			_background = ti.interior();
+			_foreground = ti.text_foreground();
+			_inactiveBackground = ti.interior();
+			_inactiveForeground = ti.inactive_text_foreground();
+			_interior = ti.interior();
 		}
+	}
+	//=========================================================================
 	}
 }
 
