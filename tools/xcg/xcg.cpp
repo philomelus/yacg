@@ -26,9 +26,17 @@ namespace
 
 	void exists(const std::string& f, bool& abort)
 	{
-		if (!boost::filesystem::exists(f))
+		try
 		{
-			cerr << "'" << f << "' doesn't exist!" << endl;
+			if (!boost::filesystem::exists(f))
+			{
+				cerr << "'" << f << "' doesn't exist!" << endl;
+				abort = true;
+			}
+		}
+		catch (...)
+		{
+			cerr << "Unable to determine if file \"" << f << "\" exists." << endl;
 			abort = true;
 		}
 	}
@@ -89,6 +97,8 @@ namespace
 	public:
 		Operation(int c, const char** a);
 	
+		bool abort() const;
+		
 		bool help() const;
 		void help(bool h);
 		
@@ -122,6 +132,12 @@ Operation::Operation(int c, const char** a)
 		for (int i = 1; i < c; ++i)
 		{
 			std::string arg(a[i]);
+			if (arg[0] != '-')
+			{
+				cerr << "Unknown argument " << i << ": \"" << arg << "\"" << endl;
+				_abort = true;
+				break;
+			}
 			if (arg[1] == '-')
 			{
 				// Check for full option names
@@ -163,6 +179,11 @@ Operation::Operation(int c, const char** a)
 				break;
 		}
 	}
+}
+
+bool Operation::abort() const
+{
+	return _abort;
 }
 
 void Operation::generate(int c, const char** a, int& i)
@@ -234,6 +255,8 @@ int	main (int argc,	char** argv)
 {
 	// Parse command line
 	Operation o(argc, const_cast<const char**>(argv));
+	if (o.abort())
+		return 1;
 	
 	// Display help if needed
 	if (o.help())
@@ -247,25 +270,25 @@ int	main (int argc,	char** argv)
 		cout << "Generates classes for reading/writing the specified XML files via libxml2." << endl;
 		cout << "Source files for each XML file will be placed in a directory with the extension" << endl;
 		cout << "of the filename removed.  Files will have the extension cpp and hpp." << endl;
-		return 1;
+		return 2;
 	}
 
 	// Make sure all source files exist
 	const std::vector<std::string>& gen = o.source();
 	bool abort = false;
-	std::for_each(gen.begin(), gen.end(), bind(exists, _1, abort));
-	if (abort)
-		return 2;
-	
-	// Make sure there is a directory for all source files
-	std::for_each(gen.begin(), gen.end(), bind(makedir, _1, abort));
+	std::for_each(gen.begin(), gen.end(), bind(exists, _1, boost::ref(abort)));
 	if (abort)
 		return 3;
-
-	// Generate source for each XML file
-	std::for_each(gen.begin(), gen.end(), bind(generate, _1, abort));
+	
+	// Make sure there is a directory for all source files
+	std::for_each(gen.begin(), gen.end(), bind(makedir, _1, boost::ref(abort)));
 	if (abort)
 		return 4;
+
+	// Generate source for each XML file
+	std::for_each(gen.begin(), gen.end(), bind(generate, _1, boost::ref(abort)));
+	if (abort)
+		return 5;
 	
 	return 0;
 }

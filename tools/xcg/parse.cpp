@@ -57,6 +57,7 @@ void Parser::recurse(xmlNodePtr n)
 			if (std::find(attr.begin(), attr.end(), name) == attr.end())
 				attr.push_back(name);
 		}
+		std::sort(attr.begin(), attr.end());
 	}
 
 	// Parse sub-elements if needed
@@ -71,7 +72,10 @@ void Parser::recurse(xmlNodePtr n)
 				const std::string name(xmlChar2char(s->name));
 				SUBELEMENTS& e = r.elements();
 				if (std::find(e.begin(), e.end(), name) == e.end())
+				{
 					e.push_back(name);
+					std::sort(e.begin(), e.end());
+				}
 			}
 
 			// Check for recursive sub-elements

@@ -29,20 +29,27 @@ namespace impl
 	// Header file generation	
 	private:
 		void header(const ELEMENTS::value_type& v);
-		void header_attributes(const std::string& v, std::ofstream* o);
-		void header_elements(const std::string& v, std::ofstream* o);
-		void header_includes(const std::string& v, std::ofstream* o);
-	
+		void header_attributes_declaration(const std::string& v, std::ofstream& o);
+		void header_elements_declaration(const std::string& v, std::ofstream& o);
+		void header_includes(const std::string& v, std::ofstream& o);
+
+	//-------------------------------------------------------------------------
+	// Inline file generation	
+	private:
+		void inlines(const ELEMENTS::value_type& v);
+		void inlines_attributes(const std::string& v, const std::string& e, std::ofstream& o);
+		void inlines_elements(const std::string& v, const std::string& e, std::ofstream& o);
+		
 	//-------------------------------------------------------------------------
 	// Source file generation	
 	private:
 		void source(const ELEMENTS::value_type& v);
-		void source_attributes_copy(const std::string& v, std::ofstream* o);
-		void source_attributes_read(const std::string& v, std::ofstream* o);
-		void source_attributes_write(const std::string& v, std::ofstream* o);
-		void source_elements_copy(const std::string& v, std::ofstream* o);
-		void source_elements_read(const std::string& v, std::ofstream* o);
-		void source_elements_write(const std::string& v, std::ofstream* o);
+		void source_ope_attributes(const std::string& v, std::ofstream& o);
+		void source_ope_elements(const std::string& v, std::ofstream& o);
+		void source_read_attributes(const std::string& v, std::ofstream& o);
+		void source_read_elements(const std::string& v, std::ofstream& o);
+		void source_write_attributes(const std::string& v, std::ofstream& o);
+		void source_write_elements(const std::string& v, std::ofstream& o);
 	};
 }
 
