@@ -14,142 +14,6 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-namespace
-{
-	const char* major_divider ="//=============================================================================";
-	
-	const char* minor_divider ="//-------------------------------------------------------------------------";
-
-	const char* fixup(const std::string& n)
-	{
-		const KEYWORDS& k = Keywords();
-		const KEYWORDS::const_iterator e = k.end();
-		for (KEYWORDS::const_iterator i = k.begin(); i != e; ++i)
-		{
-			if (n == (*i).name)
-				return (*i).replacement;
-		}
-		return n.c_str();
-	}
-	
-	enum W
-	{
-		global,
-		attr,
-		elem,
-		decl,
-		src,
-		attr_decl,
-		attr_src,
-		elem_decl,
-		elem_src
-	};
-	struct
-	{
-		W when;
-		const char* name;		// attribute or element name to match
-		const char* type;		// name of type
-		const char* convert;	// name of function that accepts const char* and returns type
-	} types[] =
-	{	// when			name			type				convert
-		{ global,		0,				0,					0 }
-	};
-	
-
-//=============================================================================
-
-	static const struct
-	{
-		char invalid;
-		char fix;
-	} invalidCharacters[] =
-	{
-		{ '-',	'_' },
-		{ 0,	0 }
-	};
-
-	// Replaces all invalid characters with their valid equivlents
-	void fix_name(std::string& n)
-	{
-		const std::string::iterator e = n.end();
-		for (std::string::iterator ni = n.begin(); ni != e; ++ni)
-		{
-			for (int i = 0; invalidCharacters[i].invalid != 0; ++i)
-			{
-				if (*ni == invalidCharacters[i].invalid)
-					*ni = invalidCharacters[i].fix;
-			}
-		}
-	}
-	
-	// Make the class name for the passed in base name
-	std::string Class_Name(const std::string& n)
-	{
-		std::string cn;
-		cn = std::toupper(n[0], std::locale());
-		cn += n.substr(1, std::string::npos);
-		fix_name(cn);
-		return cn;
-	}
-	
-	// Make the passed in name plural
-	std::string Plural_Name(const std::string& n)
-	{
-		std::string pn = n;
-		const std::string::size_type l = pn.size() - 1;
-		if (pn[l] != 's' && pn[l] != 'S')
-			pn += 's';
-		fix_name(pn);
-		return pn;
-	}
-	
-	// Generate a valid member name regardless of input: foo_bar == fooBar,
-	// foo+bar == fooBar, etc.  No guarantee of uniqueness.
-	std::string Member_Name(const std::string& n)
-	{
-		std::string mn = n;
-		while (true)
-		{
-			const std::string::iterator e = mn.end();
-			for (std::string::iterator ni = mn.begin(); ni != e; ++ni)
-			{
-				for (int i = 0; invalidCharacters[i].invalid != 0; ++i)
-				{
-					if (*ni == invalidCharacters[i].invalid)
-					{
-						// Uppercase next letter
-						std::string::iterator niu = ni;
-						++niu;
-						if (niu != e)
-							*niu = std::toupper(*niu, std::locale());
-						
-						// Remove offending character
-						mn.erase(ni);
-						
-						// Force us to start over
-						// BUGBUG:  Actually, we just need to "fix" the iterator,
-						// because its not valid anymore
-						break;
-					}
-				}
-				if (invalidCharacters[i].invalid)
-					break;
-			}
-			if (ni == e)
-				break;
-		}
-		return std::string(mn);
-	}
-
-	// Make sure name if valid by replacing invalids in place
-	std::string Name(const std::string& n)
-	{
-		std::string name = n;
-		fix_name(name);
-		return name;
-	}
-}
-
 //=============================================================================
 // class Generator implementation
 //=============================================================================
@@ -234,11 +98,10 @@ void Generator::declaration(const std::string& c, std::ostream& o, const std::st
 	const Element& e = ei->second;
 	const ATTRIBUTES& a = e.attributes();
 	const SUBELEMENTS& s = e.elements();
-	const std::string n = Name(ei->first);
 
 	// Start class declaration
 	std::string prefix(Header_Element_Prefix);
-	update_keywords(prefix, empty, empty, n);
+	update_keywords(prefix, empty, empty, ei->first);
 	o << prefix;
 	
 	// Add attributes
@@ -251,7 +114,7 @@ void Generator::declaration(const std::string& c, std::ostream& o, const std::st
 	
 	// Close up class declaration
 	std::string postfix(Header_Element_Postfix);
-	update_keywords(postfix, empty, empty, n);
+	update_keywords(postfix, empty, empty, ei->first);
 	o << postfix;
 	if (c != l)
 		o << endl;
@@ -418,12 +281,6 @@ void Generator::source_implementation(const std::string& c, std::ostream& o,
 	const ATTRIBUTES& a = e.attributes();
 	SUBELEMENTS s = e.elements();
 	std::sort(s.begin(), s.end());
-	const std::string original_name = ei->first;
-	const std::string name = Name(original_name);
-	const std::string class_name = Class_Name(original_name);
-	const std::string plural_name = Plural_Name(original_name);
-	const std::string ef = s.empty() ? "" : s[0];
-	const std::string el = s.empty() ? "" : s[s.size() - 1];
 	
 	// Element prefix
 	std::string t(Source_Prefix);
@@ -481,7 +338,8 @@ void Generator::source_implementation(const std::string& c, std::ostream& o,
 	t = Source_Write_Start;
 	update_keywords(t, empty, empty, empty, c);
 	o << t;
-	std::for_each(a.begin(), a.end(), bind(source_write_attributes, this, _1, ref(o), ref(name)));
+	std::for_each(a.begin(), a.end(), bind(source_write_attributes, this, _1,
+			ref(o), ref(ei->first)));
 	t = Source_Write_Middle;
 	update_keywords(t, empty, empty, empty, c);
 	o << t;

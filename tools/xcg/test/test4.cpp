@@ -43,7 +43,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-//void copy(const tv::Tv& o, const char* f);
+void copy(const code::Code& c, const char* f);
 
 void Test4()
 {
@@ -55,12 +55,12 @@ void Test4()
 		code::Code c("test4.xml");
 		
 		// Write it out ourself to test the generated code
-//		copy(ctrl, "copy1.xml");
+		copy(c, "test4copy1.xml");
 		
 		// Ask libxml to write it to test write functions
 		c.write("test4copy2.xml");
 		
-		std::cout << "test4: Check 'test4copy2.xml'" << std::endl;
+		std::cout << "test4: Check 'test4copy1.xml' and 'test4copy2.xml'" << std::endl;
 		std::cout << "test4: Otherwise it appears successful" << std::endl;
 	}
 	catch (const std::runtime_error& e)
@@ -73,238 +73,80 @@ void Test4()
 	}
 }
 
-#if 0
-void dump_constructors(const control::Constructor& a, std::ofstream& o, indent& l)
+template <typename T>
+void dumpValue(const T& v, const char* n, std::ostream& o, indent& l)
 {
-	o << l << "<constructor>";
+	o << l << "<" << n;
+	std::string val;
+	v.value(val);
+	if (val.empty())
+		o << "/>" << endl;
+	else
+		o << ">" << val << "</" << n << ">" << endl;
+}
+
+void dump_child3(const code::Child3& c, std::ofstream& o, indent& l)
+{
+	o << l << "<child3>" << endl;
 	std::string v;
-	a.value(v);
-	o << v;
-	o << "</constructor>" << endl;
+	c.value(v);
+	if (!v.empty())
+		o << l << v << endl;
+	{
+		auto_indent i(l);
+		std::for_each(c.child4s().begin(), c.child4s().end(),
+				bind(dumpValue<code::Child4>, _1, "child4", ref(o), ref(l)));
+	}
+	o << l << "</child3>" << endl;
 }
 
-void dump_names(const control::Name& a, std::ofstream& o, indent& l)
+void dump_child2(const code::Child2& c, std::ofstream& o, indent& l)
 {
-	o << l << "<name>";
+	o << l << "<child2>" << endl;
 	std::string v;
-	a.value(v);
-	o << v;
-	o << "</name>" << endl;
+	c.value(v);
+	if (!v.empty())
+		o << l << v << endl;
+	{
+		auto_indent i(l);
+		std::for_each(c.child3s().begin(), c.child3s().end(),
+				bind(dump_child3, _1, ref(o), ref(l)));
+	}
+	o << l << "</child2>" << endl;
 }
 
-void dump_params(const control::Param& a, std::ofstream& o, indent& l)
+void dump_child1(const code::Child1& c, std::ofstream& o, indent& l)
 {
-	o << l << "<param>";
+	o << l << "<child1>" << endl;
 	std::string v;
-	a.value(v);
-	o << v;
-	o << "</param>" << endl;
-}
-
-void dump_returns(const control::Return& a, std::ofstream& o, indent& l)
-{
-	o << l << "<return>";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</return>" << endl;
-}
-
-void dump_styles(const control::Style& a, std::ofstream& o, indent& l)
-{
-	o << l << "<style";
-	if (!a.unique().empty())
-		o << " unique=\"" << a.unique() << "\"";
-	o << ">";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</style>" << endl;
-}
-
-void dump_types(const control::Type& a, std::ofstream& o, indent& l)
-{
-	o << l << "<type>";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</type>" << endl;
-}
-
-void dump_attributes(const control::Attribute& a, std::ofstream& o, indent& l)
-{
-	o << l << "<attribute";
-	if (!a.editable().empty())
-		o << " editable=\"" << a.editable() << "\"";
-	if (!a.Virtual().empty())
-		o << " virtual=\"" << a.Virtual() << "\"";
-	o << ">" << endl;
+	c.value(v);
+	if (!v.empty())
+		o << l << v << endl;
 	{
 		auto_indent i(l);
-		std::for_each(a.constructors().begin(), a.constructors().end(),
-				bind(dump_constructors, _1, ref(o), ref(l)));
+		std::for_each(c.child2s().begin(), c.child2s().end(),
+				bind(dump_child2, _1, ref(o), ref(l)));
 	}
-	{
-		auto_indent i(l);
-		std::for_each(a.names().begin(), a.names().end(),
-				bind(dump_names, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.params().begin(), a.params().end(),
-				bind(dump_params, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.Returns().begin(), a.Returns().end(),
-				bind(dump_returns, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.styles().begin(), a.styles().end(),
-				bind(dump_styles, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.types().begin(), a.types().end(),
-				bind(dump_types, _1, ref(o), ref(l)));
-	}
-	o << l << "</attribute>" << endl;
+	o << l << "</child1>" << endl;
 }
 
-void dump_base(const control::Base& a, std::ofstream& o, indent& l)
+void copy(const code::Code& c, const char* f)
 {
-	o << l << "<base>";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</base>" << endl;
-}
-
-void dump_bits(const control::Bits& a, std::ofstream& o, indent& l)
-{
-	o << l << "<bits>";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</bits>" << endl;
-}
-
-void dump_flag(const control::Flag& a, std::ofstream& o, indent& l)
-{
-	o << l << "<flag>" << endl;
-	{
-		auto_indent i(l);
-		std::for_each(a.bits().begin(), a.bits().end(),
-				bind(dump_bits, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.names().begin(), a.names().end(),
-				bind(dump_names, _1, ref(o), ref(l)));
-	}
-	o << l << "</flag>" << endl;
-}
-
-void dump_flags(const control::Flags& a, std::ofstream& o, indent& l)
-{
-	o << l << "<flags";
-	if (!a.group().empty())
-		o << " group=\"" << a.group() << "\"";
-	o << ">" << endl;
-	{
-		auto_indent i(l);
-		std::for_each(a.flags().begin(), a.flags().end(),
-				bind(dump_flag, _1, ref(o), ref(l)));
-	}
-	o << l << "</flags>" << endl;
-}
-
-void dump_header(const control::Header& a, std::ofstream& o, indent& l)
-{
-	o << l << "<header";
-	if (!a.type().empty())
-		o << " type=\"" << a.type() << "\"";
-	o << ">";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</header>" << endl;
-}
-
-void dump_implementation(const control::Implementation& a, std::ofstream& o, indent& l)
-{
-	o << l << "<implementation";
-	if (!a.type().empty())
-		o << " type=\"" << a.type() << "\"";
-	o << ">";
-	std::string v;
-	a.value(v);
-	o << v;
-	o << "</implementation>" << endl;
-}
-
-void dump_theme(const control::Theme& a, std::ofstream& o, indent& l)
-{
-	o << l << "<theme>" << endl;
-	{
-		auto_indent i(l);
-		std::for_each(a.names().begin(), a.names().end(),
-				bind(dump_names, _1, ref(o), ref(l)));
-	}
-	{
-		auto_indent i(l);
-		std::for_each(a.types().begin(), a.types().end(),
-				bind(dump_types, _1, ref(o), ref(l)));
-	}
-	o << l << "</theme>" << endl;
-}
-
-void copy(const control::Control& c, const char* f)
-{
-	typedef std::vector<std::string> VS;
-
 	indent level;
 	
-	std::ofstream o("copy1.xml", std::ios_base::out | std::ios_base::trunc);
+	std::ofstream o(f, std::ios_base::out | std::ios_base::trunc);
 	
 	o << "<?xml version=\"1.0\">" << endl;
-	o << "<control>" << endl;
+	o << "<code>" << endl;
 	{
 		auto_indent i1(level);
-		std::for_each(c.attributes().begin(), c.attributes().end(),
-				bind(dump_attributes, _1, ref(o), ref(level)));
+		std::for_each(c.child1s().begin(), c.child1s().end(),
+				bind(dump_child1, _1, ref(o), ref(level)));
 	}
 	{
 		auto_indent i1(level);
-		std::for_each(c.bases().begin(), c.bases().end(),
-				bind(dump_base, _1, ref(o), ref(level)));
+		std::for_each(c.datas().begin(), c.datas().end(),
+				bind(dumpValue<code::Data>, _1, "data", ref(o), ref(level)));
 	}
-	{
-		auto_indent i1(level);
-		std::for_each(c.flags().begin(), c.flags().end(),
-				bind(dump_flags, _1, ref(o), ref(level)));
-	}
-	{
-		auto_indent i1(level);
-		std::for_each(c.headers().begin(), c.headers().end(),
-				bind(dump_header, _1, ref(o), ref(level)));
-	}
-	{
-		auto_indent i1(level);
-		std::for_each(c.implementations().begin(), c.implementations().end(),
-				bind(dump_implementation, _1, ref(o), ref(level)));
-	}
-	{
-		auto_indent i1(level);
-		std::for_each(c.names().begin(), c.names().end(),
-				bind(dump_names, _1, ref(o), ref(level)));
-	}
-	{
-		auto_indent i1(level);
-		std::for_each(c.themes().begin(), c.themes().end(),
-				bind(dump_theme, _1, ref(o), ref(level)));
-	}
-	o << "</control>" << endl;
+	o << "</code>" << endl;
 }
-#endif

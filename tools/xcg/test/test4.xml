@@ -17,6 +17,15 @@ This is a test, line 5
 ]]>
 				</child4>
 				<![CDATA[child3 cdata data]]>
+				<child4>
+<![CDATA[
+	int function(int a, int b, const char* c
+			int foo, Bar bar)
+	{
+		// Does it come out the same?
+	}
+]]>
+				</child4>
 			</child3>
 		</child2>
 	</child1>
