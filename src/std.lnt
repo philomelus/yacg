@@ -1,0 +1,44 @@
+//  Microsoft Visual C++ .NET, -si4 -sp4, lib-atl.lnt lib-mfc.lnt lib-stl.lnt lib-w32.lnt lib-wnt.lnt
+//  Standard lint options
+
+co-msc71.lnt
+lib-atl.lnt lib-mfc.lnt lib-stl.lnt lib-w32.lnt lib-wnt.lnt
+options.lnt  -si4 -sp4
+-i"C:\boost_1_31_0"
+//-libdir"C:\boost_1_31_0"
+-i"./include"
+-i"C:/Program Files/Microsoft Visual Studio .NET/Vc7/include"
+-i"C:/Program Files/Microsoft Visual Studio .NET/Vc7/atlmfc/include"
+-i"C:/Program Files/Microsoft Visual Studio .NET/Vc7/PlatformSDK/include"
+-i"C:/Program Files/Microsoft Visual Studio .NET/FrameworkSDK\include;"
+-elib(1714)
+-elib(78)
+-elib(129)
+-elib(151)
+-elib(36)
+-elib(1049)
+-elib(18)
+-elib(755)
+-elib(39)
+-elib(1774)
+-elib(40)
+-elib(26)
+-elib(1078)
+-elib(1013)
+-elib(55)
+-elib(1016)
+-elib(49)
+-elib(1062)
+-elib(1038)
+-elib(84)
+
+-e1714					// not referenced
+-e534					// ignore return value
+-e1024					// no prototype has same arg count (boost template)
+-e119					// toomany args (boost template)
+-e1712					// no default constructor
+-e539					// positive indentation
+-e525					// negative indentation
+-e1740					// not zeroed by destructor
+-e1763					// return of pointer from const member function says "const function modifying class"
+-e755					// macro not referenced

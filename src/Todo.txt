@@ -1,0 +1,26 @@
+/// \file Todo.cpp
+/// Despite the name, this is really only a TEXT file for a common area to
+/// maintain the list of todo items.
+
+/// \todo Implement Top Vertical tab
+
+/// \todo Implement Bottom Vertical tab
+
+/// \todo Implement Tab::w_page
+
+/// \todo Implement grabber read/write so themes can be stored in data files
+
+/// \todo Implement left, top, etc. for moving in all controls (some have it...)
+
+/// \todo Not all controls paint inactive state correctly (or at all...)
+
+/// \todo Idea:  Create graphics object, and have all drawing go through it, that way it can be easily ported
+
+/// \todo Modify scroll's to make thumb size relative to page size (maybe just a paint change???)
+
+/// \todo Should callbacks for menu-down/menu-up, etc. be provided?  Sometimes useful for enablement of items, etc.
+
+/// \todo Add fore/back color's to all primitive controls.
+
+/// \todo Add theme support to all controls.
+

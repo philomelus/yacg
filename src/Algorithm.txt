@@ -1,0 +1,32 @@
+This file contains information about the various alogrithm's used in the
+implementation, as well as the steps to follow to do various things, like add a
+theme to a new control.
+
+1.  Theme's and Controls.
+
+The first thing that needs to be said, is that a control is REQUIRED to be able
+to intialize itself from either one of its own themes, or a default theme.
+
+There is a useful macro in ThemeImpl.hpp that can be used to help implement the
+members of the theme that only access color members: _THEMFUNC.  Look at any
+existing control to see how its used, as well as a nice way to implement the
+_ThemeItem::reset functions in one line of code.
+
+The constructor for the control class should initialize the theme related data
+based on the theme the controlling _Manager is using (_Manager::theme() will
+return a reference to the active theme).
+
+The control should override _Control::theme_changed, call _Control::theme_changed
+from the override, and then update its theme related data.  If the theme change
+invalidates anything, it should call _Manager::dirty() to let the application
+know it needs to update the display, and dirty(x) to notify itself what parts
+need to be repainted.
+
+The control should set the _themeChangedHint to the appropriate values for
+itself.  If the dirty value is being used as a bit field (as it SHOULD!), then
+this value should refelect the bits of the areas that can be affected by flag
+changes.  It may be necessary to override flags_changed, and set this value
+prior to calling _Control::flags_changed to prevent extra unneeded drawing.
+For example, it could check to see what flags were actually changed, and then
+set _themeChangedHint to only invalidate the areas who's flags actually changed.
+

@@ -1,0 +1,8 @@
+-i"c:\boost_1_31_0"
+-libdir"c:\boost_1_31_0"
+-iinclude
+-DWIN32;_DEBUG;_LIB;_MBCS;_MT;_DEBUG
+.\Box.cpp
+.\Theme.cpp
+.\Window.cpp
+.\yacg.cpp
