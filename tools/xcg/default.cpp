@@ -1,5 +1,7 @@
 #include "Common.hpp"
 
+// TODO:  Create this file during build process.  sed, awk, or python will work.
+
 // To import xcg.xml:
 //   1.  Select all lines between braces
 //   2.  Select menu item "Edit | Insert File As Text"
@@ -15,74 +17,21 @@
 const char* impl::xmlDefault =
 {
 "<?xml version=\"1.0\"?>\n"
-"<source>\n"
-"\t<!-- Code types -->\n"
-"\t<types>\n"
-"\t\t<!-- Header types -->\n"
-"\t\t<type name=\"SubelementIncludes\">\n"
-"\t\t\t<subelements>\n"
-"\t\t\t\t<code>#include &quot;@Sub.hpp&quot;</code>\n"
-"\t\t\t</subelements>\n"
-"\t\t</type>\n"
-"\t\t<type name=\"AttributeMembers\">\n"
-"\t\t\t<attributes>\n"
-"\t\t\t\t<code>//<repeat column=\"80\">-</repeat></code>\n"
-"\t\t\t\t<code>// Attribute @attribute.</code>\n"
-"\t\t\t\t<code>public:</code>\n"
-"\t\t\t\t<code>\\tconst @type&amp; @attribute() const;</code>\n"
-"\t\t\t\t<code>\\tvoid @attribute(const @type&amp; @a);</code>\n"
-"\t\t\t\t<code></code>\n"
-"\t\t\t\t<code>private:</code>\n"
-"\t\t\t\t<code>\\t@type _@attribute;</code>\n"
-"\t\t\t</attributes>\n"
-"\t\t</type>\n"
-"\t\t<type name=\"SubelementMembers\">\n"
-"\t\t\t<subelements>\n"
-"\t\t\t\t<code>//<repeat column=\"80\">-</repeat></code>\n"
-"\t\t\t\t<code>// Element @sub.</code>\n"
-"\t\t\t\t<code>public:</code>\n"
-"\t\t\t\t<code>\\tstd::vector&lt;@type&gt;&amp; @sub();</code>\n"
-"\t\t\t\t<code>\\tconst std::vector&lt;@type&gt;&amp; @sub() const;</code>\n"
-"\t\t\t\t<code></code>\n"
-"\t\t\t\t<code>private:</code>\n"
-"\t\t\t\t<code>\\tstd::vector&lt;@type&gt; _@sub;</code>\n"
-"\t\t\t\t<code></code>\n"
-"\t\t\t</subelements>\n"
-"\t\t</type>\n"
-"\t\t"
-"\t\t<!-- Implementation types -->\n"
-"\t\t<!-- TODO -->\n"
-"\t</types>\n"
-""
-"\t<!-- Header prototype -->\n"
-"\t<header>\n"
-"\t\t<code>#ifdef\\t__@ELEMENT_HPP__</code>\n"
-"\t\t<code>#define\\t__@ELEMENT_HPP__</code>\n"
-"\t\t<code></code>\n"
-"\t\t<code>#include &lt;string&gt;</code>\n"
-"\t\t<code>#include &lt;string&gt;</code>\n"
-"\t\t<code></code>\n"
-"\t\t<code>#include &lt;string&gt;</code>\n"
-"\t\t<code></code>\n"
-"\t\t<code type=\"SubelementIncludes\"></code>\n"
-"\t\t<code></code>\n"
-"\t\t<code>//<repeat column=\"80\">=</repeat></code>\n"
-"\t\t<code>// class @Element declaration.</code>\n"
-"\t\t<code>class @Element</code>\n"
-"\t\t<code></code>\n"
-"\t\t<code>//<repeat culumn=\"80\">-</repeat></code>\n"
-"\t\t<code>public:</code>\n"
-"\t\t<code>\\t@Element();</code>\n"
-"\t\t<code>\\t@Element(const char* f);</code>\n"
-"\t\t<code>\\t@Element(const @Element&amp; r);</code>\n"
-"\t\t<code></code>\n"
-"\t\t<code>\\t@Element&amp; operator=(const @Element&amp; r);</code>\n"
-"\t\t<code></code>\n"
-"\t\t<code type=\"AttributeMembers\"></code>\n"
-"\t\t<code type=\"SubelementMembers\"></code>\n"
-"\t\t<code>};</code>\n"
-"\t\t<code></code>\n"
-"\t\t<code>#enidf</code>\n"
-"\t</header>\n"
-"</source>\n"
+};
+
+// To import xcg.csd:
+//   1.  Select all lines between braces
+//   2.  Select menu item "Edit | Insert File As Text"
+//   3.  Select "xcg.xsd"
+//   4.  Use regular expression search/replace with the following replacements:
+//     (a) Repalce /"/ with /\\"/
+//     (b) Replace /^\(.\)/ with /"\1/
+//     (c) Replace /\(.\)$/ with /\1\\n/
+//     (d) Replace /\\t/ with /&tab;/
+//     (e) Replace /\t/ with /\\t/
+//     (f) Replace /&tab;/ with /\\\\t/
+
+const char* impl::xmlSchema =
+{
+"<?xml version=\"1.0\"?>\n"
 };

@@ -9,8 +9,9 @@
 namespace impl
 {
 //=============================================================================
-// Attributes for an element
+// Schema and default code generator
 
+	extern const char* xmlSchema;
 	extern const char* xmlDefault;
 	
 //=============================================================================
