@@ -169,14 +169,20 @@
 					Name="Debug|Win32">
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="$(OutDir)\xcg.exe -g ..\..\tools\xcg\test\test1.xml"
-						Outputs="$(SolutionDir)../../tools/xcg/test/test1/control.hpp;$(SolutionDir)../../tools/xcg/test/test1/control.cpp;"/>
+						Description="Generating libxml wrappers"
+						CommandLine="$(OutDir)\xcg.exe -g ..\..\tools\xcg\test\test1.xml
+"
+						AdditionalDependencies="$(SolutionDir)../../bin/vc71/debug/xcg.exe"
+						Outputs="$(SolutionDir)../../tools/xcg/test/test1/control.hpp;$(SolutionDir)../../tools/xcg/test/test1/control.cpp;$(SolutionDir)../../tools/xcg/test/test1/control.inl;"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
+					Name="Release|Win32">
 					<Tool
-						Name="VCCustomBuildTool"/>
+						Name="VCCustomBuildTool"
+						Description="Generating libxml wrappers"
+						CommandLine="$(OutDir)\xcg.exe -g ..\..\tools\xcg\test\test1.xml"
+						AdditionalDependencies="$(SolutionDir)../../bin/vc71/release/xcg.exe"
+						Outputs="$(SolutionDir)../../tools/xcg/test/test1/control.hpp;$(SolutionDir)../../tools/xcg/test/test1/control.cpp;$(SolutionDir)../../tools/xcg/test/test1/control.inl;"/>
 				</FileConfiguration>
 			</File>
 		</Filter>
@@ -184,38 +190,100 @@
 			Name="test2"
 			Filter="">
 			<File
+				RelativePath="..\..\tools\xcg\test\test2.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories="..\..\tools\xcg\test\test2"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories="..\..\tools\xcg\test\test2"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\tools\xcg\test\test2.xml">
 				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
+					Name="Debug|Win32">
 					<Tool
-						Name="VCCustomBuildTool"/>
+						Name="VCCustomBuildTool"
+						Description="Generating libxml wrappers"
+						CommandLine="$(OutDir)\xcg.exe -g ..\..\tools\xcg\test\test2.xml
+"
+						AdditionalDependencies="$(SolutionDir)../../bin/vc71/debug/xcg.exe"
+						Outputs="$(SolutionDir)../../tools/xcg/test/test2/testSuite.hpp;$(SolutionDir)../../tools/xcg/test/test2/testSuite.cpp;$(SolutionDir)../../tools/xcg/test/test2/testSuite.inl;"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
+					Name="Release|Win32">
 					<Tool
-						Name="VCCustomBuildTool"/>
+						Name="VCCustomBuildTool"
+						Description="Generating libxml wrappers"
+						CommandLine="$(OutDir)\xcg.exe -g ..\..\tools\xcg\test\test2.xml"
+						AdditionalDependencies="$(SolutionDir)../../bin/vc71/release/xcg.exe"
+						Outputs="$(SolutionDir)../../tools/xcg/test/test2/testSuite.hpp;$(SolutionDir)../../tools/xcg/test/test2/testSuite.cpp;$(SolutionDir)../../tools/xcg/test/test2/testSuite.inl;"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\tools\xcg\test\test2\testSuite.cpp">
+			</File>
+			<File
+				RelativePath="..\..\tools\xcg\test\test2\testSuite.hpp">
+			</File>
+			<File
+				RelativePath="..\..\tools\xcg\test\test2\testSuite.inl">
 			</File>
 		</Filter>
 		<Filter
 			Name="test3"
 			Filter="">
 			<File
+				RelativePath="..\..\tools\xcg\test\test3.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories="..\..\tools\xcg\test\test3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories="..\..\tools\xcg\test\test3"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\tools\xcg\test\test3.xml">
 				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
+					Name="Debug|Win32">
 					<Tool
-						Name="VCCustomBuildTool"/>
+						Name="VCCustomBuildTool"
+						Description="Generating libxml wrappers"
+						CommandLine="$(OutDir)\xcg.exe -g ..\..\tools\xcg\test\test3.xml
+"
+						AdditionalDependencies="$(SolutionDir)../../bin/vc71/debug/xcg.exe"
+						Outputs="$(SolutionDir)../../tools/xcg/test/test3/tv.hpp;$(SolutionDir)../../tools/xcg/test/test3/tv.cpp;$(SolutionDir)../../tools/xcg/test/test3/tv.inl;"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
+					Name="Release|Win32">
 					<Tool
-						Name="VCCustomBuildTool"/>
+						Name="VCCustomBuildTool"
+						Description="Generating libxml wrappers"
+						CommandLine="$(OutDir)\xcg.exe -g ..\..\tools\xcg\test\test3.xml"
+						AdditionalDependencies="$(SolutionDir)../../bin/vc71/release/xcg.exe"
+						Outputs="$(SolutionDir)../../tools/xcg/test/test3/tv.hpp;$(SolutionDir)../../tools/xcg/test/test3/tv.cpp;$(SolutionDir)../../tools/xcg/test/test3/tv.inl;"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\tools\xcg\test\test3\tv.cpp">
+			</File>
+			<File
+				RelativePath="..\..\tools\xcg\test\test3\tv.hpp">
+			</File>
+			<File
+				RelativePath="..\..\tools\xcg\test\test3\tv.inl">
 			</File>
 		</Filter>
 		<File

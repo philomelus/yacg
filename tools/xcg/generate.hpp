@@ -24,7 +24,8 @@ namespace impl
 
 	private:	
 		void sort_elements(const ELEMENTS::value_type& c, std::vector<std::string>& ve) const;
-		void sort_include(const std::string& c, std::vector<std::string>& ve) const;
+		void sort_include(const std::string& c, std::vector<std::string>& ve,
+				const std::string& p) const;
 		
 	private:
 		const std::string _directory;

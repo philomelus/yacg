@@ -19,7 +19,7 @@ namespace
 	
 	const char* minor_divider ="//-------------------------------------------------------------------------";
 
-	const int count_keywords = 62;
+	const int count_keywords = 63;
 	
 	struct
 	{
@@ -89,7 +89,8 @@ namespace
 		{ false, "void", "Void" },
 		{ false, "volatile", "Volatile" },
 		{ false, "wchar_t", "Wchar_t" },
-		{ false, "while", "While" }
+		{ false, "while", "While" },
+		{ false, "value", "Value" }
 	};
 	
 	const char* fixup(const std::string& n)
@@ -124,6 +125,100 @@ namespace
 	{	// when			name			type				convert
 		{ global,		0,				0,					0 }
 	};
+	
+
+//=============================================================================
+
+	static const struct
+	{
+		char invalid;
+		char fix;
+	} invalidCharacters[] =
+	{
+		{ '-',	'_' },
+		{ 0,	0 }
+	};
+
+	// Replaces all invalid characters with their valid equivlents
+	void fix_name(std::string& n)
+	{
+		const std::string::iterator e = n.end();
+		for (std::string::iterator ni = n.begin(); ni != e; ++ni)
+		{
+			for (int i = 0; invalidCharacters[i].invalid != 0; ++i)
+			{
+				if (*ni == invalidCharacters[i].invalid)
+					*ni = invalidCharacters[i].fix;
+			}
+		}
+	}
+	
+	// Make the class name for the passed in base name
+	std::string Class_Name(const std::string& n)
+	{
+		std::string cn;
+		cn = std::toupper(n[0], std::locale());
+		cn += n.substr(1, std::string::npos);
+		fix_name(cn);
+		return cn;
+	}
+	
+	// Make the passed in name plural
+	std::string Plural_Name(const std::string& n)
+	{
+		std::string pn = n;
+		const std::string::size_type l = pn.size() - 1;
+		if (pn[l] != 's' && pn[l] != 'S')
+			pn += 's';
+		fix_name(pn);
+		return pn;
+	}
+	
+	// Generate a valid member name regardless of input: foo_bar == fooBar,
+	// foo+bar == fooBar, etc.  No guarantee of uniqueness.
+	std::string Member_Name(const std::string& n)
+	{
+		std::string mn = n;
+		while (true)
+		{
+			const std::string::iterator e = mn.end();
+			for (std::string::iterator ni = mn.begin(); ni != e; ++ni)
+			{
+				for (int i = 0; invalidCharacters[i].invalid != 0; ++i)
+				{
+					if (*ni == invalidCharacters[i].invalid)
+					{
+						// Uppercase next letter
+						std::string::iterator niu = ni;
+						++niu;
+						if (niu != e)
+							*niu = std::toupper(*niu, std::locale());
+						
+						// Remove offending character
+						mn.erase(ni);
+						
+						// Force us to start over
+						// BUGBUG:  Actually, we just need to "fix" the iterator,
+						// because its not valid anymore
+						break;
+					}
+				}
+				if (invalidCharacters[i].invalid)
+					break;
+			}
+			if (ni == e)
+				break;
+		}
+		return mn;
+	}
+
+	// Make sure name if valid by replacing invalids in place
+	std::string Name(const std::string& n)
+	{
+		std::string name = n;
+		fix_name(name);
+		return name;
+	}
 }
 
 //=============================================================================
@@ -208,11 +303,9 @@ void Generator::declaration(const std::string& c, std::ostream& o, const std::st
 	const Element& e = ei->second;
 	const ATTRIBUTES& a = e.attributes();
 	const SUBELEMENTS& s = e.elements();
-	const std::string name = ei->first;
-	const std::string class_name = std::toupper(name[0], std::locale())
-			+ name.substr(1, std::string::npos);
-	const std::string plural_name = name + (name[name.size() - 1] == 's'
-			? "" : "s");
+	const std::string name = Name(ei->first);
+	const std::string class_name = Class_Name(name);
+	const std::string plural_name = Plural_Name(name);
 
 	// Provide status
 	cout << "Adding declaration of element class '" << class_name << "' ...";
@@ -292,7 +385,8 @@ void Generator::declaration_attributes(const std::string& v, std::ostream& o) co
 	//	private:
 	//		std::string _attribute;
 
-	const std::string name = fixup(v);
+	const std::string name = Name(fixup(v));
+	const std::string member_name = Member_Name(v);
 	
 	o << "\t" << minor_divider << endl;
 	o << "\t// Attribute " << name << endl;
@@ -301,7 +395,7 @@ void Generator::declaration_attributes(const std::string& v, std::ostream& o) co
 	o << "\t\tvoid " << name << "(const char* " << name[0] << ");" << endl;
 	o << "\t" << endl;
 	o << "\tprivate:" << endl;
-	o << "\t\tstd::string _" << v << ";" << endl;
+	o << "\t\tstd::string _" << member_name << ";" << endl;
 	o << "\t" << endl;
 }
 
@@ -315,14 +409,12 @@ void Generator::declaration_elements(const std::string& v, std::ostream& o) cons
 	//	private:
 	//		std::vector<Element> _elements;
 	
-	const std::string name = fixup(v);
-	const std::string class_name = std::toupper(name[0], std::locale())
-			+ name.substr(1, std::string::npos);
-	const std::string plural_name = name + (name[name.size() - 1] == 's'
-			? "" : "s");
+	const std::string name = Name(fixup(v));
+	const std::string class_name = Class_Name(name);
+	const std::string plural_name = Plural_Name(name);
 	
 	o << "\t" << minor_divider << endl;
-	o << "\t// Child element " << v << "." << endl;
+	o << "\t// Child element " << v << endl;
 	o << "\tpublic:" << endl;
 	o << "\t\tstd::vector<" << class_name << ">& " << plural_name << "();" << endl;
 	o << "\t\tconst std::vector<" << class_name << ">& " << plural_name << "() const;" << endl;
@@ -395,16 +487,17 @@ void Generator::inline_attributes(const std::string& a, std::ostream& o,
 	//	}
 	//
 	
-	const std::string name = fixup(a);
+	const std::string name = Name(fixup(a));
+	const std::string member_name = Member_Name(a);
 	
 	o << "\tinline const std::string& " << c << "::" << name << "() const" << endl;
 	o << "\t{" << endl;
-	o << "\t\treturn _" << a << ";" << endl;
+	o << "\t\treturn _" << member_name << ";" << endl;
 	o << "\t}" << endl;
 	o << "\t" << endl;
 	o << "\tinline void " << c << "::" << name << "(const char* " << name[0] << ")" << endl;
 	o << "\t{" << endl;
-	o << "\t\t_" << a << " = " << name[0] << ";" << endl;
+	o << "\t\t_" << member_name << " = " << name[0] << ";" << endl;
 	o << "\t}" << endl;
 	o << "\t" << endl;
 }
@@ -423,11 +516,9 @@ void Generator::inline_elements(const std::string& a, std::ostream& o,
 	//	}
 	//	
 	
-	const std::string name = fixup(a);
-	const std::string plural_name = name + (name[name.size() - 1] == 's'
-			? "" : "s");
-	const std::string class_name = std::toupper(name[0], std::locale())
-			+ name.substr(1, std::string::npos);
+	const std::string name = Name(fixup(a));
+	const std::string plural_name = Plural_Name(name);
+	const std::string class_name = Class_Name(name);
 
 	o << "\tinline std::vector<" << class_name << ">& " << c << "::" << plural_name << "()" << endl;
 	o << "\t{" << endl;
@@ -451,11 +542,9 @@ void Generator::inline_implementation(const std::string& c, std::ostream& o,
 	const Element& e = ei->second;
 	const ATTRIBUTES& a = e.attributes();
 	const SUBELEMENTS& s = e.elements();
-	const std::string name = ei->first;
-	const std::string class_name = std::toupper(name[0], std::locale())
-			+ name.substr(1, std::string::npos);
-	const std::string plural_name = name + (name[name.size() - 1] == 's'
-			? "" : "s");
+	const std::string name = Name(ei->first);
+	const std::string class_name = Class_Name(name);
+	const std::string plural_name = Plural_Name(name);
 
 	// Provide status
 	cout << "Adding inline implementations of element class '" << class_name << "' ...";
@@ -576,21 +665,27 @@ void Generator::license(std::ostream& o) const
 void Generator::sort_elements(const ELEMENTS::value_type& c, std::vector<std::string>& ve) const
 {
 	// Walk through all sub-elements
-	std::for_each(c.second.elements().begin(), c.second.elements().end(), bind(sort_include, this, _1, ref(ve)));
+	std::for_each(c.second.elements().begin(), c.second.elements().end(),
+			bind(sort_include, this, _1, ref(ve), ref(c.first)));
 	
 	// Add this element if not already there
 	if (std::find(ve.begin(), ve.end(), c.first) == ve.end())
 		ve.push_back(c.first);
 }
 
-void Generator::sort_include(const std::string& c, std::vector<std::string>& ve) const
+void Generator::sort_include(const std::string& c, std::vector<std::string>& ve,
+		const std::string& p) const
 {
+	// Don't recurse our parent again
+	if (c == p)
+		return;
+
 	// Find the root element for this sub-element
 	ELEMENTS::const_iterator e = _elements.find(c);
 	
 	// Walk through all sub-elements
 	std::for_each(e->second.elements().begin(), e->second.elements().end(),
-			bind(sort_include, this, _1, ref(ve)));
+			bind(sort_include, this, _1, ref(ve), ref(c)));
 	
 	// Add this element if not already there
 	if (std::find(ve.begin(), ve.end(), c) == ve.end())
@@ -632,13 +727,8 @@ void Generator::source(const std::vector<std::string>& c, const std::string& r,
 	o << "\txmlChar* trim(xmlChar* t)" << endl;
 	o << "\t{" << endl;
 	o << "\t\tstd::locale l = std::locale();" << endl;
-	o << "\t\twhile (*t)" << endl;
-	o << "\t\t{" << endl;
-	o << "\t\t\twhile (*t && (std::iscntrl(*t, l) || *t == ' '))" << endl;
-	o << "\t\t\t\t++t;" << endl;
-	o << "\t\t\tif (*t < 127 && *t > 33)\t\t// HACK" << endl;
-	o << "\t\t\t\tbreak;" << endl;
-	o << "\t\t}" << endl;
+	o << "\t\twhile (*t && (std::iscntrl(*t, l) || *t == ' '))" << endl;
+	o << "\t\t\t++t;" << endl;
 	o << "\t\treturn t;" << endl;
 	o << "\t}" << endl;
 	o << "\t" <<  endl;
@@ -678,11 +768,10 @@ void Generator::source_implementation(const std::string& c, std::ostream& o,
 	const ATTRIBUTES& a = e.attributes();
 	SUBELEMENTS s = e.elements();
 	std::sort(s.begin(), s.end());
-	const std::string name = ei->first;
-	const std::string class_name = std::toupper(name[0], std::locale())
-			+ name.substr(1, std::string::npos);
-	const std::string plural_name = name + (name[name.size() - 1] == 's'
-			? "" : "s");
+	const std::string original_name = ei->first;
+	const std::string name = Name(original_name);
+	const std::string class_name = Class_Name(original_name);
+	const std::string plural_name = Plural_Name(original_name);
 	const std::string ef = s.empty() ? "" : s[0];
 	const std::string el = s.empty() ? "" : s[s.size() - 1];
 	
@@ -746,7 +835,7 @@ void Generator::source_implementation(const std::string& c, std::ostream& o,
 	o << "void " << class_name << "::read(xmlNodePtr n)" << endl;
 	o << "{" << endl;
 	o << "\t// Make sure node is this element" << endl;
-	o << "\tif (xmlStrcmp(n->name, reinterpret_cast<const xmlChar*>(\"" << name << "\")) != 0)" << endl;
+	o << "\tif (xmlStrcmp(n->name, reinterpret_cast<const xmlChar*>(\"" << original_name << "\")) != 0)" << endl;
 	o << "\t\tthrow std::runtime_error(\"expecting node '" << name << "'\");" << endl;
 	o << endl;
 	if (!a.empty())
@@ -873,16 +962,17 @@ void Generator::source_ope_attributes(const std::string& a, std::ostream& o) con
 {
 	//	_attribute = r._attribute;
 
-	o << "\t\t_" << a << " = r._" << a << ";" << endl;
+	const std::string member_name = Member_Name(a);
+
+	o << "\t\t_" << member_name << " = r._" << member_name << ";" << endl;
 }
 
 void Generator::source_ope_elements(const std::string& e, std::ostream& o) const
 {
 	//	_elements = r._elements;
 	
-	const std::string name = fixup(e);
-	const std::string plural_name = name + (name[name.size() - 1] == 's'
-			? "" : "s");
+	const std::string name = Name(fixup(e));
+	const std::string plural_name = Plural_Name(name);
 
 	o << "\t\t_" << plural_name << " = r._" << plural_name << ";" << endl;
 }
@@ -890,6 +980,8 @@ void Generator::source_ope_elements(const std::string& e, std::ostream& o) const
 void Generator::source_read_attributes(const std::string& v, std::ostream& o,
 		const ATTRIBUTES::const_iterator b, const ATTRIBUTES::const_iterator e) const
 {
+	const std::string member_name = Member_Name(v);
+
 	if (v == *b)
 		o << "\txmlChar* ";
 	else
@@ -897,18 +989,16 @@ void Generator::source_read_attributes(const std::string& v, std::ostream& o,
 	o << "a = xmlGetProp(n, reinterpret_cast<xmlChar*>(\"" << v << "\"));" << endl;
 	o << "\tif (a)" << endl;
 	o << "\t{" << endl;
-	o << "\t\t_" << v << " = reinterpret_cast<const char*>(a);" << endl;
+	o << "\t\t_" << member_name << " = reinterpret_cast<const char*>(a);" << endl;
 	o << "\t\txmlFree(a);" << endl;
 	o << "\t}" << endl;
 }
 
 void Generator::source_read_elements(const std::string& v, std::ostream& o) const
 {
-	const std::string name = fixup(v);
-	const std::string plural_name = name + (name[name.size() - 1] == 's'
-			? "" : "s");
-	const std::string class_name = std::toupper(name[0], std::locale())
-			+ name.substr(1, std::string::npos);
+	const std::string name = Name(fixup(v));
+	const std::string plural_name = Plural_Name(name);
+	const std::string class_name = Class_Name(name);
 	
 	o << "\t\tif (xmlStrcmp(s->name, reinterpret_cast<const xmlChar*>(\"" << v << "\")) == 0)" << endl;
 	o << "\t\t{" << endl;
@@ -933,11 +1023,13 @@ void Generator::source_write_attributes(const std::string& v, std::ostream& o,
 	//	}
 	//
 
+	const std::string member_name = Member_Name(v);
+
 	o << "\t// Add attribute " << v << " if needed" << endl;
-	o << "\tif (!_" << v << ".empty())" << endl;
+	o << "\tif (!_" << member_name << ".empty())" << endl;
 	o << "\t{" << endl;
 	o << "\t\tr = xmlTextWriterWriteAttribute(w, reinterpret_cast<const xmlChar*>(\"" << v << "\")," << endl;
-	o << "\t\t\t\treinterpret_cast<const xmlChar*>(_" << v << ".c_str()));" << endl;
+	o << "\t\t\t\treinterpret_cast<const xmlChar*>(_" << member_name << ".c_str()));" << endl;
 	o << "\t\tif (r < 0)" << endl;
 	o << "\t\t{" << endl;
 	o << "\t\t\tthrow std::runtime_error(\"addition of attribute '" << v << "' \"" << endl;
@@ -951,11 +1043,9 @@ void Generator::source_write_elements(const std::string& e, std::ostream& o) con
 {
 	//	std::for_each(_elements.begin(), _elements.end(), writer<Element>(w));
 
-	const std::string name = fixup(e);
-	const std::string plural_name = name + (name[name.size() - 1] == 's'
-			? "" : "s");
-	const std::string class_name = std::toupper(name[0], std::locale())
-			+ name.substr(1, std::string::npos);
+	const std::string name = Name(fixup(e));
+	const std::string plural_name = Plural_Name(name);
+	const std::string class_name = Class_Name(name);
 	
 	o << "\tstd::for_each(_" << plural_name << ".begin(), _"<< plural_name
 			<< ".end(), writer<" << class_name << ">(w));" << endl;
