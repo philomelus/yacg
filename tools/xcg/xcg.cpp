@@ -28,7 +28,8 @@ namespace
 	{
 		try
 		{
-			if (!boost::filesystem::exists(f))
+			path p(f, boost::filesystem::native);
+			if (!boost::filesystem::exists(p))
 			{
 				cerr << "'" << f << "' doesn't exist!" << endl;
 				abort = true;
@@ -58,13 +59,13 @@ namespace
 
 	void makedir(const std::string& f, bool& abort)
 	{
-		std::string dir = str_dir(f.c_str());
+		path dir(str_dir(f.c_str()), boost::filesystem::native);
 		if (boost::filesystem::exists(dir))
 		{
 			if (!boost::filesystem::is_directory(dir))
 			{
 				cerr << "Source for \"" << f << "\" is supposed to go into directory \""
-						<< dir << "\", but directory exists as a file!" << endl;
+						<< dir.native_directory_string() << "\", but directory exists as a file!" << endl;
 				abort = true;
 			}
 		}
@@ -74,7 +75,7 @@ namespace
 			try
 			{
 				boost::filesystem::create_directory(dir);
-				cout << "Created directory \"" << dir << "\"" << endl;
+				cout << "Created directory \"" << dir.native_directory_string() << "\"" << endl;
 			}
 			catch (...)
 			{
@@ -83,7 +84,7 @@ namespace
 				// name.  I don't want users to know how this is implemented,
 				// and the who is set to a boost filesystem identification string,
 				// and there isn't a way to change it as far as I can tell.
-				cerr << "Unable to create directory \"" << dir << "\"!" << endl;
+				cerr << "Unable to create directory \"" << dir.native_directory_string() << "\"!" << endl;
 				abort = true;
 			}
 		}
