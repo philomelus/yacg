@@ -1,19 +1,4 @@
 <?xml version="1.0"?>
-<!ENTITY atr "@attribute@">
-<!ENTITY Atr "@Attribute@">
-<!ENTITY ATR "@ATTRIBUTE@">
-<!ENTITY atrs "@attributes@">
-<!ENTITY Atrs "@Attributes@">
-<!ENTITY ATRS "@ATTRIBUTES@">
-<!ENTITY A "@A@>
-<!ENTITY a "@a@">
-<!ENTITY ele "@element@">
-<!ENTITY Ele "@Element@">
-<!ENTITY ELE "@ELEMENT@">
-<!ENTITY eles "@elements@">
-<!ENTITY Eles "@Elements@">
-<!ENTITY ELES "@ELEMENTS@">
-<!ENTITY typ "@type@">
 <generator>
 	<!-- Replacements -->
 	<replacements>
@@ -25,37 +10,6 @@
 	<!-- Templates -->
 	<templates>
 		<!-- Header -->
-		<template name="HeaderChildrenInclude">
-			<children>
-				<code>#include &quot;@Sub.hpp&quot;</code>
-			</children>
-		</template>
-		<template name="HeaderAttributeMembers">
-			<attributes>
-				<code>//<repeat column="80">-</repeat></code>
-				<code>// Attribute &attr;.</code>
-				<code>public:</code>
-				<code>\tconst &typ;&amp; &atr;() const;</code>
-				<code>\tvoid &atr;(const &typ;&amp; &a;);</code>
-				<code></code>
-				<code>private:</code>
-				<code>\t&typ; _&atr;;</code>
-			</attributes>
-		</template>
-		<template name="HeaderChildrenMembers">
-			<children>
-				<code>//<repeat column="80">-</repeat></code>
-				<code>// Element &ele;.</code>
-				<code>public:</code>
-				<code>\tstd::vector&lt;&typ;&gt;&amp; &eles;();</code>
-				<code>\tconst std::vector&lt;&typ;&gt;&amp; &eles;() const;</code>
-				<code></code>
-				<code>private:</code>
-				<code>\tstd::vector&lt;&typ;&gt; _&eles;;</code>
-				<code></code>
-			</children>
-		</template>
-		
 		<!-- Inline -->
 		<!-- TODO -->
 		
@@ -63,45 +17,13 @@
 		<!-- TODO -->
 	</templates>
 
-	<!-- Header prototype -->
-	<header>
-		<code>#ifdef\t__@ELEMENT_HPP__</code>
-		<code>#define\t__@ELEMENT_HPP__</code>
-		<code></code>
-		<code>#include &lt;string&gt;</code>
-		<code>#include &lt;string&gt;</code>
-		<code></code>
-		<code>#include &lt;string&gt;</code>
-		<code></code>
-		<code type="SubelementIncludes"></code>
-		<code></code>
-		<code>//<repeat column="80">=</repeat></code>
-		<code>// class @Element declaration.</code>
-		<code>class @Element</code>
-		<code></code>
-		<code>//<repeat culumn="80">-</repeat></code>
-		<code>public:</code>
-		<code>\t@Element();</code>
-		<code>\t@Element(const char* f);</code>
-		<code>\t@Element(const @Element&amp; r);</code>
-		<code></code>
-		<code>\t@Element&amp; operator=(const @Element&amp; r);</code>
-		<code></code>
-		<code type="AttributeMembers"/>
-		<code type="SubelementMembers"/>
-		<code>};</code>
-		<code></code>
-		<code>#enidf</code>
-	</header>
-
-	<!-- Inline prototype -->
-	<inline>
-	</inline>
+	<!-- Phases -->
+	<phases>
+		<!-- Header phase -->
+		<!-- Inline phase -->
+		<!-- Source phase -->
+	</phases>
 	
-	<!-- Source prototype -->
-	<source>
-	</source>
-
 	<!-- Attribute specific information -->
 	<attribute name="">
 		<type>std::string</type>
