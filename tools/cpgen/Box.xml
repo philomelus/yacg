@@ -1,0 +1,224 @@
+<?xml version="1.0"?>
+<control>
+    <!--root-->
+    <name>Box</name>
+    <base>_Control</base>
+    <theme>
+        <type>TYPE_BOX</type>
+        <name>BoxTheme</name>
+    </theme>
+    <implementation type="cpp">Box.cpp</implementation>
+    <header type="cpp">Box.hpp</header>
+    <implementation type="theme">BoxTheme.cpp</implementation>
+    <header type="theme">BoxTheme.hpp</header>
+    <!--non-style attributes-->
+    <attribute editable="true">
+        <type>int</type>
+        <name>top</name>
+        <constructor>1</constructor>
+    </attribute>
+    <attribute editable="true">
+        <type>int</type>
+        <name>left</name>
+        <constructor>2</constructor>
+    </attribute>
+    <attribute editable="true">
+        <type>int</type>
+        <name>width</name>
+        <constructor>3</constructor>
+    </attribute>
+    <attribute editable="true">
+        <type>int</type>
+        <name>height</name>
+        <constructor>4</constructor>
+    </attribute>
+    <attribute editable="false">
+        <type>int</type>
+        <name>bottom</name>
+    </attribute>
+    <attribute editable="false">
+        <type>int</type>
+        <name>right</name>
+    </attribute>
+    <attribute editable="false" virtual="true">
+        <type>int</type>
+        <name>flags</name>
+        <constructor>5</constructor>
+    </attribute>
+    <attribute editable="true">
+        <type>std::string</type>
+        <name>title</name>
+        <constructor>6</constructor>
+        <param>const char*</param>
+        <return>const std::string&amp;</return>
+        <return>const char*</return>
+    </attribute>
+    <!--style attributes-->
+    <attribute editable="true">
+        <type>int</type>
+        <name>interior</name>
+        <style>STYLE_3D</style>
+        <style>STYLE_FLAT</style>
+    </attribute>
+    <attribute editable="true">
+        <type>FONT*</type>
+        <name>font</name>
+        <style unique="true">TYPE_3D</style>
+        <style unique="true">TYPE_FLAT</style>
+    </attribute>
+    <attribute>
+        <type>int</type>
+        <name>frame_lightest</name>
+        <style>TYPE_3D</style>
+    </attribute>
+    <attribute>
+        <type>int</type>
+        <name>frame_light</name>
+        <style>TYPE_3D</style>
+    </attribute>
+    <attribute>
+        <type>int</type>
+        <name>frame_dark</name>
+        <style>TYPE_3D</style>
+    </attribute>
+    <attribute>
+        <type>int</type>
+        <name>frame_darkest</name>
+        <style>TYPE_3D</style>
+    </attribute>
+    <attribute>
+        <type>int</type>
+        <name>inactive_text_background</name>
+        <style unique="true">TYPE_3D</style>
+        <style unique="true">TYPE_FLAT</style>
+    </attribute>
+    <attribute>
+        <type>int</type>
+        <name>inactive_text_foreground</name>
+        <style unique="true">TYPE_3D</style>
+        <style unique="true">TYPE_FLAT</style>
+    </attribute>
+    <attribute>
+        <type>int</type>
+        <name>text_background</name>
+        <style unique="true">TYPE_3D</style>
+        <style unique="true">TYPE_FLAT</style>
+    </attribute>
+    <attribute>
+        <type>int</type>
+        <name>text_foreground</name>
+        <style unique="true">TYPE_3D</style>
+        <style unique="true">TYPE_FLAT</style>
+    </attribute>
+    <attribute>
+        <type>int</type>
+        <name>frame</name>
+        <style unique="true">TYPE_FLAT</style>
+    </attribute>
+    <!--frame flags-->
+    <flags group="1">
+        <flag>
+            <name>f_flat</name>
+            <value>0x00</value>
+        </flag>
+        <flag>
+            <name>f_in</name>
+            <value>0x01</value>
+        </flag>
+        <flag>
+            <name>f_out</name>
+            <value>0x02</value>
+        </flag>
+        <flag>
+            <name>f_mask</name>
+            <value>0x03</value>
+        </flag>
+    </flags>
+    <!--title flags-->
+    <flags group="2">
+        <flag>
+            <name>t_notitle</name>
+            <value>0x00</value>
+        </flag>
+        <flag>
+            <name>t_title</name>
+            <value>0x04</value>
+        </flag>
+        <flag>
+            <name>t_mask</name>
+            <value>0x04</value>
+        </flag>
+    </flags>
+    <!--vertical alignment flags-->
+    <flags group="3">
+        <flag>
+            <name>v_top</name>
+            <value>0x00</value>
+        </flag>
+        <flag>
+            <name>v_bottom</name>
+            <value>0x08</value>
+        </flag>
+        <flag>
+            <name>v_centered</name>
+            <value>0x10</value>
+        </flag>
+        <flag>
+            <name>v_mask</name>
+            <value>0x18</value>
+        </flag>
+    </flags>
+    <!--horizontal alignment-->
+    <flags group="4">
+        <flag>
+            <name>h_left</name>
+            <value>0x00</value>
+        </flag>
+        <flag>
+            <name>h_right</name>
+            <value>0x20</value>
+        </flag>
+        <flag>
+            <name>h_centered</name>
+            <value>0x40</value>
+        </flag>
+        <flag>
+            <name>h_mask</name>
+            <value>0x60</value>
+        </flag>
+    </flags>
+    <!--cell vertical alignment-->
+    <flags group="5">
+        <flag>
+            <name>o_titlecentered</name>
+            <value>0x000</value>
+        </flag>
+        <flag>
+            <name>o_titleabove</name>
+            <value>0x080</value>
+        </flag>
+        <flag>
+            <name>o_titlebelow</name>
+            <value>0x100</value>
+        </flag>
+        <flag>
+            <name>o_mask</name>
+            <value>0x180</value>
+        </flag>
+    </flags>
+    <!--interior-->
+    <flags group="5">
+        <flag>
+            <name>i_unfilled</name>
+            <value>0x000</value>
+        </flag>
+        <flag>
+            <name>i_filled</name>
+            <value>0x200</value>
+        </flag>
+        <flag>
+            <name>i_mask</name>
+            <value>0x200</value>
+        </flag>
+    </flags>
+</control>

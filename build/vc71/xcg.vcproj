@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="cpgen"
-	ProjectGUID="{94908DD9-90B5-4E0C-A7D9-D64A04BBD202}"
-	RootNamespace="cpgen"
+	Name="xcg"
+	ProjectGUID="{C8D8D6D2-F721-4902-99E5-7B8A195DBCF4}"
+	RootNamespace="xcg"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -14,7 +14,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)..\..\bin\vc71\debug"
-			IntermediateDirectory="$(SolutionDir)..\..\obj\vc71\debug\cpgen"
+			IntermediateDirectory="$(SolutionDir)..\..\obj\vc71\debug\xcg"
 			ConfigurationType="1"
 			CharacterSet="2">
 			<Tool
@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="&quot;$(SolutionDir)..\..\lib\vc71\debug\libxml2\libxml2.lib&quot;"
-				OutputFile="$(OutDir)/cpgen.exe"
+				OutputFile="$(OutDir)/xcg.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\..\lib\vc71\debug\boost&quot;"
@@ -72,7 +72,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)..\..\bin\vc71\release"
-			IntermediateDirectory="$(SolutionDir)..\..\obj\vc71\release\cpgen"
+			IntermediateDirectory="$(SolutionDir)..\..\obj\vc71\release\xcg"
 			ConfigurationType="1"
 			CharacterSet="2">
 			<Tool
@@ -99,7 +99,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="&quot;$(SolutionDir)..\..\lib\vc71\release\libxml2\libxml2.lib&quot;"
-				OutputFile="$(OutDir)/cpgen.exe"
+				OutputFile="$(OutDir)/xcg.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\..\lib\vc71\release\boost&quot;"
@@ -137,40 +137,22 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\tools\cpgen\Box.xml">
-			<FileConfiguration
-				Name="Debug|Win32"
-				ExcludedFromBuild="TRUE">
-				<Tool
-					Name="VCCustomBuildTool"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				ExcludedFromBuild="TRUE">
-				<Tool
-					Name="VCCustomBuildTool"/>
-			</FileConfiguration>
+			RelativePath="..\..\tools\xcg\Common.hpp">
 		</File>
 		<File
-			RelativePath="..\..\tools\cpgen\cpgen.cpp">
+			RelativePath="..\..\tools\xcg\generate.cpp">
 		</File>
 		<File
-			RelativePath="..\..\tools\cpgen\cpgen.xsd">
-			<FileConfiguration
-				Name="Debug|Win32"
-				ExcludedFromBuild="TRUE">
-				<Tool
-					Name="VCXMLDataGeneratorTool"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				ExcludedFromBuild="TRUE">
-				<Tool
-					Name="VCXMLDataGeneratorTool"/>
-			</FileConfiguration>
-			<File
-				RelativePath="..\..\tools\cpgen\cpgen.xsx">
-			</File>
+			RelativePath="..\..\tools\xcg\generate.hpp">
+		</File>
+		<File
+			RelativePath="..\..\tools\xcg\parse.cpp">
+		</File>
+		<File
+			RelativePath="..\..\tools\xcg\parse.hpp">
+		</File>
+		<File
+			RelativePath="..\..\tools\xcg\xcg.cpp">
 		</File>
 	</Files>
 	<Globals>

@@ -1,0 +1,62 @@
+<?xml version="1.0" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="qualified">
+	<xs:annotation>
+		<xs:documentation xml:lang="en">
+		YACG Schema for Control Prototype Generater
+		Copyright 2004 Russell E. Gibson
+		</xs:documentation>
+	</xs:annotation>
+	<xs:simpleType name="source_type">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="cpp" />
+			<xs:enumeration value="theme" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:element name="control">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="name" type="xs:string" minOccurs="1" />
+				<xs:element name="base" type="xs:string" minOccurs="0" />
+				<xs:element name="theme" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="type" type="xs:string" minOccurs="1" />
+							<xs:element name="name" type="xs:string" minOccurs="1" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="implementation" type="source_type" maxOccurs="2" />
+				<xs:element name="header" type="source_type" maxOccurs="2" />
+				<xs:element name="attribute" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence minOccurs="1" maxOccurs="1">
+							<xs:element name="type" nillable="false" type="xs:string" minOccurs="1" maxOccurs="1" />
+							<xs:element name="name" nillable="false" type="xs:string" minOccurs="1" maxOccurs="1" />
+							<xs:element name="constructor" nillable="false" type="xs:short" minOccurs="0" maxOccurs="1" />
+							<xs:element name="param" nillable="false" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+							<xs:element name="return" nillable="false" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+							<xs:element name="style" nillable="false" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+						</xs:sequence>
+						<xs:attribute name="editable" form="qualified" type="xs:boolean" default="false" use="optional" />
+						<xs:attribute name="virtual" form="qualified" type="xs:boolean" default="false" use="optional" />
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="flags" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="flag" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="name" type="xs:string" minOccurs="0" />
+										<xs:element name="value" type="xs:string" minOccurs="0" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="group" form="unqualified" type="xs:string" />
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
