@@ -1,3 +1,26 @@
+//
+// Copyright (c) 2004 Russell E. Gibson
+// email: russg@rnstech.com
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is furnished
+// to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+
 #include "Control.hpp"
 
 #include <fstream>
@@ -6,6 +29,10 @@
 #include <string>
 
 #include <boost/bind.hpp>
+
+#include <indent.hpp>
+
+using namespace utility;
 
 using boost::bind;
 using boost::ref;
@@ -17,18 +44,20 @@ void copy(const control::Control& c, const char* f);
 
 void Test1()
 {
+	cout << "test1: Executing" << endl;
+
 	try
 	{
 		// Read in file to test read functions
 		control::Control ctrl("test1.xml");
 		
 		// Write it out ourself to test the generated code
-		copy(ctrl, "copy1.xml");
+		copy(ctrl, "test1copy1.xml");
 		
 		// Ask libxml to write it to test write functions
-		ctrl.write("copy2.xml");
+		ctrl.write("test1copy2.xml");
 		
-		std::cout << "test1: Check 'copy1.xml' and 'copy2.xml'" << std::endl;
+		std::cout << "test1: Check 'test1copy1.xml' and 'test1copy2.xml'" << std::endl;
 		std::cout << "test1: Otherwise it appears successful" << std::endl;
 	}
 	catch (const std::runtime_error& e)
@@ -39,57 +68,6 @@ void Test1()
 	{
 		std::cerr << "test1: unknown exception caught" << std::endl;
 	}
-}
-
-class indent
-{
-public:
-	indent()
-			:
-			_i(0)
-	{
-	}
-	indent& operator++()
-	{
-		++_i;
-		return *this;
-	}
-	indent& operator--()
-	{
-		--_i;
-		return *this;
-	}
-	std::ostream& space(std::ostream& o) const
-	{
-		for (int i = 0; i < _i; ++i)
-			o << "\t";
-		return o;
-	}
-private:
-	int _i;
-};
-
-class auto_indent
-{
-public:
-	auto_indent(indent& i)
-			:
-			_i(i)
-	{
-		++_i;
-	}
-	~auto_indent()
-	{
-		--_i;
-	}
-private:
-	indent& _i;
-};
-
-std::ostream& operator<<(std::ostream& o, const indent& i)
-{
-	i.space(o);
-	return o;
 }
 
 void dump_constructors(const control::Constructor& a, std::ofstream& o, indent& l)
