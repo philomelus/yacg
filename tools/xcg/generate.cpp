@@ -1,407 +1,349 @@
 #include "Common.hpp"
+
+#include <ios>
+#include <iostream>
+#include <fstream>
+#include <boost/bind.hpp>
+
 #include "Generate.hpp"
 
 using namespace impl;
+using boost::bind;
+using std::cout;
+using std::cerr;
+using std::endl;
 
-namespace
+//=============================================================================
+// class Generator implementation
+//=============================================================================
+
+Generator::Generator(const std::string& d, const ELEMENTS& e)
+		:
+		_directory(d)
 {
-	void gen_header(const std::string& d, const Element& n, const std::string& name)
-	{
-		int	i;
-		SUBELEMENTS::const_iterator subs_it;
-		std::string	filename(d);
-		filename += "\\";
-		filename +=	name;
-		filename +=	".h";
-
-		FILE* outfile =	fopen(filename.c_str(),	"w");
-		if (outfile	== NULL)
-		{
-			printf("Error opening %s for output.\n", filename.c_str());
-			return ;
-		}
-
-		std::string	ifdefname =	name;
-		ifdefname += "_H";
-		{
-			const std::string::iterator	end	= ifdefname.end();
-			for	(std::string::iterator i = ifdefname.begin(); i	!= end;	++i)
-				*i = toupper(*i);
-		}
-
-		fprintf(outfile,
-				"#ifndef %s\n"
-				"#define %s\n"
-				"\n"
-				"//	Everything for xml\n"
-				"#include <xmlinc.h>\n"
-				"\n"
-				"#include <std::string.h>\n"
-				"using namespace SLib;\n"
-				"\n"
-				"#include <vector>\n"
-				"using namespace std;\n"
-				"\n",
-				ifdefname.c_str(), ifdefname.c_str());
-
-		fprintf(outfile, "// Includes for the sub-nodes:\n");
-		for	(subs_it = n.elements().begin(); subs_it != n.elements().end(); ++subs_it)
-		{
-			fprintf(outfile, "#include \"%s.h\"\n",
-					(*subs_it).first.c_str());
-		}
-
-		fprintf(outfile,
-				"\n"
-				"/**\n"
-				"  * This class	handles	xml	read/write for the %s node.\n"
-				"  * All attributes	are	represented	as public member \n"
-				"  * variables,	and	all	sub	nodes are represented as direct\n"
-				"  * class member variables, or	as vectors.\n"
-				"  *\n"
-				"  * @author <author_name>\n"
-				"  * @version <version>\n"
-				"  * @copyright	<copyright>\n"
-				"  */\n"
-				"class %s\n"
-				"{\n"
-				"\tpublic:\n"
-				"\t\t/// Default Constructor\n"
-				"\t\t%s();\n\n"
-				"\t\t/// Default Copy Constructor\n"
-				"\t\t%s(const %s& c);\n\n"
-				"\t\t/// Standard Destructor\n"
-				"\t\tvirtual ~%s();\n\n"
-				"\t\t/// Default assignment	operator\n"
-				"\t\t%s& operator=(const %s& c);\n\n"
-				"\t\t/// Reads the given xml Node and it's children\n"
-				"\t\tvoid Read(xmlNodePtr node);\n\n"
-				"\t\t/// Reads the Root	node of	the	given xml document\n"
-				"\t\tvoid ReadRoot(xmlDocPtr doc);\n\n"
-				"\t\t/// Adds our contents as a	new	child to the given node\n"
-				"\t\tvoid Write(xmlNodePtr parent);\n\n"
-				"\t\t/// Adds our contents as the root of a	new	xml	document\n"
-				"\t\tvoid WriteRoot(xmlDocPtr doc);\n\n"
-				"\t\t//	The	attributes:\n",
-				name.c_str(), name.c_str(),
-				name.c_str(),
-				name.c_str(), name.c_str(),
-				name.c_str(),
-				name.c_str(), name.c_str());
-
-		for	(i = 0;	i <	(int) n.attributes().size(); i++)
-		{
-			fprintf(outfile, "\t\tstring m_%s;\n", n.attributes()[i].c_str());
-		}
-
-		fprintf(outfile, "\n\t\t// And the sub nodes:\n");
-
-		for	(subs_it = n.elements().begin();subs_it != n.elements().end();subs_it++)
-		{
-			fprintf(outfile, "\t\tvector < %s >	%s_list;\n",
-					subs_it->first.c_str(),
-					subs_it->first.c_str());
-		}
-
-		fprintf(outfile,
-				"\n\t\t// And finally, any text	that was in	the	node:\n"
-				"\t\tstring	m_text_content;\n");
-
-		fprintf(outfile,
-				"\n\n};\n\n"
-				"#endif	// %s Defined\n", ifdefname.c_str());
-
-		fclose(outfile);
-	}
-
-	void gen_body(const std::string& d, const Element& n, const std::string& name)
-	{
-		int	i;
-		SUBELEMENTS::const_iterator subs_it;
-		std::string	filename(d);
-		filename += "\\";
-		filename +=	name;
-		filename +=	".cpp";
-
-		FILE* outfile =	fopen(filename.c_str(),	"w");
-		if (outfile	== NULL)
-		{
-			printf("Error opening %s for output.\n", filename.c_str());
-			return ;
-		}
-
-		fprintf(outfile,
-				"#include \"%s.h\"\n\n"
-				"#include <AnException.h>\n\n",	name.c_str());
-
-		// Standard	Constructor
-		fprintf(outfile,
-				"%s::%s()\n"
-				"{\n"
-				"\t// Do any value initialization here that	is necessary.\n"
-				"\n"
-				"}\n\n",
-				name.c_str(),	name.c_str());
-
-		// Standard	Copy Constructor
-		fprintf(outfile,
-				"%s::%s(const %s& c)\n"
-				"{\n"
-				"\t// copy all attributes:\n",
-				name.c_str(),	name.c_str(),	name.c_str());
-
-		for	(i = 0;	i <	(int)n.attributes().size(); i++)
-		{
-			fprintf(outfile, "\tm_%s = c.m_%s;\n", n.attributes()[i].c_str(), n.attributes()[i].c_str());
-		}
-
-		fprintf(outfile,
-				"\n"
-				"\t// copy all sub-nodes:\n");
-
-		for	(subs_it = n.elements().begin();subs_it != n.elements().end();subs_it++)
-		{
-			fprintf(outfile,
-					"\t%s_list = c.%s_list;\n",
-					(*subs_it).first.c_str(),
-					(*subs_it).first.c_str());
-		}
-
-		fprintf(outfile,
-				"\n\t//	copy the text content:\n"
-				"\tm_text_content =	c.m_text_content;\n\n"
-				"}\n\n");
-
-
-		// Standard	Destructor
-		fprintf(outfile,
-				"%s::~%s()\n"
-				"{\n"
-				"\t// Do anything necessary	in the destructor here\n"
-				"}\n\n",
-				name.c_str(),	name.c_str());
-
-		// Default assignment operator
-		fprintf(outfile,
-				"%s& %s::operator=(const %s& c)\n"
-				"{\n"
-				"\t// copy all attributes:\n",
-				name.c_str(),	name.c_str(),	name.c_str());
-
-		for	(i = 0;	i <	(int)n.attributes().size(); i++)
-		{
-			fprintf(outfile, "\tm_%s = c.m_%s;\n", n.attributes()[i].c_str(), n.attributes()[i].c_str());
-		}
-
-		fprintf(outfile,
-				"\n"
-				"\t// copy all sub-nodes:\n");
-
-		for	(subs_it = n.elements().begin();subs_it != n.elements().end();subs_it++)
-		{
-			fprintf(outfile,
-					"\t%s_list = c.%s_list;\n",
-					(*subs_it).first.c_str(),
-					(*subs_it).first.c_str());
-		}
-
-		fprintf(outfile,
-				"\n\t//	copy the text value:\n"
-				"\tm_text_content =	c.m_text_content;\n\n"
-				"\treturn *this;\n"
-				"}\n\n");
-
-		// Read	the	xml	node:
-		fprintf(outfile,
-				"void %s::Read(xmlNodePtr node)\n"
-				"{\n"
-				"\txmlNodePtr sub;\n"
-				"\n"
-				"\tif(strcmp(reinterpret_cast<const	char*>(node->name),	\"%s\")	!= 0){\n"
-				"\t\tthrow AnException(0, FL, \"Wrong node name	(%%s).	We expect (%s)\", node->name);\n"
-				"\t}\n"
-				"\n",
-				name.c_str(),
-				name.c_str(),
-				name.c_str());
-
-		if (n.attributes().size() > 0)
-		{
-			fprintf(outfile,
-					"\t// Get the attributes:\n");
-		}
-
-		for	(i = 0;	i <	(int)n.attributes().size(); i++)
-		{
-			fprintf(outfile,
-					"\tm_%s	<< xmlGetProp(node,	\"%s\");\n",
-					n.attributes()[i].c_str(),
-					n.attributes()[i].c_str());
-		}
-
-		if (n.elements().size() >	0)
-		{
-			fprintf(outfile,
-					"\t// Get the sub nodes:\n"
-					"\tfor(sub = node->xmlChildrenNode;	sub	!= NULL; sub = sub->next){\n");
-
-			for	(subs_it = n.elements().begin();subs_it != n.elements().end();subs_it++)
-			{
-				fprintf(outfile,
-						"\t\tif(strcmp(reinterpret_cast<const char*>(sub->name), \"%s\") ==	0){\n"
-						"\t\t\t%s %s_tmp;\n"
-						"\t\t\t%s_tmp.Read(sub);\n"
-						"\t\t\t%s_list.push_back(%s_tmp);\n"
-						"\t\t\tcontinue;\n"
-						"\t\t}\n",
-						(*subs_it).first.c_str(),
-						(*subs_it).first.c_str(), (*subs_it).first.c_str(),
-						(*subs_it).first.c_str(),
-						(*subs_it).first.c_str(), (*subs_it).first.c_str());
-			}
-
-			fprintf(outfile,
-					"\n\t}\n\n");
-		}
-
-		fprintf(outfile,
-				"\t// Get the node content if any:\n"
-				"\tstring tmp_txt;\n"
-				"\tm_text_content =	\"\";\n"
-				"\tm_text_content.release();\n"
-				"\tfor(sub = node->xmlChildrenNode;	sub	!= NULL; sub = sub->next){\n"
-				"\t\tif(xmlNodeIsText(sub)){\n"
-				"\t\t\ttmp_txt << xmlNodeGetContent(sub);\n"
-				"\t\t\ttmp_txt.ltrim().rtrim();\n"
-				"\t\t\tm_text_content += tmp_txt;\n"
-				"\t\t}\n"
-				"\t}\n"
-				"}\n\n");
-
-		// Read	the	xml	node:
-		fprintf(outfile,
-				"void %s::ReadRoot(xmlDocPtr doc)\n"
-				"{\n"
-				"\txmlNodePtr root;\n"
-				"\troot	= xmlDocGetRootElement(doc);\n"
-				"\tthis->Read(root);\n"
-				"}\n\n",
-				name.c_str());
-
-		// Write the xml node:
-		fprintf(outfile,
-				"void %s::Write(xmlNodePtr parent)\n"
-				"{\n"
-				"\txmlNodePtr sub;\n\n"
-				"\tsub = xmlNewChild(parent, NULL, \"%s\",\n"
-				"\t\tm_text_content);\n\n",
-				name.c_str(),
-				name.c_str());
-
-		if (n.attributes().size() > 0)
-		{
-			fprintf(outfile,
-					"\t// Set the attributes:\n");
-		}
-
-		for	(i = 0;	i <	(int)n.attributes().size(); i++)
-		{
-			fprintf(outfile,
-					"\t// Attribute	%s:\n"
-					"\txmlSetProp(sub, \"%s\",\n"
-					"\t\tm_%s);\n\n",
-					n.attributes()[i].c_str(),
-					n.attributes()[i].c_str(),
-					n.attributes()[i].c_str());
-		}
-
-		if (n.elements().size() >	0)
-		{
-			fprintf(outfile,
-					"\t// Create the sub nodes:\n"
-					"\tint i;\n\n");
-
-			for	(subs_it = n.elements().begin();subs_it != n.elements().end();subs_it++)
-			{
-				fprintf(outfile,
-						"\tfor(i = 0; i	< (int)%s_list.size(); i++){\n"
-						"\t\t%s_list[i].Write(sub);\n"
-						"\t}\n\n",
-						(*subs_it).first.c_str(),
-						(*subs_it).first.c_str());
-			}
-		}
-
-		fprintf(outfile, "}\n\n");
-
-		// Write the xml node as the root of a new doc:
-		fprintf(outfile,
-				"void %s::WriteRoot(xmlDocPtr doc)\n"
-				"{\n"
-				"\txmlNodePtr sub;\n\n"
-				"\tdoc->children = xmlNewDocNode(doc, NULL,	\"%s\",\n"
-				"\t\tm_text_content);\n"
-				"\tsub = doc->children;\n\n",
-				name.c_str(),
-				name.c_str());
-
-		if (n.attributes().size() > 0)
-		{
-			fprintf(outfile,
-					"\t// Set the attributes:\n");
-		}
-
-		for	(i = 0;	i <	(int)n.attributes().size(); i++)
-		{
-			fprintf(outfile,
-					"\t// Attribute	%s:\n"
-					"\txmlSetProp(sub, \"%s\",\n"
-					"\t\tm_%s);\n\n",
-					n.attributes()[i].c_str(),
-					n.attributes()[i].c_str(),
-					n.attributes()[i].c_str());
-		}
-
-		if (n.elements().size() >	0)
-		{
-			fprintf(outfile,
-					"\t// Create the sub nodes:\n"
-					"\tint i;\n\n");
-
-			for	(subs_it = n.elements().begin();subs_it != n.elements().end();subs_it++)
-			{
-				fprintf(outfile,
-						"\tfor(i = 0; i	< (int)%s_list.size(); i++){\n"
-						"\t\t%s_list[i].Write(sub);\n"
-						"\t}\n\n",
-						(*subs_it).first.c_str(),
-						(*subs_it).first.c_str());
-			}
-		}
-
-		fprintf(outfile, "}\n\n");
-
-		// That's it.
-		fclose(outfile);
-	}
-
-	void gen_code(const std::string& d, const ELEMENTS& elements)
-	{
-		ELEMENTS::const_iterator node_map_it;
-		for	(node_map_it = elements.begin(); node_map_it !=	elements.end();
-				node_map_it	++)
-		{
-			gen_header(d, node_map_it->second, node_map_it->first);
-			gen_body(d, node_map_it->second, node_map_it->first);
-		}
-	}
+	// Create the headers
+	std::for_each(e.begin(), e.end(), bind(header, this, _1));
+	
+	// Create the implementations
+	std::for_each(e.begin(), e.end(), bind(source, this, _1));
 }
 
-//=============================================================================
-// class Generater implementation
-//=============================================================================
-
-Generater::Generater(const std::string& d, const ELEMENTS& e)
+void Generator::header(const ELEMENTS::value_type& v)
 {
-	gen_code(d, e);
+	// Create and open file
+	const std::string& name = v.first;
+	std::string	filename(_directory);
+	filename += "\\";
+	filename +=	name;
+	filename +=	".h";
+	std::ofstream header(filename.c_str(), std::ios_base::out | std::ios_base::trunc);
+	if (!header)
+	{
+		cerr << "Unable to create and/or open \"" << filename << "\"" << endl;
+		return;
+	}
+	cout << "Generating \"" << filename << "\"..." << endl;
+	
+	// For effeciency sake, create locals for often-used values
+	const Element& n = v.second;
+	const ATTRIBUTES& a = n.attributes();
+	const SUBELEMENTS& se = n.elements();
+	
+	// Create header multiple inclusion protection value		
+	std::string	ifdefname =	name;
+	ifdefname += "_H";
+	str_upper(ifdefname);
+	
+	// Start header output
+	header << "#ifndef\t" << ifdefname << endl
+			<< "#define\t" << ifdefname << endl
+			<< endl
+			<< "//\tEverything for xml" << endl
+			<< "#include <xmlinc.h>" << endl
+			<< endl
+			<< "#include <std::string.h>" << endl
+			<< "using namespace SLib;" << endl
+			<< endl
+			<< "#include <vector>" << endl
+			<< "using namespace std;" << endl
+			<< endl;
+
+	// Add includes for sub-elements
+	header << "// Includes for the sub-nodes:" << endl;
+	std::for_each(se.begin(), se.end(), bind(header_includes, this, _1, &header));
+	header << endl;
+	
+	// Start class declaration
+	header << "/**" << endl
+			<< "  * This class	handles	xml	read/write for the " << name << " node." << endl
+			<< "  * All attributes	are	represented	as public member " << endl
+			<< "  * variables,	and	all	sub	nodes are represented as direct" << endl
+			<< "  * class member variables, or	as vectors." << endl
+			<< "  *" << endl
+			<< "  * @author <author_name>" << endl
+			<< "  * @version <version>" << endl
+			<< "  * @copyright	<copyright>" << endl
+			<< "  */" << endl
+			<< "class " << name << endl
+			<< "{" << endl
+			<< "\tpublic:" << endl
+			<< "\t\t/// Default Constructor" << endl
+			<< "\t\t" << name << "();" << endl
+			<< endl
+			<< "\t\t/// Default Copy Constructor" << endl
+			<< "\t\t" << name << "(const " << name << "& c);" << endl
+			<< endl
+			<< "\t\t/// Standard Destructor" << endl
+			<< "\t\tvirtual ~" << name << "();" << endl
+			<< endl
+			<< "\t\t/// Default assignment	operator" << endl
+			<< "\t\t" << name << "& operator=(const " << name << "& c);" << endl
+			<< endl
+			<< "\t\t/// Reads the given xml Node and it's children" << endl
+			<< "\t\tvoid Read(xmlNodePtr node);" << endl
+			<< endl
+			<< "\t\t/// Reads the Root	node of	the	given xml document" << endl
+			<< "\t\tvoid ReadRoot(xmlDocPtr doc);" << endl
+			<< endl
+			<< "\t\t/// Adds our contents as a	new	child to the given node" << endl
+			<< "\t\tvoid Write(xmlNodePtr parent);" << endl
+			<< endl
+			<< "\t\t/// Adds our contents as the root of a	new	xml	document" << endl
+			<< "\t\tvoid WriteRoot(xmlDocPtr doc);" << endl
+			<< endl;
+
+	// Add attributes
+	header << "\t\t// The attributes:" << endl;
+	std::for_each(a.begin(), a.end(), bind(header_attributes, this, _1, &header));
+	header << endl;
+	
+	// Add the sub-elements
+	header << "\t\t// And the sub nodes:" << endl;
+	std::for_each(se.begin(), se.end(), bind(header_elements, this, _1, &header));
+	header << endl;
+	
+	// Finish up class declaration
+	header << "\t\t// And finally, any text that was in the node:" << endl
+			<< "\t\tstring m_text_content;\n" << endl
+			<< endl
+			<< "};" << endl
+			<< endl
+			<< "#endif	// " << ifdefname << " Defined" << endl;
+}
+
+void Generator::header_attributes(const std::string& v, std::ofstream* o)
+{
+	(*o) << "\t\tstring m_" << v << ";" << endl;
+}
+
+void Generator::header_elements(const SUBELEMENTS::value_type& v, std::ofstream* o)
+{
+	(*o) << "\t\tvector < " << v.first << " > " << v.first << "_list;" << endl;
+}
+
+void Generator::header_includes(const SUBELEMENTS::value_type& v, std::ofstream* o)
+{
+	(*o) << "#include \"" << v.first << ".h\"" << endl;
+}
+
+void Generator::source(const ELEMENTS::value_type& v)
+{
+	// Create and open file
+	const std::string& name = v.first;
+	std::string	filename(_directory);
+	filename += "\\";
+	filename +=	name;
+	filename +=	".cpp";
+	std::ofstream source(filename.c_str(), std::ios_base::out | std::ios_base::trunc);
+	if (!source)
+	{
+		cerr << "Unable to create and/or open \"" << filename << "\"" << endl;
+		return;
+	}
+	cout << "Generating \"" << filename << "\"..." << endl;
+
+	// For effeciency sake, create locals for often-used values
+	const Element& n = v.second;
+	const ATTRIBUTES& a = n.attributes();
+	const SUBELEMENTS& se = n.elements();
+
+	// Include files
+	source << "#include \"" << name << ".h\"" << endl
+			<< endl
+			<< "#include <AnException.h>" << endl
+			<< endl;
+
+	// Standard	Constructor
+	source << name << "::" << name << "()" << endl
+			<< "{" << endl
+			<< "\t// Do any value initialization here that is necessary." << endl
+			<< endl
+			<< "}" << endl
+			<< endl;
+
+	// Standard	copy constructor
+	source << name << "::" << name << "(const " << name << "& c)" << endl
+			<< "{" << endl
+			<< "\t// copy all attributes:" << endl;
+	std::for_each(a.begin(), a.end(), bind(source_attributes_copy, this, _1, &source));
+	source << endl;
+	source << "\t// copy all sub-nodes:" << endl;
+	std::for_each(se.begin(), se.end(), bind(source_elements_copy, this, _1, &source));
+	source << endl;
+	source << "\t// copy the text content:" << endl
+			<< "\tm_text_content = c.m_text_content;" << endl
+			<< endl
+			<< "}" << endl
+			<< endl;
+
+	// Standard	destructor
+	source << name << "::~" << name << "()" << endl
+			<< "{" << endl
+			<< "\t// Do anything necessary in the destructor here" << endl
+			<< "}" << endl
+			<< endl;
+
+	// Default assignment operator
+	source << name << "& " << name << "::operator=(const " << name << "& c)" << endl
+			<< "{" << endl
+			<< "// copy all attributes:" << endl;
+	std::for_each(a.begin(), a.end(), bind(source_attributes_copy, this, _1, &source));
+	source << endl;
+	source << "\t// copy all sub-nodes:" << endl;
+	std::for_each(se.begin(), se.end(), bind(source_elements_copy, this, _1, &source));
+	source << endl;
+	source << "\t// copy the text value:" << endl
+			<< "\tm_text_content = c.m_text_content;" << endl
+			<< endl
+			<< "\treturn *this;" << endl
+			<< "}" << endl
+			<< endl;
+
+	// Read	the	element
+	source << "void " << name << "::Read(xmlNodePtr node)" << endl
+			<< "{" << endl
+			<< "\txmlNodePtr sub;" << endl
+			<< endl
+			<< "\tif(strcmp(reinterpret_cast<const char*>(node->name), \"" << name << "\") != 0){" << endl
+			<< "\t\tthrow AnException(0, FL, \"Wrong node name (%s).  We expect (" << name << ")\", node->name);" << endl
+			<< "\t}" << endl
+			<< endl;
+	if (a.size() > 0)
+		source << "\t// Get the attributes:" << endl;
+	std::for_each(a.begin(), a.end(), bind(source_attributes_read, this, _1, &source));
+	if (se.size() > 0)
+	{
+		source << "\t// Get the sub nodes:" << endl
+				<< "\tfor(sub = node->xmlChildrenNode; sub != NULL; sub = sub->next){" << endl;
+		std::for_each(se.begin(), se.end(), bind(source_elements_read, this, _1, &source));
+		source << endl
+				<< "\t}" << endl
+				<< endl;
+	}
+	source << "\t// Get the node content if any:" << endl
+			<< "\tstring tmp_txt;" << endl
+			<< "\tm_text_content = \"\";" << endl
+			<< "\tm_text_content.release();" << endl
+			<< "\tfor(sub = node->xmlChildrenNode; sub != NULL; sub = sub->next){" << endl
+			<< "\t\tif(xmlNodeIsText(sub)){" << endl
+			<< "\t\t\ttmp_txt << xmlNodeGetContent(sub);" << endl
+			<< "\t\t\ttmp_txt.ltrim().rtrim();" << endl
+			<< "\t\t\tm_text_content += tmp_txt;" << endl
+			<< "\t\t}" << endl
+			<< "\t}" << endl
+			<< "}" << endl
+			<< endl;
+
+	// Read the element
+	source << "void " << name << "::ReadRoot(xmlDocPtr doc)" << endl
+			<< "{" << endl
+			<< "\txmlNodePtr root;" << endl
+			<< "\troot = xmlDocGetRootElement(doc);" << endl
+			<< "\tthis->Read(root);" << endl
+			<< "}" << endl
+			<< endl;
+
+	// Write the element
+	source << "void " << name << "::Write(xmlNodePtr parent)" << endl
+			<< "{" << endl
+			<< "\txmlNodePtr sub;" << endl
+			<< endl
+			<< "\tsub = xmlNewChild(parent, NULL, \"" << name << "\"," << endl
+			<< "\t\tm_text_content);" << endl
+			<< endl;
+	if (a.size() > 0)
+		source << "\t// Set the attributes:" << endl;
+	std::for_each(a.begin(), a.end(), bind(source_attributes_write, this, _1, &source));
+	if (se.size() >	0)
+	{
+		source << "\t// Create the sub nodes:" << endl
+				<< "\tint i;" << endl
+				<< endl;
+		std::for_each(se.begin(), se.end(), bind(source_elements_write, this, _1, &source));
+	}
+	source << "}" << endl;
+	source << endl;
+
+	// Write the element as the root of new document
+	source << "void " << name << "::WriteRoot(xmlDocPtr doc)" << endl
+			<< "{" << endl
+			<< "\txmlNodePtr sub;" << endl
+			<< endl
+			<< "\tdoc->children = xmlNewDocNode(doc, NULL, \"" << name << "\"," << endl
+			<< "\t\tm_text_content);" << endl
+			<< "\tsub = doc->children;" << endl
+			<< endl;
+	if (a.size() > 0)
+		source << "\t// Set the attributes:" << endl;
+	std::for_each(a.begin(), a.end(), bind(source_attributes_write, this, _1, &source));
+	if (n.elements().size() >	0)
+	{
+		source << "\t// Create the sub nodes:" << endl
+				<< "\tint i;" << endl
+				<< endl;
+		std::for_each(se.begin(), se.end(), bind(source_elements_write, this, _1, &source));
+	}
+	source << "}" << endl;
+	source << endl;
+}
+
+void Generator::source_attributes_copy(const std::string& v, std::ofstream* o)
+{
+	(*o) << "\tm_" << v << " = c.m_" << v << ";" << endl;
+}
+
+void Generator::source_attributes_read(const std::string& v, std::ofstream* o)
+{
+	(*o) << "\tm_" << v << " << xmlGetProp(node, \"" << v << "\");" << endl;
+}
+
+void Generator::source_attributes_write(const std::string& v, std::ofstream* o)
+{
+	(*o) << "\t// Attribute " << v << ":" << endl
+			<< "\txmlSetProp(sub, \"" << v << "\"," << endl
+			<< "\t\tm_" << v << ");" << endl
+			<< endl;
+}
+
+void Generator::source_elements_copy(const SUBELEMENTS::value_type& v, std::ofstream* o)
+{
+	(*o) << "\t" << v.first << "_list = c." << v.first << "_list;" << endl;
+}
+
+void Generator::source_elements_read(const SUBELEMENTS::value_type& v, std::ofstream* o)
+{
+	(*o) << "\t\tif(strcmp(reinterpret_cast<const char*>(sub->name), \"" << v.first << "\") == 0){" << endl
+			<< "\t\t\t" << v.first << " " << v.first << "_tmp;" << endl
+			<< "\t\t\t" << v.first << "_tmp.Read(sub);" << endl
+			<< "\t\t\t" << v.first << "_list.push_back(" << v.first << "_tmp);" << endl
+			<< "\t\t\tcontinue;" << endl
+			<< "\t\t}" << endl;
+}
+
+void Generator::source_elements_write(const SUBELEMENTS::value_type& v, std::ofstream* o)
+{
+	(*o) << "\tfor(i = 0; i < (int)" << v.first << "_list.size(); i++){" << endl
+			<< "\t\t" << v.first << "_list[i].Write(sub);" << endl
+			<< "\t}" << endl
+			<< endl;
 }

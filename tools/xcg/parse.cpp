@@ -30,10 +30,7 @@ void Parser::recurse(xmlNodePtr n)
 	std::string name(xmlChar2char(n->name));
 	ELEMENTS::iterator ei = _elements.find(name);
 	if (ei == _elements.end())
-	{
-		ei = _elements.insert(std::make_pair(xmlChar2char(n->name), Element(
-				xmlChar2char(n->name)))).first;
-	}
+		ei = _elements.insert(std::make_pair(xmlChar2char(n->name), Element())).first;
 
 	// Add attributes
 	if (n->properties)

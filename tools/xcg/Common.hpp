@@ -26,7 +26,6 @@ namespace impl
 	public:
 	//-------------------------------------------------------------------------
 		Element();
-		Element(const std::string& n);
 		Element(const Element& r);
 		
 		Element& operator=(const Element& r);
@@ -46,15 +45,6 @@ namespace impl
 					
 	private:
 		SUBELEMENTS _e;
-
-	//-------------------------------------------------------------------------
-	public:
-		const std::string& name() const;
-		void name(const char* n);
-		void name(const std::string& n);
-		
-	private:
-		std::string _n;
 	};
 
 //=============================================================================
@@ -71,6 +61,15 @@ namespace impl
 		const std::string::iterator e = s.end();
 		for (std::string::iterator i = s.begin(); i != e; ++i)
 			*i = std::tolower(*i, l);
+		return s;
+	}
+	
+	inline std::string& str_upper(std::string& s)
+	{
+		std::locale l;
+		const std::string::iterator e = s.end();
+		for (std::string::iterator i = s.begin(); i != e; ++i)
+			*i = std::toupper(*i, l);
 		return s;
 	}
 	
@@ -94,17 +93,10 @@ namespace impl
 		*this = r;
 	}
 
-	inline Element::Element(const std::string& n)
-			:
-			_n(n)
-	{
-	}
-	
 	inline Element& Element::operator=(const Element& r)
 	{
 		if (this != &r)
 		{
-			_n = r._n;
 			_e = r._e;
 			_a = r._a;
 		}
@@ -129,21 +121,6 @@ namespace impl
 	inline const SUBELEMENTS& Element::elements() const
 	{
 		return _e;
-	}
-
-	inline const std::string& Element::name() const
-	{
-		return _n;
-	}
-
-	inline void Element::name(const std::string& n)
-	{
-		_n = n;
-	}
-	
-	inline void Element::name(const char* n)
-	{
-		_n = n;
 	}
 }
 

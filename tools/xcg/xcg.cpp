@@ -108,7 +108,7 @@ int	main (int argc,	char** argv)
 	{
 		ELEMENTS e;
 		impl::Parser p(argv[i], e);
-		impl::Generater(str_dir(argv[i]), e);
+		impl::Generator(str_dir(argv[i]), e);
 	}
 	
 	return 0;
