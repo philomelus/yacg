@@ -1,5 +1,6 @@
 #include "Common.hpp"
 
+#include <algorithm>
 #include <iostream>
 
 #include "Parse.hpp"
@@ -52,10 +53,9 @@ void Parser::recurse(xmlNodePtr n)
 		ATTRIBUTES& attr = ei->second.attributes();
 		for (xmlAttrPtr a = n->properties; a; a = a->next)
 		{
-			ATTRIBUTES::iterator ai = attr.find(xmlChar2char(a->name));
-			if (ai == attr.end())
-				attr.insert(std::make_pair(xmlChar2char(a->name), 1));
-			++(ai->second);
+			const std::string name(xmlChar2char(a->name));
+			if (std::find(attr.begin(), attr.end(), name) == attr.end())
+				attr.push_back(name);
 		}
 	}
 
@@ -68,12 +68,10 @@ void Parser::recurse(xmlNodePtr n)
 			if (s->name && !xmlNodeIsText(s))
 			{
 				Element& r = _elements[xmlChar2char(n->name)];
-				std::string	sname(xmlChar2char(s->name));
+				const std::string name(xmlChar2char(s->name));
 				SUBELEMENTS& e = r.elements();
-				if (e.count(sname) == 0)
-					e[sname] = 1;
-				else
-					++(e[sname]);
+				if (std::find(e.begin(), e.end(), name) == e.end())
+					e.push_back(name);
 			}
 
 			// Check for recursive sub-elements

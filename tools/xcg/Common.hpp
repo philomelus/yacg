@@ -11,12 +11,17 @@ namespace impl
 //=============================================================================
 // Attributes for an element
 
-	typedef std::map<std::string, int> ATTRIBUTES;
+	extern const char* xmlDefault;
+	
+//=============================================================================
+// Attributes for an element
+
+	typedef std::vector<std::string> ATTRIBUTES;
 	
 //=============================================================================
 // Elements contained within a root element
 
-	typedef	std::map<std::string, int> SUBELEMENTS;
+	typedef	std::vector<std::string> SUBELEMENTS;
 	
 //=============================================================================
 // Root element

@@ -109,14 +109,19 @@ void Generator::header(const ELEMENTS::value_type& v)
 			<< "\tprivate:" << endl
 			<< "\t\tstd::string _value;" << endl;
 
-	// Finish off header
+	// Finish class
 	header << "\t};" << endl
-			<< "}" << endl
-			<< endl
-			<< "#endif" << endl;
+			<< endl;
+	
+	// Finish namespace
+	header << "}" << endl
+			<< endl;
+	
+	// Finish header
+	header << "#endif" << endl;
 }
 
-void Generator::header_attributes(const ATTRIBUTES::value_type& v, std::ofstream* o)
+void Generator::header_attributes(const std::string& v, std::ofstream* o)
 {
 	//	//----...
 	//	public:
@@ -126,18 +131,17 @@ void Generator::header_attributes(const ATTRIBUTES::value_type& v, std::ofstream
 	//	private:
 	//		std::string _attribute;
 
-	const std::string& name = v.first;
 	(*o) << "\t" << minor_divider << endl
 			<< "\tpublic:" << endl
-			<< "\t\tconst std::string& " << name << "() const;" << endl
-			<< "\t\tvoid " << name << "(const char* " << name[0] << ");" << endl
+			<< "\t\tconst std::string& " << v << "() const;" << endl
+			<< "\t\tvoid " << v << "(const char* " << v[0] << ");" << endl
 			<< endl
 			<< "\tprivate:" << endl
-			<< "\t\tstd::string _" << name << ";" << endl
+			<< "\t\tstd::string _" << v << ";" << endl
 			<< endl;
 }
 
-void Generator::header_elements(const SUBELEMENTS::value_type& v, std::ofstream* o)
+void Generator::header_elements(const std::string& v, std::ofstream* o)
 {
 	//	//----...
 	//	public:
@@ -147,18 +151,17 @@ void Generator::header_elements(const SUBELEMENTS::value_type& v, std::ofstream*
 	//	private:
 	//		std::vector<std::string> _element;
 
-	const std::string& name = v.first;
 	(*o) << "\t" << minor_divider << endl
 			<< "\tpublic:" << endl
-			<< "\t\tstd::vector<std::string>& " << name << "();" << endl
-			<< "\t\tconst std::vector<std::string>& " << name << "() const;" << endl
+			<< "\t\tstd::vector<std::string>& " << v << "();" << endl
+			<< "\t\tconst std::vector<std::string>& " << v << "() const;" << endl
 			<< endl
 			<< "\tprivate:" << endl
-			<< "\t\tstd::vector<std::string> _" << name << ";" << endl
+			<< "\t\tstd::vector<std::string> _" << v << ";" << endl
 			<< endl;
 }
 
-void Generator::header_includes(const SUBELEMENTS::value_type& v, std::ofstream* o)
+void Generator::header_includes(const std::string& v, std::ofstream* o)
 {
 	//	#ifndef	__ELEMENT_HPP__
 	//	#include "element.hpp"
@@ -166,13 +169,13 @@ void Generator::header_includes(const SUBELEMENTS::value_type& v, std::ofstream*
 	
 	// Generate header multiple inclusion protection
 	std::string	mip =	"__";
-	mip += v.first;
+	mip += v;
 	mip += "_HPP__";
 	str_upper(mip);
 
 	// Include header
 	(*o) << "#ifndef\t" << mip << endl
-			<< "#include \"" << v.first << ".hpp\"" << endl
+			<< "#include \"" << v << ".hpp\"" << endl
 			<< "#endif" << endl
 			<< endl;
 }
@@ -336,43 +339,43 @@ void Generator::source(const ELEMENTS::value_type& v)
 	source << endl;
 }
 
-void Generator::source_attributes_copy(const ATTRIBUTES::value_type& v, std::ofstream* o)
+void Generator::source_attributes_copy(const std::string& v, std::ofstream* o)
 {
-	(*o) << "\tm_" << v.first << " = c.m_" << v.first << ";" << endl;
+	(*o) << "\tm_" << v << " = c.m_" << v << ";" << endl;
 }
 
-void Generator::source_attributes_read(const ATTRIBUTES::value_type& v, std::ofstream* o)
+void Generator::source_attributes_read(const std::string& v, std::ofstream* o)
 {
-	(*o) << "\tm_" << v.first << " << xmlGetProp(node, \"" << v.first << "\");" << endl;
+	(*o) << "\tm_" << v << " << xmlGetProp(node, \"" << v << "\");" << endl;
 }
 
-void Generator::source_attributes_write(const ATTRIBUTES::value_type& v, std::ofstream* o)
+void Generator::source_attributes_write(const std::string& v, std::ofstream* o)
 {
-	(*o) << "\t// Attribute " << v.first << ":" << endl
-			<< "\txmlSetProp(sub, \"" << v.first << "\"," << endl
-			<< "\t\tm_" << v.first << ");" << endl
+	(*o) << "\t// Attribute " << v << ":" << endl
+			<< "\txmlSetProp(sub, \"" << v << "\"," << endl
+			<< "\t\tm_" << v << ");" << endl
 			<< endl;
 }
 
-void Generator::source_elements_copy(const SUBELEMENTS::value_type& v, std::ofstream* o)
+void Generator::source_elements_copy(const std::string& v, std::ofstream* o)
 {
-	(*o) << "\t" << v.first << "_list = c." << v.first << "_list;" << endl;
+	(*o) << "\t" << v << "_list = c." << v << "_list;" << endl;
 }
 
-void Generator::source_elements_read(const SUBELEMENTS::value_type& v, std::ofstream* o)
+void Generator::source_elements_read(const std::string& v, std::ofstream* o)
 {
-	(*o) << "\t\tif(strcmp(reinterpret_cast<const char*>(sub->name), \"" << v.first << "\") == 0){" << endl
-			<< "\t\t\t" << v.first << " " << v.first << "_tmp;" << endl
-			<< "\t\t\t" << v.first << "_tmp.Read(sub);" << endl
-			<< "\t\t\t" << v.first << "_list.push_back(" << v.first << "_tmp);" << endl
+	(*o) << "\t\tif(strcmp(reinterpret_cast<const char*>(sub->name), \"" << v << "\") == 0){" << endl
+			<< "\t\t\t" << v << " " << v << "_tmp;" << endl
+			<< "\t\t\t" << v << "_tmp.Read(sub);" << endl
+			<< "\t\t\t" << v << "_list.push_back(" << v << "_tmp);" << endl
 			<< "\t\t\tcontinue;" << endl
 			<< "\t\t}" << endl;
 }
 
-void Generator::source_elements_write(const SUBELEMENTS::value_type& v, std::ofstream* o)
+void Generator::source_elements_write(const std::string& v, std::ofstream* o)
 {
-	(*o) << "\tfor(i = 0; i < (int)" << v.first << "_list.size(); i++){" << endl
-			<< "\t\t" << v.first << "_list[i].Write(sub);" << endl
+	(*o) << "\tfor(i = 0; i < (int)" << v << "_list.size(); i++){" << endl
+			<< "\t\t" << v << "_list[i].Write(sub);" << endl
 			<< "\t}" << endl
 			<< endl;
 }
