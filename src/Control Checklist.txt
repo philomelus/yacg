@@ -46,6 +46,7 @@
       b.  Optionally, on next line "// name" where "name" can be whatever makes
           sense, preferable 1 word
       c   Put all functional stuff together for (2)
+          (something about public/protected/private attrib is needed here)
       d.  Public interface should go as close to top of file as possible, thus
           implementation specifics should go toward bottom of file.
       e.  Sample:
@@ -64,13 +65,13 @@
       
         //-----------------------------------------------------------------------
         // next funtional area
-      d.  Alphabetizing is NOT required:  It's most important to put things in the
+      f.  Alphabetizing is NOT required:  It's most important to put things in the
           order of typical usage, and group related items together.
-      e.  See section 4C6 for information about inline functionality.
-      f.  File should be guarded against duplication with #ifdef/#define/#endif.
+      g.  See section 4C6 for information about inline functionality.
+      h.  File should be guarded against duplication with #ifdef/#define/#endif.
           The macro defition should be "__filename__".  For example, "foo.hpp"
           would use "__FOO_HPP__".
-      g.  Headers should be able to be included without reliance on other
+      i.  Headers should be able to be included without reliance on other
           headers.  This means that each header should make sure all headers
           are included that it relies on.  Becuase of 4B2f, its easy to prevent
           multiple compiles of the same header through:

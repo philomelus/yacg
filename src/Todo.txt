@@ -29,3 +29,11 @@ Find a way to iterate the boost::signals slots, so that typeid.name() can be
 used to dump the names of the objects that are connected to them.  This will
 help with debugging imensely in some circumstances.
 
+It'd be nice to provide not only a dialog/window editor, but a code generator
+who's sole purpose is to provide a prototype for a new control.  For example,
+it could provide checkboxes for what features to supprt, what class to derive
+from, etc. and then generate the theme.hpp, control.hpp, and control.cpp for
+the class automatically.  Pretty simple and easy to write, and would make the
+lives of the programmer user MUCH easier - which is the whole point of YACG
+to begin with!  I think this should be the FIRST tool created, even before
+the dialog editor.
