@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<source>xcg.xml</source>
+<element>
+	<name>element</name>
+	<type>std::string</type>
+	<multiple>true</multiple>
+</element>
+<element>
+	<name>attribute</name>
+	<type>std::string</type>
+	<multiple>true</multiple>
+</element>
