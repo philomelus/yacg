@@ -249,7 +249,6 @@ void Generator::declaration(const std::string& c, std::ostream& o, const std::st
 	o << "\tpublic:" << endl;
 	o << "\t\tvoid read(xmlNodePtr p);" << endl;
 	o << "\t" << endl;
-	
 
 	// Add element value
 	o << "\t" << minor_divider << endl;
@@ -267,12 +266,12 @@ void Generator::declaration(const std::string& c, std::ostream& o, const std::st
 	o << "\t\tVALUES _values;" << endl;
 	o << endl;
 	
-	// Add write functions
+	// Add write function(s)
 	o << "\t" << minor_divider << endl;
 	o << "\t// Write to file or node" << endl;
 	o << "\tpublic:" << endl;
-	o << "\t\tvoid write(const char* f) const;" << endl;
-	o << "\t\tvoid write(xmlNodePtr p) const;" << endl;
+	o << "\t\tvoid write(const char* f, bool i = true, const char* t = \"\\t\") const;" << endl;
+	o << "\t\tvoid write(xmlTextWriterPtr w) const;" << endl;
 	
 	// Close class
 	o << "\t};" << endl;
@@ -359,6 +358,7 @@ void Generator::header(const std::vector<std::string>& h, const std::string& r,
 	o << "#include <string>" << endl;
 	o << "#include <vector>" << endl;
 	o << "#include <libxml/parser.h>" << endl;
+	o << "#include <libxml/xmlwriter.h>" << endl;
 	o << endl;
 	
 	// Add namespace
@@ -611,6 +611,7 @@ void Generator::source(const std::vector<std::string>& c, const std::string& r,
 	o << endl;
 
 	// Add includes
+	o << "#include <algorithm>" << endl;
 	o << "#include <locale>" << endl;
 	o << "#include \"" << r << ".hpp\"" << endl;
 	o << endl;
@@ -625,6 +626,9 @@ void Generator::source(const std::vector<std::string>& c, const std::string& r,
 	o << endl;
 	o << "namespace" << endl;
 	o << "{" << endl;
+	o << "\t// Called on reading to clear out whitespace and control characters from" << endl;
+	o << "\t// a XML_TEXT_NODE.  The idea is to get the actual value of an element" << endl;
+	o << "\t// rather than the whitespace used in formatting the file its in." << endl;
 	o << "\txmlChar* trim(xmlChar* t)" << endl;
 	o << "\t{" << endl;
 	o << "\t\tstd::locale l = std::locale();" << endl;
@@ -637,6 +641,24 @@ void Generator::source(const std::vector<std::string>& c, const std::string& r,
 	o << "\t\t}" << endl;
 	o << "\t\treturn t;" << endl;
 	o << "\t}" << endl;
+	o << "\t" <<  endl;
+	o << "\t// Functor to call write on each child element" << endl;
+	o << "\ttemplate <typename T>" << endl;
+	o << "\tclass writer" << endl;
+	o << "\t{" << endl;
+	o << "\tpublic:" << endl;
+	o << "\t\twriter(xmlTextWriterPtr w)" << endl;
+	o << "\t\t\t\t:" << endl;
+	o << "\t\t\t\t_w(w)" << endl;
+	o << "\t\t{" << endl;
+	o << "\t\t}" << endl;
+	o << "\t\tvoid operator()(const T& t)" << endl;
+	o << "\t\t{" << endl;
+	o << "\t\t\tt.write(_w);" << endl;
+	o << "\t\t}" << endl;
+	o << "\tprivate:" << endl;
+	o << "\t\txmlTextWriterPtr _w;" << endl;
+	o << "\t};" << endl;
 	o << "}" << endl;
 	o << endl;
 	
@@ -776,58 +798,70 @@ void Generator::source_implementation(const std::string& c, std::ostream& o,
 	o << endl;
 
 	// Add write to file
-	o << "void " << class_name << "::write(const char* f) const" << endl;
+	o << "void " << class_name << "::write(const char* f, bool i, const char* t) const" << endl;
 	o << "{" << endl;
-	o << "\t// Create document" << endl;
-	o << "\txmlDocPtr d = xmlNewDoc(reinterpret_cast<const xmlChar*>(XML_DEFAULT_VERSION));" << endl;
-	o << "\tif (!d)" << endl;
-	o << "\t\tthrow std::runtime_error(\"new document creation failed\");" << endl;
+	o << "\t// Create a new writer" << endl;
+	o << "\txmlTextWriterPtr w = xmlNewTextWriterFilename(f, 0);" << endl;
+	o << "\tif (!w)" << endl;
+	o << "\t\tthrow std::runtime_error(\"unable to create xmlTextWriter\");" << endl;
 	o << "\t" << endl;
-	o << "\t// Get single value" << endl;
-	o << "\tstd::string v;" << endl;
-	o << "\tvalue(v);" << endl;
+	o << "\t// Set indentation if desired" << endl;
+	o << "\tif (i)" << endl;
+	o << "\t{" << endl;
+	o << "\t\txmlTextWriterSetIndent(w, 1);" << endl;
+	o << "\t\txmlTextWriterSetIndentString(w, reinterpret_cast<xmlChar*>(t ? t : \"\\t\"));" << endl;
+	o << "\t}" << endl;
 	o << "\t" << endl;
 	o << "\ttry" << endl;
 	o << "\t{" << endl;
-	o << "\t\t// Create root node" << endl;
-	o << "\t\txmlNodePtr r = xmlNewDocNode(d, NULL, reinterpret_cast<const xmlChar*>(" << endl;
-	o << "\t\t\t\t\"" << name << "\"), reinterpret_cast<const xmlChar*>(v.c_str()));" << endl;
-	o << "\t\tif (!r)" << endl;
-	o << "\t\t\tthrow std::runtime_error(\"failed creating root '" << name << "'\");" << endl;
-	o << "\t\t" << endl;
+	o << "\t\t// Create document" << endl;
+	o << "\t\tint r = xmlTextWriterStartDocument(w, \"1.0\", \"iso8859-1\", \"yes\");" << endl;
+	o << "\t\tif (r < 0)" << endl;
+	o << "\t\t\tthrow std::runtime_error(\"unable to start document\");" << endl;
+	o << "\t" << endl;
 	o << "\t\t// Add the child elements" << endl;
-	o << "\t\twrite(r);" << endl;
+	o << "\t\twrite(w);" << endl;
 	o << "\t\t" << endl;
-	o << "\t\t// Save to file" << endl;
-	o << "\t\tint s = xmlSaveFormatFile(f, d, 1);" << endl;
-	o << "\t\tif (s == -1)" << endl;
-	o << "\t\t\tthrow std::runtime_error(\"failed writing file\");" << endl;
-	o << "\t\t" << endl;
-	o << "\t\t// All done!" << endl;
-	o << "\t\txmlFreeDoc(d);" << endl;
+	o << "\t\t// Close the writer" << endl;
+	o << "\t\txmlFreeTextWriter(w);" << endl;
 	o << "\t}" << endl;
 	o << "\tcatch (...)" << endl;
 	o << "\t{" << endl;
-	o << "\t\txmlFreeDoc(d);" << endl;
+	o << "\t\txmlFreeTextWriter(w);" << endl;
 	o << "\t\tthrow;" << endl;
 	o << "\t}" << endl;
 	o << "}" << endl;
 	o << endl;
 
-	// Add write to node
-	o << "void " << class_name << "::write(xmlNodePtr p) const" << endl;
+	// Add write to xmlTextWriter
+	o << "void " << class_name << "::write(xmlTextWriterPtr w) const" << endl;
 	o << "{" << endl;
-	o << "\t// Create child node for this object" << endl;
+	o << "\t// Create element" << endl;
+	o << "\tint r = xmlTextWriterStartElement(w, reinterpret_cast<const xmlChar*>(\"" << name << "\"));" << endl;
+	o << "\tif (r < 0)" << endl;
+	o << "\t\tthrow std::runtime_error(\"creation of element '"<< name << "' failed\");" << endl;
+	o << "\t" << endl;
+	std::for_each(a.begin(), a.end(), bind(source_write_attributes, this, _1, ref(o), ref(name)));
+	o << "\t// Write value if needed" << endl;
 	o << "\tstd::string v;" << endl;
 	o << "\tvalue(v);" << endl;
-	o << "\txmlNodePtr s = xmlNewChild(p, NULL, reinterpret_cast<const xmlChar*>(\"" << name << "\")," << endl;
-	o << "\t\t\treinterpret_cast<const xmlChar*>(v.c_str()));" << endl;
-	o << "\tif (!s)" << endl;
-	o << "\t\tthrow std::runtime_error(\"failed to create child node '" << name << "'!\");" << endl;
+	o << "\tif (!v.empty())" << endl;
+	o << "\t{" << endl;
+	o << "\t\tr = xmlTextWriterWriteString(w, reinterpret_cast<const xmlChar*>(v.c_str()));" << endl;
+	o << "\t\tif (r < 0)" << endl;
+	o << "\t\t\tthrow std::runtime_error(\"failed writing '" << name << "' value\");" << endl;
+	o << "\t}" << endl;
 	o << "\t" << endl;
-	std::for_each(a.begin(), a.end(), bind(source_write_attributes, this, _1, ref(o)));
-	std::for_each(s.begin(), s.end(), bind(source_write_elements, this, _1, ref(o),
-			ref(ef), ref(el)));
+	if (!s.empty())
+	{
+		o << "\t// Add child elements" << endl;
+		std::for_each(s.begin(), s.end(), bind(source_write_elements, this, _1, ref(o)));
+		o << "\t" << endl;
+	}
+	o << "\t// All done!" << endl;
+	o << "\tr = xmlTextWriterEndElement(w);" << endl;
+	o << "\tif (r < 0)" << endl;
+	o << "\t\tthrow std::runtime_error(\"failed closing '" << name << "' element\");" << endl;
 	o << "}" << endl;
 	o << endl;
 
@@ -883,44 +917,46 @@ void Generator::source_read_elements(const std::string& v, std::ostream& o) cons
 	o << "\t\t}" << endl;
 }
 
-void Generator::source_write_attributes(const std::string& v, std::ostream& o) const
+void Generator::source_write_attributes(const std::string& v, std::ostream& o,
+		const std::string& e) const
 {
-	//	// Write attribute attribute.
-	//	if (!_attribute.empty())
+	//	// Add attribute group if needed
+	//	if (!_group.empty())
 	//	{
-	//		a = xmlSetProp(n, "attribute", _attribute.c_str());
-	//		if (!a)
-	//			throw std::runtime_error("write attribute attribute failed");
+	//		r = xmlTextWriterWriteAttribute(w, reinterpret_cast<const xmlChar*>("group"),
+	//				reinterpret_cast<const xmlChar*>(_group.c_str()));
+	//		if (r < 0)
+	//		{
+	//			throw std::runtime_error("addition of attribute 'group' "
+	//					"to element 'flags' failed");
+	//		}
 	//	}
 	//
-	o << "\t// Write attribute " << v << endl;
+
+	o << "\t// Add attribute " << v << " if needed" << endl;
 	o << "\tif (!_" << v << ".empty())" << endl;
 	o << "\t{" << endl;
-	o << "\t\txmlAttrPtr a = xmlSetProp(s, reinterpret_cast<const xmlChar*>(\"" << v << "\")," << endl;
+	o << "\t\tr = xmlTextWriterWriteAttribute(w, reinterpret_cast<const xmlChar*>(\"" << v << "\")," << endl;
 	o << "\t\t\t\treinterpret_cast<const xmlChar*>(_" << v << ".c_str()));" << endl;
-	o << "\t\tif (!a)" << endl;
-	o << "\t\t\tthrow std::runtime_error(\"write attribute '" << v << "' failed!\");" << endl;
+	o << "\t\tif (r < 0)" << endl;
+	o << "\t\t{" << endl;
+	o << "\t\t\tthrow std::runtime_error(\"addition of attribute '" << v << "' \"" << endl;
+	o << "\t\t\t\t\t\"to element '" << e << "' failed\");" << endl;
+	o << "\t\t}" << endl;
 	o << "\t}" << endl;
-	o << endl;
+	o << "\t" << endl;
 }
 
-void Generator::source_write_elements(const std::string& e, std::ostream& o,
-		const std::string& f, const std::string& l) const
+void Generator::source_write_elements(const std::string& e, std::ostream& o) const
 {
-	//	// Write element elements
-	//	for (i = 0; i < _elements.size(); ++i)
-	//		_elements[i].write(s);
-	//
+	//	std::for_each(_elements.begin(), _elements.end(), writer<Element>(w));
 
 	const std::string name = fixup(e);
 	const std::string plural_name = name + (name[name.size() - 1] == 's'
 			? "" : "s");
+	const std::string class_name = std::toupper(name[0], std::locale())
+			+ name.substr(1, std::string::npos);
 	
-	o << "\t// Write " << name << " elements" << endl;
-	if (e == f)
-		o << "\tstd::vector<std::string>::size_type i;" << endl;
-	o << "\tfor (i = 0; i < _" << plural_name << ".size(); ++i)" << endl;
-	o << "\t\t_" << plural_name << "[i].write(s);" << endl;
-	if (e != l)
-		o << endl;
+	o << "\tstd::for_each(_" << plural_name << ".begin(), _"<< plural_name
+			<< ".end(), writer<" << class_name << ">(w));" << endl;
 }

@@ -61,9 +61,8 @@ namespace impl
 		void source_read_attributes(const std::string& v, std::ostream& o,
 				const ATTRIBUTES::const_iterator b, const ATTRIBUTES::const_iterator e) const;
 		void source_read_elements(const std::string& v, std::ostream& o) const;
-		void source_write_attributes(const std::string& v, std::ostream& o) const;
-		void source_write_elements(const std::string& v, std::ostream& o,
-				const std::string& f, const std::string& l) const;
+		void source_write_attributes(const std::string& v, std::ostream& o, const std::string& e) const;
+		void source_write_elements(const std::string& v, std::ostream& o) const;
 	};
 }
 
