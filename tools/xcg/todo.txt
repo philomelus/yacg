@@ -9,3 +9,76 @@ will make the addition of the xml based generation abilities much less
 difficult to add on later.
 
 4.  Handle CDATA in value sections.
+
+5.  Current structure as I see it:
+
+// Keyword replacements.  For example, if generating a c struct, the name "struct"
+// is invalid, so a replacement of "struct" with, say, "STRUCT" would fix it.
+class Replacement
+{
+	enum TYPE
+	{
+		all,		// Filters ALL types
+		plural,			// Filters only plural conversions
+		capital,		// Filters only when making first char capital
+		capitalize,		// Filters only when capitalizing entire string
+		translate,		// Filters only when translating string
+		validate,		// Filters only when validating characters of string
+		validateAndCapitalize	// Filters only when validating characters and capitalizing
+	} type;
+	
+	enum CONTEXT
+	{
+		global,			// Active in all keyword updates
+		attribute,		// Active only in attribute keyword updates
+		element,		// Active only in element keyword updates
+		template,		// Active only in specified template keyword update
+		file			// Active only in specified file keyword updates
+	} context1;
+	std::string context1data;	// For context==*phase or context==*template, name of file/template its valid in
+	CONTEXT context2;			// For combining attribute/element with file/template
+	std::string context2data;	// Same as context1data, except only for what it specified in context2
+
+	bool fail;					// Force failure when "original" is found
+
+	std::string original;		// String to replace
+	
+	std::string replacement;	// String to replace with
+};
+typedef std::vector<Replacement> REPLACEMENTS;
+
+// Attribute generation.  When this is encounterd, it means use this as a template
+// for generating text for all attributes of the current element.
+class Attribute
+{
+};
+typedef std::map<std::string, Attribute> ATTRIBUTES;
+
+// Element generation.  When this is encountered, it means use this as a template
+// for generating text for all child elements.
+class Element
+{
+};
+typedef std::map<std::string, Element> ELEMENTS;
+
+// Root element generation.  This is used as a template for generating text for
+// the root element.  If it doesn't contain any class Attribute or class Element
+// objects then nothing is generated for attributes and elements.
+class Root
+{
+};
+typedef std::map<std::string, Root> ROOTS;
+
+// Contians a sequence list of class Attribute, class Element, and strings used
+// to actually generate text.
+class Template
+{
+	std::vector<std::string>
+};
+typedef std::map<std::string, Template> TEMPLATES;
+
+// Contains a sequence list of templates for generating a file.
+class File
+{
+};
+typedef std::vector<File> FILES;
