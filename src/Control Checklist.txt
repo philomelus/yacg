@@ -1,0 +1,30 @@
+
+1.  Does any required active/inactive state painting differences.
+
+2.  Has theme support.
+  A.  Control specific theme.
+    1.  Affects/controls ALL attributes/settings that modify painting.
+    2.  Is default constructable.
+  B.  Control handles theme updates.
+  C.  Control handles theme changes (new Theme object passed in).
+  D.  Control provides way to specify control specific theme only (member function Control::theme(ControlSpecificTheme&)).
+  
+3.  dump functions
+  A.  dump all attributes and contained objects
+  B.  dump all super classes
+  C.  dump functions use utility dump_ functions for consistant output
+  D.  dump functions all have indentation parameter
+
+4.  Code styling
+  A.  Implementation
+    1.  Use "//-" between functional areas
+    2.  Alphabetize within functional area
+    3.  No indenting for namespace's other than root
+  B.  Header
+    1.  Use "//-" between functional areas
+    2.  Put ALL functional stuff together - including var's, etc.
+    3.  No indenting for namespace's other than root
+
+5.  Test tests all attribute combinations
+
+6.  Test tests changing all attributes on the fly (but not style)
