@@ -14,7 +14,7 @@ using std::endl;
 // class Parser implementation
 //=============================================================================
 
-Parser::Parser(const char* f, ELEMENTS& e, bool& abort)
+Parser::Parser(const char* f, ELEMENTS& e, std::string& r, bool& abort)
 		:
 		_elements(e)
 {
@@ -29,7 +29,10 @@ Parser::Parser(const char* f, ELEMENTS& e, bool& abort)
 	}
 	xmlNodePtr root = xmlDocGetRootElement(doc);
 	if (root)
+	{
+		r = reinterpret_cast<const char*>(root->name);
 		recurse(root);
+	}
 	xmlFreeDoc(doc);
 }
 
@@ -38,7 +41,7 @@ void Parser::recurse(xmlNodePtr n)
 #define	xmlChar2char(c)	reinterpret_cast<const char*>(c)
 
 	// Ignore white space
-	if (n->name == NULL)
+	if (n->name == NULL || n->type != XML_ELEMENT_NODE)
 		return;
 
 	// Locate node, creating it if needed
@@ -66,7 +69,7 @@ void Parser::recurse(xmlNodePtr n)
 		for	(xmlNodePtr s = n->xmlChildrenNode; s; s = s->next)
 		{
 			// Add sub-element info
-			if (s->name && !xmlNodeIsText(s))
+			if (s->name && s->type == XML_ELEMENT_NODE)
 			{
 				Element& r = _elements[xmlChar2char(n->name)];
 				const std::string name(xmlChar2char(s->name));

@@ -48,9 +48,10 @@ namespace
 	void generate(const std::string& f, bool& abort)
 	{
 		ELEMENTS e;
-		impl::Parser p(f.c_str(), e, abort);
+		std::string r;
+		impl::Parser p(f.c_str(), e, r, abort);
 		if (!abort)
-			impl::Generator(str_dir(f.c_str()), e);
+			impl::Generator(str_dir(f.c_str()), r, e);
 	}
 
 //=============================================================================
