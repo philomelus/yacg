@@ -14,7 +14,7 @@ namespace impl
 	{
 	//-------------------------------------------------------------------------
 	public:
-		Parser(const char* f, ELEMENTS& e);
+		Parser(const char* f, ELEMENTS& e, bool& abort);
 
 	private:
 		void recurse(xmlNodePtr n);

@@ -11,7 +11,7 @@ namespace impl
 //=============================================================================
 // Attributes for an element
 
-	typedef std::vector<std::string> ATTRIBUTES;
+	typedef std::map<std::string, int> ATTRIBUTES;
 	
 //=============================================================================
 // Elements contained within a root element

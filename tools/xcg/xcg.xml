@@ -1,12 +1,91 @@
 <?xml version="1.0"?>
-<source>xcg.xml</source>
-<element>
-	<name>element</name>
-	<type>std::string</type>
-	<multiple>true</multiple>
-</element>
-<element>
-	<name>attribute</name>
-	<type>std::string</type>
-	<multiple>true</multiple>
-</element>
+<source>
+	<!-- Code types -->
+	<types>
+		<!-- Header types -->
+		<type name="SubelementIncludes">
+			<subelements>
+				<code>#include &quot;@Sub.hpp&quot;</code>
+			</subelements>
+		</type>
+		<type name="AttributeMembers">
+			<attributes>
+				<code>//<repeat column="80">-</repeat></code>
+				<code>// Attribute @attribute.</code>
+				<code>public:</code>
+				<code>\tconst @type&amp; @attribute() const;</code>
+				<code>\tvoid @attribute(const @type&amp; @a);</code>
+				<code></code>
+				<code>private:</code>
+				<code>\t@type _@attribute;</code>
+			</attributes>
+		</type>
+		<type name="SubelementMembers">
+			<subelements>
+				<code>//<repeat column="80">-</repeat></code>
+				<code>// Element @sub.</code>
+				<code>public:</code>
+				<code>\tstd::vector&lt;@type&gt;&amp; @sub();</code>
+				<code>\tconst std::vector&lt;@type&gt;&amp; @sub() const;</code>
+				<code></code>
+				<code>private:</code>
+				<code>\tstd::vector&lt;@type&gt; _@sub;</code>
+				<code></code>
+			</subelements>
+		</type>
+		
+		<!-- Implementation types -->
+		<!-- TODO -->
+	</types>
+
+	<!-- Header prototype -->
+	<header>
+		<code>#ifdef\t__@ELEMENT_HPP__</code>
+		<code>#define\t__@ELEMENT_HPP__</code>
+		<code></code>
+		<code>#include &lt;string&gt;</code>
+		<code>#include &lt;string&gt;</code>
+		<code></code>
+		<code>#include &lt;string&gt;</code>
+		<code></code>
+		<code type="SubelementIncludes"></code>
+		<code></code>
+		<code>//<repeat column="80">=</repeat></code>
+		<code>// class @Element declaration.</code>
+		<code>class @Element</code>
+		<code></code>
+		<code>//<repeat culumn="80">-</repeat></code>
+		<code>public:</code>
+		<code>\t@Element();</code>
+		<code>\t@Element(const char* f);</code>
+		<code>\t@Element(const @Element&amp; r);</code>
+		<code></code>
+		<code>\t@Element&amp; operator=(const @Element&amp; r);</code>
+		<code></code>
+		<code type="AttributeMembers"></code>
+		<code type="SubelementMembers"></code>
+		<code>};</code>
+		<code></code>
+		<code>#enidf</code>
+	</header>
+
+	<!-- Implementation prototype -->
+	<implementation>
+	</implementation>
+
+	<!-- Attribute specific information -->
+	<attribute name="">
+		<type>std::string</type>
+	</attribute>
+	
+	<!-- Element specific information -->
+	<element name="" multi="false">
+		<type>std::string</type>
+		<option>inline</option>
+		<array>true</array>
+	</element>
+	<element name="" multi="true">
+		<type>std::string</type>
+		<option>inline</option>
+	</element>
+</source>

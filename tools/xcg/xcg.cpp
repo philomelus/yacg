@@ -107,8 +107,10 @@ int	main (int argc,	char** argv)
 	for (int i = 1; i < argc; ++i)
 	{
 		ELEMENTS e;
-		impl::Parser p(argv[i], e);
-		impl::Generator(str_dir(argv[i]), e);
+		bool abort = false;
+		impl::Parser p(argv[i], e, abort);
+		if (!abort)
+			impl::Generator(str_dir(argv[i]), e);
 	}
 	
 	return 0;

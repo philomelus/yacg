@@ -1,17 +1,31 @@
 #include "Common.hpp"
+
+#include <iostream>
+
 #include "Parse.hpp"
 
 using namespace impl;
+using std::cerr;
+using std::cout;
+using std::endl;
 
 //=============================================================================
 // class Parser implementation
 //=============================================================================
 
-Parser::Parser(const char* f, ELEMENTS& e)
+Parser::Parser(const char* f, ELEMENTS& e, bool& abort)
 		:
 		_elements(e)
 {
+	// Parse the file
+	cout << "Parsing \"" << f << "\"..." << endl;
 	xmlDocPtr doc = xmlParseFile(f);
+	if (doc == 0)
+	{
+		cerr << "File \"" << f << "\" contained errors - skipping!" << endl;
+		abort = true;
+		return;
+	}
 	xmlNodePtr root = xmlDocGetRootElement(doc);
 	if (root)
 		recurse(root);
@@ -37,7 +51,12 @@ void Parser::recurse(xmlNodePtr n)
 	{
 		ATTRIBUTES& attr = ei->second.attributes();
 		for (xmlAttrPtr a = n->properties; a; a = a->next)
-			attr.push_back(xmlChar2char(a->name));
+		{
+			ATTRIBUTES::iterator ai = attr.find(xmlChar2char(a->name));
+			if (ai == attr.end())
+				attr.insert(std::make_pair(xmlChar2char(a->name), 1));
+			++(ai->second);
+		}
 	}
 
 	// Parse sub-elements if needed

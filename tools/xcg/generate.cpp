@@ -1,8 +1,7 @@
 #include "Common.hpp"
 
-#include <ios>
 #include <iostream>
-#include <fstream>
+
 #include <boost/bind.hpp>
 
 #include "Generate.hpp"
@@ -12,6 +11,12 @@ using boost::bind;
 using std::cout;
 using std::cerr;
 using std::endl;
+
+// TODO:  Add option for namespace inclusion, as well as name of namespace
+// TODO:  Add way to specify whether single or multiple of sub-elements
+
+#define	major_divider	"//============================================================================="
+#define	minor_divider	"//-------------------------------------------------------------------------"
 
 //=============================================================================
 // class Generator implementation
@@ -25,7 +30,7 @@ Generator::Generator(const std::string& d, const ELEMENTS& e)
 	std::for_each(e.begin(), e.end(), bind(header, this, _1));
 	
 	// Create the implementations
-	std::for_each(e.begin(), e.end(), bind(source, this, _1));
+//	std::for_each(e.begin(), e.end(), bind(source, this, _1));
 }
 
 void Generator::header(const ELEMENTS::value_type& v)
@@ -35,115 +40,141 @@ void Generator::header(const ELEMENTS::value_type& v)
 	std::string	filename(_directory);
 	filename += "\\";
 	filename +=	name;
-	filename +=	".h";
+	filename +=	".hpp";
 	std::ofstream header(filename.c_str(), std::ios_base::out | std::ios_base::trunc);
 	if (!header)
 	{
-		cerr << "Unable to create and/or open \"" << filename << "\"" << endl;
+		cerr << "Unable to create and/or open \"" << filename << "\": File skipped!" << endl;
 		return;
 	}
 	cout << "Generating \"" << filename << "\"..." << endl;
 	
 	// For effeciency sake, create locals for often-used values
-	const Element& n = v.second;
-	const ATTRIBUTES& a = n.attributes();
-	const SUBELEMENTS& se = n.elements();
+	const ATTRIBUTES& a = v.second.attributes();
+	const SUBELEMENTS& s = v.second.elements();
 	
 	// Create header multiple inclusion protection value		
-	std::string	ifdefname =	name;
-	ifdefname += "_H";
-	str_upper(ifdefname);
+	std::string	mip =	"__";
+	mip += name;
+	mip += "_HPP__";
+	str_upper(mip);
 	
 	// Start header output
-	header << "#ifndef\t" << ifdefname << endl
-			<< "#define\t" << ifdefname << endl
+	header << "#ifndef\t" << mip << endl
+			<< "#define\t" << mip << endl
 			<< endl
-			<< "//\tEverything for xml" << endl
-			<< "#include <xmlinc.h>" << endl
-			<< endl
-			<< "#include <std::string.h>" << endl
-			<< "using namespace SLib;" << endl
-			<< endl
+			<< "#include <string>" << endl
 			<< "#include <vector>" << endl
-			<< "using namespace std;" << endl
+			<< endl
+			<< "#include <libxml/parse.h>" << endl
 			<< endl;
 
 	// Add includes for sub-elements
-	header << "// Includes for the sub-nodes:" << endl;
-	std::for_each(se.begin(), se.end(), bind(header_includes, this, _1, &header));
-	header << endl;
+	std::for_each(s.begin(), s.end(), bind(header_includes, this, _1, &header));
 	
 	// Start class declaration
-	header << "/**" << endl
-			<< "  * This class	handles	xml	read/write for the " << name << " node." << endl
-			<< "  * All attributes	are	represented	as public member " << endl
-			<< "  * variables,	and	all	sub	nodes are represented as direct" << endl
-			<< "  * class member variables, or	as vectors." << endl
-			<< "  *" << endl
-			<< "  * @author <author_name>" << endl
-			<< "  * @version <version>" << endl
-			<< "  * @copyright	<copyright>" << endl
-			<< "  */" << endl
-			<< "class " << name << endl
+	header << "namespace impl" << endl
 			<< "{" << endl
+		<< major_divider << endl
+			<< "// Element \"" << name << "\" encapsulation." << endl
+			<< "\tclass " << name << endl
+			<< "\t{" << endl
+		<< "\t" << minor_divider << endl
 			<< "\tpublic:" << endl
-			<< "\t\t/// Default Constructor" << endl
 			<< "\t\t" << name << "();" << endl
-			<< endl
-			<< "\t\t/// Default Copy Constructor" << endl
+			<< "\t\t" << name << "(const char* f);" << endl
 			<< "\t\t" << name << "(const " << name << "& c);" << endl
+			<< "\t\tvirtual ~" << name << "() throw ();" << endl
 			<< endl
-			<< "\t\t/// Standard Destructor" << endl
-			<< "\t\tvirtual ~" << name << "();" << endl
+			<< "\t\t" << name << "& operator=(const " << name << "& r);" << endl
 			<< endl
-			<< "\t\t/// Default assignment	operator" << endl
-			<< "\t\t" << name << "& operator=(const " << name << "& c);" << endl
-			<< endl
-			<< "\t\t/// Reads the given xml Node and it's children" << endl
-			<< "\t\tvoid Read(xmlNodePtr node);" << endl
-			<< endl
-			<< "\t\t/// Reads the Root	node of	the	given xml document" << endl
-			<< "\t\tvoid ReadRoot(xmlDocPtr doc);" << endl
-			<< endl
-			<< "\t\t/// Adds our contents as a	new	child to the given node" << endl
-			<< "\t\tvoid Write(xmlNodePtr parent);" << endl
-			<< endl
-			<< "\t\t/// Adds our contents as the root of a	new	xml	document" << endl
-			<< "\t\tvoid WriteRoot(xmlDocPtr doc);" << endl
+		<< "\t" << minor_divider << endl
+			<< "\tpublic:" << endl
+			<< "\t\tvoid write(const char* f) const;" << endl
+			<< "\t\tvoid write(xmlNodePtr p) const;" << endl
 			<< endl;
 
 	// Add attributes
-	header << "\t\t// The attributes:" << endl;
 	std::for_each(a.begin(), a.end(), bind(header_attributes, this, _1, &header));
-	header << endl;
 	
 	// Add the sub-elements
-	header << "\t\t// And the sub nodes:" << endl;
-	std::for_each(se.begin(), se.end(), bind(header_elements, this, _1, &header));
-	header << endl;
+	std::for_each(s.begin(), s.end(), bind(header_elements, this, _1, &header));
 	
-	// Finish up class declaration
-	header << "\t\t// And finally, any text that was in the node:" << endl
-			<< "\t\tstring m_text_content;\n" << endl
+	// Value of this element
+	header << "\t" << minor_divider << endl
+			<< "\tpublic:" << endl
+			<< "\t\tconst std::string& value() const;" << endl
+			<< "\t\tvoid value(const char* v);" << endl
 			<< endl
-			<< "};" << endl
+			<< "\tprivate:" << endl
+			<< "\t\tstd::string _value;" << endl;
+
+	// Finish off header
+	header << "\t};" << endl
+			<< "}" << endl
 			<< endl
-			<< "#endif	// " << ifdefname << " Defined" << endl;
+			<< "#endif" << endl;
 }
 
-void Generator::header_attributes(const std::string& v, std::ofstream* o)
+void Generator::header_attributes(const ATTRIBUTES::value_type& v, std::ofstream* o)
 {
-	(*o) << "\t\tstring m_" << v << ";" << endl;
+	//	//----...
+	//	public:
+	//		const std::string& attribute() const;
+	//		void attribute(const char* s);
+	//
+	//	private:
+	//		std::string _attribute;
+
+	const std::string& name = v.first;
+	(*o) << "\t" << minor_divider << endl
+			<< "\tpublic:" << endl
+			<< "\t\tconst std::string& " << name << "() const;" << endl
+			<< "\t\tvoid " << name << "(const char* " << name[0] << ");" << endl
+			<< endl
+			<< "\tprivate:" << endl
+			<< "\t\tstd::string _" << name << ";" << endl
+			<< endl;
 }
 
 void Generator::header_elements(const SUBELEMENTS::value_type& v, std::ofstream* o)
 {
-	(*o) << "\t\tvector < " << v.first << " > " << v.first << "_list;" << endl;
+	//	//----...
+	//	public:
+	//		std::vector<std::string>& element();
+	//		const std::vector<std::string>& element() const;
+	//
+	//	private:
+	//		std::vector<std::string> _element;
+
+	const std::string& name = v.first;
+	(*o) << "\t" << minor_divider << endl
+			<< "\tpublic:" << endl
+			<< "\t\tstd::vector<std::string>& " << name << "();" << endl
+			<< "\t\tconst std::vector<std::string>& " << name << "() const;" << endl
+			<< endl
+			<< "\tprivate:" << endl
+			<< "\t\tstd::vector<std::string> _" << name << ";" << endl
+			<< endl;
 }
 
 void Generator::header_includes(const SUBELEMENTS::value_type& v, std::ofstream* o)
 {
-	(*o) << "#include \"" << v.first << ".h\"" << endl;
+	//	#ifndef	__ELEMENT_HPP__
+	//	#include "element.hpp"
+	//	#endif
+	
+	// Generate header multiple inclusion protection
+	std::string	mip =	"__";
+	mip += v.first;
+	mip += "_HPP__";
+	str_upper(mip);
+
+	// Include header
+	(*o) << "#ifndef\t" << mip << endl
+			<< "#include \"" << v.first << ".hpp\"" << endl
+			<< "#endif" << endl
+			<< endl;
 }
 
 void Generator::source(const ELEMENTS::value_type& v)
@@ -157,7 +188,7 @@ void Generator::source(const ELEMENTS::value_type& v)
 	std::ofstream source(filename.c_str(), std::ios_base::out | std::ios_base::trunc);
 	if (!source)
 	{
-		cerr << "Unable to create and/or open \"" << filename << "\"" << endl;
+		cerr << "Unable to create and/or open \"" << filename << "\": File skipped!" << endl;
 		return;
 	}
 	cout << "Generating \"" << filename << "\"..." << endl;
@@ -169,8 +200,6 @@ void Generator::source(const ELEMENTS::value_type& v)
 
 	// Include files
 	source << "#include \"" << name << ".h\"" << endl
-			<< endl
-			<< "#include <AnException.h>" << endl
 			<< endl;
 
 	// Standard	Constructor
@@ -307,21 +336,21 @@ void Generator::source(const ELEMENTS::value_type& v)
 	source << endl;
 }
 
-void Generator::source_attributes_copy(const std::string& v, std::ofstream* o)
+void Generator::source_attributes_copy(const ATTRIBUTES::value_type& v, std::ofstream* o)
 {
-	(*o) << "\tm_" << v << " = c.m_" << v << ";" << endl;
+	(*o) << "\tm_" << v.first << " = c.m_" << v.first << ";" << endl;
 }
 
-void Generator::source_attributes_read(const std::string& v, std::ofstream* o)
+void Generator::source_attributes_read(const ATTRIBUTES::value_type& v, std::ofstream* o)
 {
-	(*o) << "\tm_" << v << " << xmlGetProp(node, \"" << v << "\");" << endl;
+	(*o) << "\tm_" << v.first << " << xmlGetProp(node, \"" << v.first << "\");" << endl;
 }
 
-void Generator::source_attributes_write(const std::string& v, std::ofstream* o)
+void Generator::source_attributes_write(const ATTRIBUTES::value_type& v, std::ofstream* o)
 {
-	(*o) << "\t// Attribute " << v << ":" << endl
-			<< "\txmlSetProp(sub, \"" << v << "\"," << endl
-			<< "\t\tm_" << v << ");" << endl
+	(*o) << "\t// Attribute " << v.first << ":" << endl
+			<< "\txmlSetProp(sub, \"" << v.first << "\"," << endl
+			<< "\t\tm_" << v.first << ");" << endl
 			<< endl;
 }
 
