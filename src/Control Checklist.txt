@@ -7,24 +7,123 @@
     2.  Is default constructable.
   B.  Control handles theme updates.
   C.  Control handles theme changes (new Theme object passed in).
-  D.  Control provides way to specify control specific theme only (member function Control::theme(ControlSpecificTheme&)).
+  D.  Control provides way to specify control specific theme only (member function
+      Control::theme(ControlSpecificTheme&)).
   
 3.  dump functions
   A.  dump all attributes and contained objects
   B.  dump all super classes
   C.  dump functions use utility dump_ functions for consistant output
   D.  dump functions all have indentation parameter
+  E.  Make sure you call either _ControlEx::dump_control or _Control::dump_control
+      or the base class info will be absent.
 
 4.  Code styling
-  A.  Implementation
-    1.  Use "//-" between functional areas
-    2.  Alphabetize within functional area
-    3.  No indenting for namespace's other than root
+  A.  Major functional areas should be in the following order:
+    1.  Header
+      a.  Forward declarations
+      b.  Namespace globals/constants
+      c.  Namespace classes
+    2.  Implementation
+      a.  anonymouse namespace
+      b.  Forward declarations
+      c.  Namespace globals/constants
+      d.  Namespace classes
   B.  Header
-    1.  Use "//-" between functional areas
-    2.  Put ALL functional stuff together - including var's, etc.
-    3.  No indenting for namespace's other than root
+    1.  Major functional areas
+      a.  Use "//=" to column 80
+      b.  Use "// name" on line immediately after (a), where "name" follows
+          "class Foo declaration"
+      c.  Use "//=" to column 80 on line immediately after (b)
+      d.  Sameple:
+      
+        //=====================================================================
+        // class Foo declaration
+        //=====================================================================
+        
+    2.  Functional aeas within major functional areas
+      a.  Use "//-" to column 80
+      b.  Optionally, on next line "// name" where "name" can be whatever makes
+          sense, preferable 1 word
+      c   Put all functional stuff together for (2)
+      d.  Public interface should go as close to top of file as possible, thus
+          implementation specifics should go toward bottom of file.
+      e.  Sample:
+    
+        //-----------------------------------------------------------------------
+        // attribute
+        public:
+            int attribute() const;
+            void attrivute(int a);
+      
+        protected:
+            void attribute_changed();
+      
+        private:
+            int _attribute;
+      
+        //-----------------------------------------------------------------------
+        // next funtional area
+      d.  Alphabetizing is NOT required:  It's most important to put things in the
+          order of typical usage, and group related items together.
+      e.  See section 4C6 for information about inline functionality.
+      f.  File should be guarded against duplication with #ifdef/#define/#endif.
+          The macro defition should be "__filename__".  For example, "foo.hpp"
+          would use "__FOO_HPP__".
+      g.  Headers should be able to be included without reliance on other
+          headers.  This means that each header should make sure all headers
+          are included that it relies on.  Becuase of 4B2f, its easy to prevent
+          multiple compiles of the same header through:
+          
+          #ifndef __FOO_HPP__
+          #include "foo.hpp"
+          #endif
+          
+          This may seem silly, but once you've been involved in a project with
+          hundreds of headers, you quickly find out how the simple guading
+          mechanism causes compilation performance issues.  By NOT including
+          the file at all, the compiler doesn't have to open and read the file,
+          just to exclude the info in it anyway.  This can make a huge difference
+          in the time required to compile a project.
+          
+          There is 1 potential problem:  If the compiler doesn't support templates
+          correctly, then this guard may causes issues.  Specifically, the compiler
+          needs to be able to read in the defination of a template, and generate
+          multiple implementations based on that single reading.  It's been quite
+          some time since I have experienced this problem, but that doesn't mean
+          it won't happen again.  Normally, those compilers have precompiled header
+          issues as well (or no suport for them).
+    3.  No indenting for namespace's other than first
+  C.  Implementation
+    1.  Follow A1a-A1c for major funtional areas
+    2.  Follow A2a-A2b for functional areas within major functional areas
+    3.  Alphabetize the major functional areas within a file.
+    4.  Minor functional areas
+      a.  Order can either follow header, or be alphabetized.
+      b.  Within a functional area, the functions MUST be alphabetized.
+    5.  No indenting for namespace's other than root
+    6.  Inline functions should exist in a seperate file that is included near
+        the bottom of the header.  This helps to hide implementation, without
+        losing the ability to provide perfromance enhancements through inlining.
 
 5.  Test tests all attribute combinations
 
 6.  Test tests changing all attributes on the fly (but not style)
+
+7.  Overrides
+  A.  Functions
+    1.  active_changed
+    2.  dirty_changed
+    3.  flags_changed
+    4.  theme_changed
+    5.  visible_changed
+    6.  mouse_down
+    7.  mouse_down_pre
+    8.  mouse_down_post
+    9.  mouse_move
+    10.  mouse_move_pre
+    11.  mouse_move_post
+    12.  paint_control
+    13.  pre_paint
+    14.  post_paint
+  B.  Make sure all call base class implementation, or events won't be generated.
