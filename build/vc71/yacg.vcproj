@@ -119,24 +119,6 @@
 			Name="in_work"
 			Filter="">
 			<File
-				RelativePath="..\..\src\Button.cpp">
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\include\yacg\Button.hpp">
-			</File>
-			<File
 				RelativePath="..\..\src\Checkbox.cpp">
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -452,6 +434,27 @@
 		<Filter
 			Name="Alpha"
 			Filter="">
+			<File
+				RelativePath="..\..\src\Button.cpp">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\include\yacg\Button.hpp">
+			</File>
+			<File
+				RelativePath="..\..\include\yacg\ButtonTheme.hpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Documents"
