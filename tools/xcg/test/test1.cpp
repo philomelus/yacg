@@ -263,7 +263,7 @@ void copy(const control::Control& c, const char* f)
 
 	indent level;
 	
-	std::ofstream o("copy1.xml", std::ios_base::out | std::ios_base::trunc);
+	std::ofstream o(f, std::ios_base::out | std::ios_base::trunc);
 	
 	o << "<?xml version=\"1.0\">" << endl;
 	o << "<control>" << endl;
