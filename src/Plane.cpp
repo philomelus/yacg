@@ -11,49 +11,53 @@ using namespace utility;
 // class Plane implementation
 //=============================================================================
 
-Plane::Plane(_Manager& m, int c)
+Plane::Plane(_Manager& m, int c, int f)
 		:
-		_Control(m),
+		_Control(m, f),
 		_color(c)
 {
 	// Disable dirty hints since they mena the same thing for us
 	_activeChangedHint = 0;
 
-	// Initialize color based on current theme.  Since we do the same action
-	// regardless of style, we don;t really pay attention to the styles, and
-	// just let the active style's color work for us.
-	Theme& t = theme();
-	Theme::iterator i = t.find(Theme::TYPE_PLANE);
-	if (i != t.end())
+	// Initialize color if needed
+	if (_color == undefined)
 	{
-		PlaneTheme& ti = static_cast<PlaneTheme&>(*i);
-		_color = ti.color();
-	}
-	else
-	{
-		// Locate flat type
-		i = t.find(Theme::TYPE_DEFAULT);
-		ASSERT(i != t.end());
-		switch (t.style())
+		// Initialize color based on current theme.  Since we do the same action
+		// regardless of style, we don;t really pay attention to the styles, and
+		// just let the active style's color work for us.
+		Theme& t = theme();
+		Theme::iterator i = t.find(Theme::TYPE_PLANE);
+		if (i != t.end())
 		{
-		case Theme::STYLE_3D:
+			PlaneTheme& ti = static_cast<PlaneTheme&>(*i);
+			_color = ti.color();
+		}
+		else
+		{
+			// Locate flat type
+			i = t.find(Theme::TYPE_DEFAULT);
+			ASSERT(i != t.end());
+			switch (t.style())
 			{
-				DefaultTheme3D& ti = static_cast<DefaultTheme3D&>(*i);
-				_color = ti.interior();
+			case Theme::STYLE_3D:
+				{
+					DefaultTheme3D& ti = static_cast<DefaultTheme3D&>(*i);
+					_color = ti.interior();
+				}
+				break;
+				
+			case Theme::STYLE_FLAT:
+				{
+					DefaultThemeFlat& ti = static_cast<DefaultThemeFlat&>(*i);
+					_color = ti.interior();
+				}
+				break;
+	#ifdef	_DEBUG
+			default:
+				TRACE("yacg::Plane:  Style %d not implemented\n", theme().style());
+				break;
+	#endif
 			}
-			break;
-			
-		case Theme::STYLE_FLAT:
-			{
-				DefaultThemeFlat& ti = static_cast<DefaultThemeFlat&>(*i);
-				_color = ti.interior();
-			}
-			break;
-#ifdef	_DEBUG
-		default:
-			TRACE("yacg::Plane:  Style %d not implemented\n", theme().style());
-			break;
-#endif
 		}
 	}
 }
@@ -73,14 +77,22 @@ void Plane::color(int c)
 }
 
 #ifdef	_DEBUG
-void Plane::dump() const
+void Plane::dump(const std::string& i) const
 {
-	TRACE("gui::Plane @ $%08X\n", this);
-	TRACE(" Color: %d %d %d\n", ::getr(_color), ::getg(_color), ::getb(_color));
+	std::string sublevel(i);
+	sublevel += "  ";
+	
+	std::string level(i);
+	level += "    ";
+	
+	dump_object(i, "yacg::Plane", this);
+	dump_color(sublevel, "Color", _color);
+	
+	_Control::dump_control(level);
 }
 #endif
 
-void Plane::paint(BITMAP* bmp)
+void Plane::paint_control(BITMAP* bmp, int dirty)
 {
 	clear_to_color(bmp, _color);
 }
@@ -231,11 +243,18 @@ PlaneTheme& PlaneTheme::operator=(const PlaneTheme& r)
 }
 
 #ifdef	_DEBUG
-void PlaneTheme::dump() const
+void PlaneTheme::dump(const std::string& i) const
 {
-	TRACE("yacg::PlaneTheme @ $%08X\n", this);
-	TRACE(" Color: %d %d %d\n", getr(_color), getg(_color), getb(_color));
-	_ThemeItem::dump();
+	std::string sublevel(i);
+	sublevel += "  ";
+	
+	std::string level(i);
+	level += "    ";
+
+	dump_object(i, "yacg::PlaneTheme", this);
+	dump_color(sublevel, "Color", _color);
+	
+	_ThemeItem::dump_item(level);
 }
 #endif
 

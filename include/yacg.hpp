@@ -30,10 +30,10 @@ namespace yacg
 // Namespace
 //=============================================================================
 
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	extern void yacg_init();
 
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	typedef boost::signals::connection EVENTID;
 }
 
@@ -49,29 +49,31 @@ namespace yacg
 
 	class _Control : private boost::noncopyable
 	{
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	public:
-		static const int calc = -1;
+		static const int calc = -1;			// for coords or sizes to auto-calc
 		
-		static const int undefined = -2;
+		static const int undefined = -2;	// for coords or sizes, literal meaning
 		
-		static const int dirty_all = 0xFFFFFFFF;
+		static const int dirty_all = 0xFFFFFFFF;	// dirty() for repaint EVERYTHING as if first time
 
-		static const int update_display = 0x80000000;
+		static const int update_display = 0x80000000;	// When dirty() value has this, do paint.  Otherwise wait until bit is set.
 
-	//=========================================================================
+		static const int auto_delete = 0x00008000;	// when set in flags, control is deleted on _Manager destruction
+		
+	//-------------------------------------------------------------------------
 	// construction / destruction
 	
 	public:
-		_Control(_Manager& m, int f = 0);
+		_Control(_Manager& m, int f = auto_delete);
 		
 		virtual ~_Control();
 		
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	// active
 	
 	private:
-		typedef boost::signal<void (_Control* c, bool n)> active_changed_slot;
+		typedef boost::signal<void (_Control& c, bool n)> active_changed_slot;
 		
 	public:
 		typedef active_changed_slot::slot_type ACTIVE_EVENT;
@@ -95,11 +97,11 @@ namespace yacg
 
 		active_changed_slot _activeHandlers;
 		
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	// dirty
 	
 	private:
-		typedef boost::signal<void (_Control* c, int o)> dirty_changed_slot;
+		typedef boost::signal<void (_Control& c, int o)> dirty_changed_slot;
 		
 	public:
 		typedef dirty_changed_slot::slot_type DIRTY_EVENT;
@@ -123,11 +125,11 @@ namespace yacg
 		
 		dirty_changed_slot _dirtyHandlers;
 	
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	// flags
 	
 	private:
-		typedef boost::signal<void (_Control* c)> flags_changed_slot;
+		typedef boost::signal<void (_Control& c)> flags_changed_slot;
 		
 	public:
 		typedef flags_changed_slot::slot_type FLAGS_EVENT;
@@ -151,7 +153,7 @@ namespace yacg
 		
 		flags_changed_slot _flagsHandlers;
 	
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	public:
 		_Manager& manager() const;
 
@@ -160,31 +162,35 @@ namespace yacg
 	private:
 		_Manager* _manager;
 	
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	// theme
 
 	private:
-		typedef boost::signal<void (_Control* c)> theme_changed_slot;
+		typedef boost::signal<void (_Control& c)> theme_changed_slot;
 		
 	public:
 		typedef theme_changed_slot::slot_type THEME_EVENT;
 		
 	public:
+		void attach_theme();
+		
+		EVENTID connect_theme(THEME_EVENT f);
+
+		void detach_theme();
+		
+		void disconnect_theme(EVENTID f);
+
 		Theme& theme() const;
 		
 		void theme(Theme& t);
 	
-		EVENTID connect_theme(THEME_EVENT f);
-
-		void disconnect_theme(EVENTID f);
-
 	protected:
 		virtual void theme_changed();
 
 		int _themeChangedHint;
 	
 	private:
-		void theme_signal(Theme* t);
+		void theme_signal(Theme& t);
 		
 	private:
 		Theme* _theme;
@@ -193,11 +199,11 @@ namespace yacg
 
 		EVENTID _themeSignal;
 		
-	//=====================================================================
+	//-------------------------------------------------------------------------
 	// visibility
 	
 	private:
-		typedef boost::signal<void (_Control* c)> visible_changed_slot;
+		typedef boost::signal<void (_Control& c)> visible_changed_slot;
 		
 	public:
 		typedef visible_changed_slot::slot_type VISIBLE_EVENT;
@@ -221,21 +227,46 @@ namespace yacg
 
 		visible_changed_slot _visibleHandlers;
 				
-	//=========================================================================
+	//-------------------------------------------------------------------------
+	private:
+		typedef boost::signal<void (_Control& c, BITMAP* bmp)> pre_paint_slot;
+		typedef boost::signal<void (_Control& c, BITMAP* bmp)> post_paint_slot;
+	
 	public:
-		virtual void paint(BITMAP* bmp) = 0;
+		typedef pre_paint_slot::slot_type PRE_PAINT_EVENT;
+		typedef post_paint_slot::slot_type POST_PAINT_EVENT;
+
+	public:
+		EVENTID connect_pre_paint(PRE_PAINT_EVENT f);
+		EVENTID connect_post_paint(POST_PAINT_EVENT f);
 		
-	//=========================================================================
+		void disconnect_pre_paint(EVENTID e);
+		void disconnect_post_paint(EVENTID e);
+
+		void paint(BITMAP* bmp);
+
+	protected:
+		virtual void paint_control(BITMAP* bmp, int dirty) = 0;
+
+		virtual void pre_paint(BITMAP* bmp);
+		virtual void post_paint(BITMAP* bmp);
+
+	private:
+		pre_paint_slot _prePaintHandlers;
+		post_paint_slot _postPaintHandlers;
+	
+	//-------------------------------------------------------------------------
+	public:
 #ifdef	_DEBUG
-		virtual void dump() const = 0;
+		virtual void dump(const std::string& i) const = 0;
 #endif
 	
-	//=========================================================================
-	private:
-		// Used by _Manager to track the connections made by Manager on behalf
-		// of this control.
-		std::vector<EVENTID> _connections;
+	protected:
+#ifdef	_DEBUG
+		void dump_control(const std::string& i) const;
+#endif
 
+	//-------------------------------------------------------------------------	
 		friend _Manager;
 	};
 
@@ -245,7 +276,7 @@ namespace yacg
 
 	class _ControlEx : public _Control
 	{
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	public:
 		static const int d_none			= 0x00;
 		
@@ -266,7 +297,7 @@ namespace yacg
 		
 		static const int d_mask			= (d_pre | d_post | d_event);
 
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	public:
 		static const int m_none			= 0x00;
 		
@@ -287,15 +318,11 @@ namespace yacg
 		
 		static const int m_mask			= (m_pre | m_post | m_event);
 	
-	//=========================================================================
-	public:
-		static const int claimed = 0x8000;
-	
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	public:
 		_ControlEx(_Manager& m, int f = 0);
 		
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	private:
 		struct isTrue
 		{
@@ -313,7 +340,7 @@ namespace yacg
 				return false;
 			}
 		};
-		typedef boost::signal<bool (_ControlEx* c, BITMAP* bmp, int f, int x, int y, int m), isTrue> mouse_down_slot;
+		typedef boost::signal<bool (_ControlEx& c, BITMAP* bmp, int f, int x, int y, int m), isTrue> mouse_down_slot;
 	
 	public:
 		typedef mouse_down_slot::slot_type MOUSE_DOWN_EVENT;
@@ -331,9 +358,9 @@ namespace yacg
 	private:
 		mouse_down_slot _mouseDownHandlers;
 	
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	private:
-		typedef boost::signal<void (_ControlEx* c, BITMAP* bmp, int f, int x, int y)> mouse_move_slot;
+		typedef boost::signal<void (_ControlEx& c, BITMAP* bmp, int f, int x, int y)> mouse_move_slot;
 	
 	public:
 		typedef mouse_move_slot::slot_type MOUSE_MOVE_EVENT;
@@ -350,8 +377,14 @@ namespace yacg
 	
 	private:
 		mouse_move_slot _mouseMoveHandlers;
-	
-	//=========================================================================
+
+	//-------------------------------------------------------------------------	
+	public:
+#ifdef	_DEBUG
+		void dump_control(const std::string& i) const;
+#endif
+
+	//-------------------------------------------------------------------------
 	private:
 		friend _Manager;
 	};
@@ -362,31 +395,80 @@ namespace yacg
 
 	class _Manager : private boost::noncopyable
 	{
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	private:
-		typedef std::vector<_Control*> container;
+		typedef std::vector<_ControlEx*> events;
+		struct control_info
+		{
+			control_info(_Control& c);
+			
+			bool mouseDown;
+			EVENTID mouseDownPre;
+			EVENTID mouseDownPost;
+			EVENTID mouseMovePre;
+			EVENTID mouseMove;
+			EVENTID mouseMovePost;
+			_Control* control;
+		};
+		typedef std::list<control_info*> container;
 		
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	/// bitmap
-		
+	
+	private:
+		typedef boost::signal<void (_Manager& m, BITMAP* o)> bitmap_changed_slot;
+	
+	public:
+		typedef bitmap_changed_slot::slot_type BITMAP_CHANGED_EVENT;
+
 	public:
 		BITMAP* bitmap() const;
 		
 		void bitmap(BITMAP* bmp);
 
+		EVENTID connect_bitmap_changed(BITMAP_CHANGED_EVENT f);
+		
+		void disconnect_bitmap_changed(EVENTID e);
+
+	protected:
+		virtual void bitmap_changed(BITMAP* o);
+		
+	private:
+		void update_bitmap(control_info* c);
+
 	private:
 		BITMAP* _bitmap;
-		
-	//=========================================================================
+
+		bitmap_changed_slot _bitmapChangedHandlers;
+
+	//-------------------------------------------------------------------------
+	// debug
+
 	public:
 #ifdef	_DEBUG
-		virtual void dump() const;
+		virtual void dump(const std::string& i) const;
+		
+		void dump_controls(control_info* c, const std::string& i) const;
 #endif
 
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	/// painting
 
-	public:		
+	private:
+		typedef boost::signal<void (_Manager&)> pre_paint_slot;
+		typedef boost::signal<void (_Manager&)> post_paint_slot;
+	
+	public:
+		typedef pre_paint_slot::slot_type PRE_PAINT_EVENT;
+		typedef post_paint_slot::slot_type POST_PAINT_EVENT;
+
+	public:
+		EVENTID connect_pre_paint(PRE_PAINT_EVENT f);
+		EVENTID connect_post_paint(POST_PAINT_EVENT f);
+		
+		void disconnect_pre_paint(EVENTID e);
+		void disconnect_post_paint(EVENTID e);
+		
 		void dirty();
 
 		void paint();
@@ -397,19 +479,28 @@ namespace yacg
 		
 		void update(_Control& c);
 
+	protected:
+		virtual void pre_paint();
+		virtual void post_paint();
+		
 	private:
-		void painter(_Control* c);
+		void painter(control_info* c);
 
-		void updater(_Control* c);
+		void updater(control_info* c);
 
 	private:		
 		bool _dirty;
 
-	//=========================================================================
+		pre_paint_slot _prePaintHandlers;
+		post_paint_slot _postPaintHandlers;
+	
+	//-------------------------------------------------------------------------
 	// mouse down event
 	
 	private:
-		typedef boost::signal<bool (_Manager* m, int x, int y, int b), _ControlEx::isTrue> mouse_down_slot;
+		typedef boost::signal<bool (_Manager& m, int x, int y, int b), _ControlEx::isTrue> mouse_down_slot;
+	
+	public:
 		typedef mouse_down_slot::slot_type MOUSE_DOWN_EVENT;
 
 	public:
@@ -417,18 +508,23 @@ namespace yacg
 		
 		void disconnect_mouse_down(EVENTID f);
 
+	protected:
+		virtual void mouse_down(int x, int y, int b);
+		
 	private:
 		mouse_down_slot _mouseDownHandlers;
 		
-		container _mouseDownControls;
+		events _mouseDownControls;
 		boost::signal<void (BITMAP* bmp, int x, int y, int b)> _mouseDownControlsPre;
 		boost::signal<void (BITMAP* bmp, int x, int y, int b)> _mouseDownControlsPost;
 		
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	// mouse move event
 	
 	private:
-		typedef boost::signal<void (_Manager*, int, int)> mouse_move_slot;
+		typedef boost::signal<void (_Manager& m, int x, int y)> mouse_move_slot;
+	
+	public:
 		typedef mouse_move_slot::slot_type MOUSE_MOVE_EVENT;
 
 	public:
@@ -436,9 +532,9 @@ namespace yacg
 
 		void disconnect_mouse_move(EVENTID f);
 
-	private:
-		bool mouse_down(_ControlEx& c, int x, int y, int m);
-
+	protected:
+		virtual void mouse_move(int x, int y);
+		
 	private:
 		int _mouseX;
 		int _mouseY;
@@ -449,11 +545,11 @@ namespace yacg
 		boost::signal<void (BITMAP* bmp, int x, int y)> _mouseMoveControlsPre;
 		boost::signal<void (BITMAP* bmp, int x, int y)> _mouseMoveControlsPost;
 
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	// common event
 	
 	private:
-		typedef boost::signal<void (_Manager* m)> idle_slot;
+		typedef boost::signal<void (_Manager& m)> idle_slot;
 		typedef idle_slot::slot_type IDLE;
 
 	public:
@@ -469,20 +565,54 @@ namespace yacg
 
 	private:
 		bool _aborted;
-
-		container _controls;
 		
-	//=========================================================================
+	//-------------------------------------------------------------------------
+	// access
+	
 	public:
 		_Control& operator[](int i) const;
 
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	/// iteration
 		
 	public:
-		typedef container::iterator iterator;
+		class iterator : public container::iterator
+		{
+		public:
+			//-----------------------------------------------------------------
+			iterator();
+			iterator(const iterator& r);
 
-		typedef container::const_iterator const_iterator;
+			iterator& operator=(const iterator& r);
+
+			//-----------------------------------------------------------------			
+			_Control& operator*() const;
+			_Control* operator->() const;
+		
+		private:
+			iterator(const container::iterator& r);
+			
+			friend _Manager;
+		};
+		class const_iterator : public container::const_iterator
+		{
+		public:
+			//-----------------------------------------------------------------
+			const_iterator();
+			const_iterator(const const_iterator& r);
+			const_iterator(const iterator& r);
+
+			const_iterator& operator=(const const_iterator& r);
+			
+			//-----------------------------------------------------------------
+			const _Control& operator*() const;
+			const _Control* operator->() const;
+		
+		private:
+			const_iterator(const container::const_iterator& r);
+			
+			friend _Manager;
+		};
 
 	public:		
 		iterator begin();
@@ -493,40 +623,57 @@ namespace yacg
 
 		const_iterator end() const;
 		
-	//=========================================================================
+	//-------------------------------------------------------------------------
+	private:
+		typedef boost::signal<void (_Manager& m)> controls_changed_slot;
+	
 	public:
+		typedef controls_changed_slot::slot_type CONTROLS_CHANGED_EVENT;
+
+	public:
+		EVENTID connect_controls_changed(CONTROLS_CHANGED_EVENT f);
+		
+		void disconnect_controls_changed(EVENTID e);
+		
 		void erase(_Control& c);
 		
 		void erase(iterator i);
 	
-	private:
-		void disconnect_control_events(EVENTID& id);
-	
-	//=========================================================================
-	public:
 		iterator insert(_Control& c);
+
+		iterator insert(iterator i, _Control& c);
+
+	protected:
+		virtual void controls_changed();
+	
+	private:
+		container _controls;
+	
+		controls_changed_slot _controlsChangedHandlers;
 		
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	public:
 		int size() const;
 
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	public:
 		Theme& theme() const;
 		
 		void theme(Theme& t);
 
 	private:
-		void theme_updater(_Control* c);
+		void theme_updater(control_info* c);
 
 	private:		
 		Theme* _theme;
 	
-	//=========================================================================
+	//-------------------------------------------------------------------------
 	protected:
 		_Manager(BITMAP* b = screen, Theme& t = *ActiveTheme);
 		
 		virtual ~_Manager();
+		
+		void delete_control(control_info* ci);
 	};
 }
 

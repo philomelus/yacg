@@ -185,9 +185,9 @@ namespace utility
 	}
 	
 #ifdef	_DEBUG
-	inline void control_dump(const yacg::_Control* c)
+	inline void control_dump(const yacg::_Control* c, const std::string& i)
 	{
-		c->dump();
+		c->dump(i);
 	}
 #endif
 
@@ -236,30 +236,6 @@ if (end > size - 1)	// Shouldn't, and hasn't yet, be true
 			d.push_back(std::make_pair(start, end));
 		}
 	}
-
-#ifdef	_DEBUG
-	inline void dump_color(const char* n, int c)
-	{
-		TRACE(" %s: %d %d %d\n", n, getr(c), getg(c), getb(c));
-	}
-#endif
-
-#ifdef	_DEBUG
-	inline void dump_font(FONT* f)
-	{
-		TRACE(" Font: $%08X%s\n", f, (f == ::font ? " (Allegro Global Font)" : ""));
-	}
-#endif
-
-#ifdef	_DEBUG
-	inline void dump_xywh(int x, int y, int w, int h, int r, int b)
-	{
-		TRACE(" Left: %d\n", x);
-		TRACE(" Top: %d\n", y);
-		TRACE(" Width (right): %d (%d)\n", w, r);
-		TRACE(" Height (bottom): %d (%d)\n", h, b);
-	}
-#endif
 
 	template <typename T>
 	void object_delete(T* o)
@@ -376,5 +352,9 @@ if (end > size - 1)	// Shouldn't, and hasn't yet, be true
 		end_update(_bitmap);
 	}
 }
+
+#ifdef	_DEBUG
+#include "dump.hpp"
+#endif
 
 #endif

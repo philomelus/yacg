@@ -13,37 +13,20 @@
 #include "allegro.h"
 #pragma warning(pop)
 
-#define	__STD_ALGORITHM__
+// std
 #include <algorithm>
-
-#define	__STD_LIMITS__
 #include <limits>
-
-#define	__STD_LIST__
 #include <list>
-
-#define	__STD_MAP__
 #include <map>
-
-#define	__STD_STRSTREAM__
 #include <strstream>
-
-#define	__STD_STRING__
 #include <string>
+#include <iomanip>
 
-#define	__BOOST_LAMBDA_LAMBDA__
+// boost
 #include <boost/lambda/lambda.hpp>
-
-#define	__BOOST_BIND__
 #include <boost/bind.hpp>
-
-#define	__BOOST_LAMBDA_ALGORITHM__
 #include <boost/lambda/algorithm.hpp>
-
-#define	__BOOST_CAST_HPP__
 #include <boost/cast.hpp>
-
-#define	__BOOST_SIGNALS_HPP__
 #include <boost/signals.hpp>
 
 using boost::bind;

@@ -16,18 +16,6 @@ namespace
 #ifdef	_DEBUG
 	void dump_theme_items(const Theme::types::value_type& i)
 	{
-		i.second.item->dump();
-	}
-#endif
-
-#ifdef	_DEBUG
-	void dump_theme(const Theme::container::value_type& i)
-	{
-		TRACE(" %s @ $%08X\n", typeid(*i.second).name(), i.second);
-		TRACE(" Theme Items: %u\n", i.second->size());
-		TRACE(">>>>>>>>>>>>>>>>>>>>\n");
-		std::for_each(i.second->begin(), i.second->end(), dump_theme_items);
-		TRACE("<<<<<<<<<<<<<<<<<<<<\n");
 	}
 #endif
 
@@ -184,11 +172,19 @@ _DefaultTheme& _DefaultTheme::operator=(const _DefaultTheme& r)
 }
 
 #ifdef	_DEBUG
-void _DefaultTheme::dump() const
+void _DefaultTheme::dump(const std::string& i) const
 {
-	_ThemeItem::dump();
-
-	TRACE(" Font: $%08X%s\n", _font, (_font == ::font ? " (Allegro Global Font)" : ""));
+	std::string sublevel(i);
+	sublevel += "  ";
+	
+	std::string level(i);
+	level += "    ";
+	
+	dump_object(i, "yacg::_DefaultTheme", this);
+	
+	dump_font(sublevel, _font);
+	
+	_ThemeItem::dump_item(level);
 }
 #endif
 
@@ -339,35 +335,13 @@ void _ThemeItem::disconnect(EVENTID h)
 }
 
 #ifdef	_DEBUG
-void _ThemeItem::dump() const
+void _ThemeItem::dump_item(const std::string& i) const
 {
-	TRACE(" Color Format: ");
-	switch (_format)
-	{
-	case none:
-		TRACE("none\n");
-		break;
-
-	case eight:
-		TRACE("eight\n");
-		break;
-
-	case fifteen:
-		TRACE("fifteen\n");
-		break;
-
-	case sixteen:
-		TRACE("sixteen\n");
-		break;
-
-	case twentyfour:
-		TRACE("twentyfour\n");
-		break;
-
-	case thirtytwo:
-		TRACE("thritytwo\n");
-		break;
-	}
+	std::string sublevel(i);
+	sublevel += "  ";
+	
+	dump_object(i, "yacg::_ThemeItem", this);
+	TRACE("%sFormat: %s\n", sublevel.c_str(), format2string(_format).c_str());
 }
 #endif
 
@@ -380,6 +354,22 @@ void _ThemeItem::format(FORMAT f)
 {
 	_format = f;
 }
+
+#ifdef	_DEBUG
+std::string _ThemeItem::format2string(FORMAT f)
+{
+	switch (f)
+	{
+	case none:			return std::string("none");
+	case eight:			return std::string("eight");
+	case fifteen:		return std::string("fifteen");
+	case sixteen:		return std::string("sixteen");
+	case twentyfour:	return std::string("twentyfour");
+	case thirtytwo:		return std::string("thirtytwo");
+	default:			return std::string("INVALID FORMAT");
+	}
+}
+#endif
 
 int _ThemeItem::makecol(int r, int g, int b)
 {
@@ -413,7 +403,7 @@ int _ThemeItem::makecol(int r, int g, int b)
 
 void _ThemeItem::modified(int h)
 {
-	_handlers(this, h);
+	_handlers(*this, h);
 }
 
 //=============================================================================
@@ -530,14 +520,14 @@ namespace
 	
 	enum
 	{
-		p_black = 0,
-
-		p_aqua,
+		p_aqua = 0,
 		p_aqua_dark,
 		p_aqua_light,
 		p_aqua_very_dark,
 		p_aqua_very_light,
 		
+		p_black,
+
 		p_blue,
 		p_blue_dark,
 		p_blue_light,
@@ -577,6 +567,8 @@ namespace
 		p_white
 	};
 }
+
+//-----------------------------------------------------------------------------
 
 Theme::Theme(_ThemeItem::FORMAT f)
 		:
@@ -634,6 +626,12 @@ Theme::Theme(_ThemeItem::FORMAT f)
 	case _ThemeItem::thirtytwo:
 		reset32();
 		break;
+	
+#ifdef	_DEBUG
+	default:
+		TRACE("yacg::Theme: Format %f unknown to constructor!", f);
+		break;
+#endif
 	}
 }
 
@@ -662,31 +660,6 @@ Theme& Theme::operator=(const Theme& r)
 	return *this;
 }
 
-Theme::iterator Theme::begin()
-{
-	iterator i;
-	i._theme = this;
-	i._style = _style;
-	if (i._style != _styles.end())
-		i._type = i._style->second->begin();
-	return i;
-}
-
-Theme::const_iterator Theme::begin() const
-{
-	const_iterator i;
-	i._theme = this;
-	i._style = _style;
-	if (i._style != _styles.end())
-		i._type = i._style->second->begin();
-	return i;
-}
-
-EVENTID Theme::connect(MODIFIED_EVENT f)
-{
-	return _handlers.connect(f);
-}
-
 void Theme::copy_theme(const Theme::container::value_type& i)
 {
 	// Copy all _ThemeItems for the style
@@ -713,12 +686,6 @@ void Theme::delete_styles(Theme::container::value_type& i)
 	delete i.second;
 }
 
-void Theme::disconnect(EVENTID f)
-{
-	if (f.connected())
-		f.disconnect();
-}
-
 void Theme::disconnect_type(Theme::types::value_type& i)
 {
 	// NOTE:  Call from DESTRUCTOR only, or items will be left in object with an
@@ -726,115 +693,26 @@ void Theme::disconnect_type(Theme::types::value_type& i)
 	i.second.item->disconnect(i.second.connection);
 }
 
-#ifdef	_DEBUG
-void Theme::dump() const
+//-----------------------------------------------------------------------------
+
+Theme::iterator Theme::begin()
 {
-	TRACE("yacg::Theme @ $%08X\n", this);
-	TRACE(" Active Style: %d\n", int(_style->first));
-	TRACE(" Styles: %u\n", _styles.size());
-	TRACE(" Color Format: ");
-	switch (_format)
-	{
-	case _ThemeItem::none:
-		TRACE("none\n");
-		break;
-
-	case _ThemeItem::eight:
-		TRACE("eight\n");
-		break;
-
-	case _ThemeItem::fifteen:
-		TRACE("fifteen\n");
-		break;
-
-	case _ThemeItem::sixteen:
-		TRACE("sixteen\n");
-		break;
-
-	case _ThemeItem::twentyfour:
-		TRACE("twentyfour\n");
-		break;
-
-	case _ThemeItem::thirtytwo:
-		TRACE("thritytwo\n");
-		break;
-	}
-	TRACE(" AQUA Color: %d %d %d\n", getr(_AQUA), getg(_AQUA), getb(_AQUA));
-	TRACE(" AQUA_DARK Color: %d %d %d\n", getr(_AQUA_DARK), getg(_AQUA_DARK),
-			getb(_AQUA_DARK));
-	TRACE(" AQUA_LIGHT Color: %d %d %d\n", getr(_AQUA_LIGHT), getg(_AQUA_LIGHT),
-			getb(_AQUA_LIGHT));
-	TRACE(" AQUA_VERY_DARK Color: %d %d %d\n", getr(_AQUA_VERY_DARK),
-			getg(_AQUA_VERY_DARK), getb(_AQUA_VERY_DARK));
-	TRACE(" AQUA_VERY_LIGHT Color: %d %d %d\n", getr(_AQUA_VERY_LIGHT),
-			getg(_AQUA_VERY_LIGHT), getb(_AQUA_VERY_LIGHT));
-	TRACE(" BLACK Color: %d %d %d\n", getr(_BLACK), getg(_BLACK), getb(_BLACK));
-	TRACE(" BLUE Color: %d %d %d\n", getr(_BLUE), getg(_BLUE), getb(_BLUE));
-	TRACE(" BLUE_DARK Color: %d %d %d\n", getr(_BLUE_DARK), getg(_BLUE_DARK),
-			getb(_BLUE_DARK));
-	TRACE(" BLUE_LIGHT Color: %d %d %d\n", getr(_BLUE_LIGHT), getg(_BLUE_LIGHT),
-			getb(_BLUE_LIGHT));
-	TRACE(" BLUE_VERY_DARK Color: %d %d %d\n", getr(_BLUE_VERY_DARK),
-			getg(_BLUE_VERY_DARK), getb(_BLUE_VERY_DARK));
-	TRACE(" BLUE_VERY_LIGHT Color: %d %d %d\n", getr(_BLUE_VERY_LIGHT),
-			getg(_BLUE_VERY_LIGHT), getb(_BLUE_VERY_LIGHT));
-	TRACE(" GRAY Color: %d %d %d\n", getr(_GRAY), getg(_GRAY), getb(_GRAY));
-	TRACE(" GRAY_DARK Color: %d %d %d\n", getr(_GRAY_DARK), getg(_GRAY_DARK),
-			getb(_GRAY_DARK));
-	TRACE(" GRAY_LIGHT Color: %d %d %d\n", getr(_GRAY_LIGHT), getg(_GRAY_LIGHT),
-			getb(_GRAY_LIGHT));
-	TRACE(" GRAY_VERY_DARK Color: %d %d %d\n", getr(_GRAY_VERY_DARK),
-			getg(_GRAY_VERY_DARK), getb(_GRAY_VERY_DARK));
-	TRACE(" GRAY_VERY_LIGHT Color: %d %d %d\n", getr(_GRAY_VERY_LIGHT),
-			getg(_GRAY_VERY_LIGHT), getb(_GRAY_VERY_LIGHT));
-	TRACE(" GREEN Color: %d %d %d\n", getr(_GREEN), getg(_GREEN), getb(_GREEN));
-	TRACE(" GREEN_DARK Color: %d %d %d\n", getr(_GREEN_DARK), getg(_GREEN_DARK),
-			getb(_GREEN_DARK));
-	TRACE(" GREEN_LIGHT Color: %d %d %d\n", getr(_GREEN_LIGHT), getg(_GREEN_LIGHT),
-			getb(_GREEN_LIGHT));
-	TRACE(" GREEN_VERY_DARK Color: %d %d %d\n", getr(_GREEN_VERY_DARK),
-			getg(_GREEN_VERY_DARK), getb(_GREEN_VERY_DARK));
-	TRACE(" GREEN_VERY_LIGHT Color: %d %d %d\n", getr(_GREEN_VERY_LIGHT),
-			getg(_GREEN_VERY_LIGHT), getb(_GREEN_VERY_LIGHT));
-	TRACE(" PURPLE Color: %d %d %d\n", getr(_PURPLE), getg(_PURPLE), getb(_PURPLE));
-	TRACE(" PURPLE_DARK Color: %d %d %d\n", getr(_PURPLE_DARK), getg(_PURPLE_DARK),
-			getb(_PURPLE_DARK));
-	TRACE(" PURPLE_LIGHT Color: %d %d %d\n", getr(_PURPLE_LIGHT), getg(_PURPLE_LIGHT),
-			getb(_PURPLE_LIGHT));
-	TRACE(" PURPLE_VERY_DARK Color: %d %d %d\n", getr(_PURPLE_VERY_DARK),
-			getg(_PURPLE_VERY_DARK), getb(_PURPLE_VERY_DARK));
-	TRACE(" PURPLE_VERY_LIGHT Color: %d %d %d\n", getr(_PURPLE_VERY_LIGHT),
-			getg(_PURPLE_VERY_LIGHT), getb(_PURPLE_VERY_LIGHT));
-	TRACE(" RED Color: %d %d %d\n", getr(_RED), getg(_RED), getb(_RED));
-	TRACE(" RED_DARK Color: %d %d %d\n", getr(_RED_DARK), getg(_RED_DARK),
-			getb(_RED_DARK));
-	TRACE(" RED_LIGHT Color: %d %d %d\n", getr(_RED_LIGHT), getg(_RED_LIGHT),
-			getb(_RED_LIGHT));
-	TRACE(" RED_VERY_DARK Color: %d %d %d\n", getr(_RED_VERY_DARK), getg(_RED_VERY_DARK),
-			getb(_RED_VERY_DARK));
-	TRACE(" RED_VERY_LIGHT Color: %d %d %d\n", getr(_RED_VERY_LIGHT),
-			getg(_RED_VERY_LIGHT), getb(_RED_VERY_LIGHT));
-	TRACE(" YELLOW Color: %d %d %d\n", getr(_YELLOW), getg(_YELLOW), getb(_YELLOW));
-	TRACE(" YELLOW_DARK Color: %d %d %d\n", getr(_YELLOW_DARK), getg(_YELLOW_DARK),
-			getb(_YELLOW_DARK));
-	TRACE(" YELLOW_LIGHT Color: %d %d %d\n", getr(_YELLOW_LIGHT), getg(_YELLOW_LIGHT),
-			getb(_YELLOW_LIGHT));
-	TRACE(" YELLOW_VERY_DARK Color: %d %d %d\n", getr(_YELLOW_VERY_DARK),
-			getg(_YELLOW_VERY_DARK), getb(_YELLOW_VERY_DARK));
-	TRACE(" YELLOW_VERY_LIGHT Color: %d %d %d\n", getr(_YELLOW_VERY_LIGHT),
-			getg(_YELLOW_VERY_LIGHT), getb(_YELLOW_VERY_LIGHT));
-	TRACE(" WHITE Color: %d %d %d\n", getr(_WHITE), getg(_WHITE), getb(_WHITE));
-	TRACE(">>>>>>>>>>\n");
-	std::for_each(_styles.begin(), _styles.end(), dump_theme);
-	TRACE("<<<<<<<<<<\n");
+	iterator i;
+	i._theme = this;
+	i._style = _style;
+	if (i._style != _styles.end())
+		i._type = i._style->second->begin();
+	return i;
 }
-#endif
 
-bool Theme::empty() const
+Theme::const_iterator Theme::begin() const
 {
-	if (_style == _styles.end())
-		return true;
-	return _style->second->empty();
+	const_iterator i;
+	i._theme = this;
+	i._style = _style;
+	if (i._style != _styles.end())
+		i._type = i._style->second->begin();
+	return i;
 }
 
 Theme::iterator Theme::end()
@@ -857,6 +735,200 @@ Theme::const_iterator Theme::end() const
 	return i;
 }
 
+//-----------------------------------------------------------------------------
+
+#ifdef	_DEBUG
+void Theme::dump(const std::string& i) const
+{
+	std::string sublevel(i);
+	sublevel += "  ";
+
+	std::string level(i);
+	level += "    ";
+	
+	dump_object(i, "yacg::Theme", this);
+	TRACE("%sActive Style: %s\n", sublevel.c_str(), style2string(_style->first).c_str());
+	TRACE("%sFormat: %s\n", sublevel.c_str(), _ThemeItem::format2string(_format).c_str());
+	dump_count(sublevel, "Styles", _styles.size());
+	{
+		dump_divider d1(sublevel, "GLOBAL COLORS");
+		dump_color(level, "AQUA", _AQUA);
+		dump_color(level, "AQUA_DARK", _AQUA_DARK);
+		dump_color(level, "AQUA_LIGHT", _AQUA_LIGHT);
+		dump_color(level, "AQUA_VERY_DARK", _AQUA_VERY_DARK);
+		dump_color(level, "AQUA_VERY_LIGHT", _AQUA_VERY_LIGHT);
+		dump_color(level, "BLACK", _BLACK);
+		dump_color(level, "BLUE", _BLUE);
+		dump_color(level, "BLUE_DARK", _BLUE_DARK);
+		dump_color(level, "BLUE_LIGHT", _BLUE_LIGHT);
+		dump_color(level, "BLUE_VERY_DARK", _BLUE_VERY_DARK);
+		dump_color(level, "BLUE_VERY_LIGHT", _BLUE_VERY_LIGHT);
+		dump_color(level, "GRAY", _GRAY);
+		dump_color(level, "GRAY_DARK", _GRAY_DARK);
+		dump_color(level, "GRAY_LIGHT", _GRAY_LIGHT);
+		dump_color(level, "GRAY_VERY_DARK", _GRAY_VERY_DARK);
+		dump_color(level, "GRAY_VERY_LIGHT", _GRAY_VERY_LIGHT);
+		dump_color(level, "GREEN", _GREEN);
+		dump_color(level, "GREEN_DARK", _GREEN_DARK);
+		dump_color(level, "GREEN_LIGHT", _GREEN_LIGHT);
+		dump_color(level, "GREEN_VERY_DARK", _GREEN_VERY_DARK);
+		dump_color(level, "GREEN_VERY_LIGHT", _GREEN_VERY_LIGHT);
+		dump_color(level, "PURPLE", _PURPLE);
+		dump_color(level, "PURPLE_DARK", _PURPLE_DARK);
+		dump_color(level, "PURPLE_LIGHT", _PURPLE_LIGHT);
+		dump_color(level, "PURPLE_VERY_DARK", _PURPLE_VERY_DARK);
+		dump_color(level, "PURPLE_VERY_LIGHT", _PURPLE_VERY_LIGHT);
+		dump_color(level, "RED", _RED);
+		dump_color(level, "RED_DARK", _RED_DARK);
+		dump_color(level, "RED_LIGHT", _RED_LIGHT);
+		dump_color(level, "RED_VERY_DARK", _RED_VERY_DARK);
+		dump_color(level, "RED_VERY_LIGHT", _RED_VERY_LIGHT);
+		dump_color(level, "YELLOW", _YELLOW);
+		dump_color(level, "YELLOW_DARK", _YELLOW_DARK);
+		dump_color(level, "YELLOW_LIGHT", _YELLOW_LIGHT);
+		dump_color(level, "YELLOW_VERY_DARK", _YELLOW_VERY_DARK);
+		dump_color(level, "YELLOW_VERY_LIGHT", _YELLOW_VERY_LIGHT);
+		dump_color(level, "WHITE", _WHITE);
+	}
+	{
+		dump_divider d1(sublevel, "STYLES");
+		std::for_each(_styles.begin(), _styles.end(), bind(dump_styles, this, _1, level));
+	}
+}
+
+void Theme::dump_styles(const Theme::container::value_type& v, const std::string& i) const
+{
+	std::string sublevel(i);
+	sublevel += "  ";
+	
+	std::string level(i);
+	level += "    ";
+	
+	dump_divider d1(i, "STYLE");
+	TRACE("%sStyle: %s\n", sublevel.c_str(), style2string(v.first).c_str());
+	{
+		dump_divider d2(sublevel, "TYPES");
+		std::for_each(v.second->begin(), v.second->end(), bind(dump_type, this, _1, level));
+	}
+}
+
+void Theme::dump_type(const Theme::types::value_type& v, const std::string& i) const
+{
+	std::string sublevel(i);
+	sublevel += "  ";
+	
+	std::string level(i);
+	level += "    ";
+	
+	TRACE("%sType: %s\n", i.c_str(), type2string(v.first).c_str());
+	v.second.item->dump(i);
+}
+
+std::string Theme::style2string(STYLE s)
+{
+	switch (s)
+	{
+	case STYLE_FLAT:
+		return std::string("STYLE_FLAT");
+		
+	case STYLE_3D:
+		return std::string("STYLE_3D");
+		
+	case STYLE_BITMAP:
+		return std::string("STYLE_BITMAP");
+		
+	default:
+		if (s >= STYLE_USER)
+			return std::string("Program Defined");
+		else
+			return std::string("Unknown Reserved");
+	}
+}
+
+std::string Theme::type2string(TYPE t)
+{
+	switch (t)
+	{
+	case TYPE_DEFAULT:
+		return std::string("TYPE_DEFAULT");
+		
+	case TYPE_BITMAPBUTTON:
+		return std::string("TYPE_BITMAPBUTTON");
+		
+	case TYPE_BOX:
+		return std::string("TYPE_BOX");
+		
+	case TYPE_BUTTON:
+		return std::string("TYPE_BUTTON");
+		
+	case TYPE_CHECKBOX:
+		return std::string("TYPE_CHECKBOX");
+		
+	case TYPE_CHECKEDBOX:
+		return std::string("TYPE_CHECKEDBOX");
+		
+	case TYPE_DIALOG:
+		return std::string("TYPE_DIALOG");
+		
+	case TYPE_EDITBOX:
+		return std::string("TYPE_EDITBOX");
+		
+	case TYPE_LIST:
+		return std::string("TYPE_LIST");
+		
+	case TYPE_MENU:
+		return std::string("TYPE_MENU");
+		
+	case TYPE_PLANE:
+		return std::string("TYPE_PLANE");
+		
+	case TYPE_RADIO:
+		return std::string("TYPE_RADIO");
+		
+	case TYPE_RADIOGROUP:
+		return std::string("TYPE_RADIOGROUP");
+		
+	case TYPE_SELECTIONBOX:
+		return std::string("TYPE_SELECTIONBOX");
+		
+	case TYPE_SLIDER:
+		return std::string("TYPE_SLIDER");
+		
+	case TYPE_TAB:
+		return std::string("TYPE_TAB");
+		
+	case TYPE_TABPAGE:
+		return std::string("TYPE_TABPAGE");
+		
+	case TYPE_TEXTBOX:
+		return std::string("TYPE_TEXTBOX");
+		
+	case TYPE_TITLE:
+		return std::string("TYPE_TITLE");
+		
+	case TYPE_WINDOW:
+		return std::string("TYPE_WINDOW");
+		
+	default:
+		if (t >= TYPE_USER)
+			return std::string("Program Defined");
+		else
+			return std::string("Unknown Reserved");
+	}
+}
+#endif
+
+//-----------------------------------------------------------------------------
+
+bool Theme::empty() const
+{
+	if (_style == _styles.end())
+		return true;
+	return _style->second->empty();
+}
+
+//-----------------------------------------------------------------------------
+
 void Theme::erase(iterator i)
 {
 	ASSERT(i._theme == this);
@@ -874,17 +946,6 @@ void Theme::erase(iterator i)
 		// Generate modification event
 		modified();
 	}
-}
-
-Theme::iterator Theme::find(TYPE t)
-{
-	if (_style == _styles.end())
-		return end();
-	iterator i;
-	i._theme = this;
-	i._style = _style;
-	i._type = _style->second->find(t);
-	return i;
 }
 
 Theme::iterator Theme::insert(TYPE t, _ThemeItem& ti)
@@ -941,15 +1002,63 @@ Theme::iterator Theme::insert(STYLE s, TYPE t, _ThemeItem& ti)
 	return i;
 }
 
-void Theme::item_modified(_ThemeItem* i, int h)
+//-----------------------------------------------------------------------------
+
+Theme::iterator Theme::find(TYPE t)
 {
-	modified();
+	if (_style == _styles.end())
+		return end();
+	iterator i;
+	i._theme = this;
+	i._style = _style;
+	i._type = _style->second->find(t);
+	return i;
 }
 
-void Theme::modified()
+//-----------------------------------------------------------------------------
+
+Theme::FORMAT Theme::format() const
 {
-	_handlers(this);
+	return _format;
 }
+
+void Theme::format(FORMAT f)
+{
+	switch (f)
+	{
+	case _ThemeItem::none:
+		reset();
+		break;
+		
+	case _ThemeItem::eight:
+		reset8();
+		break;
+
+	case _ThemeItem::fifteen:
+		reset15();
+		break;
+
+	case _ThemeItem::sixteen:
+		reset16();
+		break;
+
+	case _ThemeItem::twentyfour:
+		reset24();
+		break;
+
+	case _ThemeItem::thirtytwo:
+		reset32();
+		break;
+	
+#ifdef	_DEBUG
+	default:
+		TRACE("yacg::Theme::format: Format %f unknown!", f);
+		break;
+#endif
+	}
+}
+
+//-----------------------------------------------------------------------------
 
 void Theme::reset()
 {
@@ -1041,12 +1150,26 @@ void Theme::reset32()
 	modified();
 }
 
-size_t Theme::size() const
+//-----------------------------------------------------------------------------
+
+int Theme::size() const
 {
 	if (_style == _styles.end())
 		return 0;
-	return _style->second->size();
+	return int(_style->second->size());
 }
+
+int Theme::size(STYLE s) const
+{
+	if (s == _style->first)
+		return _style->second->size();
+	container::const_iterator i = _styles.find(s);
+	if (i == _styles.end())
+		return 0;
+	return int(i->second->size());
+}
+
+//-----------------------------------------------------------------------------
 
 Theme::STYLE Theme::style() const
 {
@@ -1071,6 +1194,29 @@ void Theme::style(STYLE s)
 	
 	// Generate modified event, since the active style changed
 	modified();
+}
+
+//-----------------------------------------------------------------------------
+
+EVENTID Theme::connect(MODIFIED_EVENT f)
+{
+	return _handlers.connect(f);
+}
+
+void Theme::disconnect(EVENTID f)
+{
+	if (f.connected())
+		f.disconnect();
+}
+
+void Theme::item_modified(_ThemeItem& i, int h)
+{
+	modified();
+}
+
+void Theme::modified()
+{
+	_handlers(*this);
 }
 
 #undef	_RESET
@@ -1278,20 +1424,29 @@ DefaultTheme3D& DefaultTheme3D::operator=(const DefaultTheme3D& r)
 }
 
 #ifdef	_DEBUG
-void DefaultTheme3D::dump() const
+void DefaultTheme3D::dump(const std::string& i) const
 {
-	TRACE("yacg::DefaultTheme3D @ %08X\n", this);
+	std::string sublevel(i);
+	sublevel += "  ";
 
-	_DefaultTheme::dump();
-
-	TRACE(" Frame Lightest Color: %d %d %d\n", getr(_frameLightest),
-			getg(_frameLightest), getb(_frameLightest));
-	TRACE(" Frame Light Color: %d %d %d\n", getr(_frameLight),
-			getg(_frameLight), getb(_frameLight));
-	TRACE(" Frame Dark Color: %d %d %d\n", getr(_frameDark), getg(_frameDark),
-			getb(_frameDark));
-	TRACE(" Frame Darkest Color: %d %d %d\n", getr(_frameDarkest),
-			getg(_frameDarkest), getb(_frameDarkest));
+	std::string level(i);
+	level += "    ";
+	
+	dump_object(i, "yacg::DefaultTheme3D", this);
+	
+	dump_color(sublevel, "Frame Lightest", _frameLightest);
+	dump_color(sublevel, "Frame Light", _frameLight);
+	dump_color(sublevel, "Frame Dark", _frameDark);
+	dump_color(sublevel, "Frame Darkest", _frameDarkest);
+	dump_color(sublevel, "Inactive Text Background", _inactiveTextBackground);
+	dump_color(sublevel, "Inactive Text Foreground", _inactiveTextForeground);
+	dump_color(sublevel, "Interior", _interior);
+	dump_color(sublevel, "Selection Background", _selectionBackground);
+	dump_color(sublevel, "Selection Foreground", _selectionForeground);
+	dump_color(sublevel, "Text Background", _textBackground);
+	dump_color(sublevel, "Text Foreground", _textForeground);
+	
+	_DefaultTheme::dump(level);
 }
 #endif
 
@@ -1451,28 +1606,26 @@ IMPL(_textBackground, text_background);
 IMPL(_textForeground, text_foreground);
 
 #ifdef	_DEBUG
-void DefaultThemeFlat::dump() const
+void DefaultThemeFlat::dump(const std::string& i) const
 {
-	TRACE("yacg::DefaultThemeFlat @ %08X\n", this);
+	std::string sublevel(i);
+	sublevel += "  ";
+	
+	std::string level(i);
+	level += "    ";
 
-	_DefaultTheme::dump();
+	dump_object(i, "yacg::DefaultThemeFlat", this);	
 
-	TRACE(" Frame Color: %d %d %d\n", getr(_frame), getg(_frame),
-			getb(_frame));
-	TRACE(" Text Foreground Color: %d %d %d\n", getr(_textForeground),
-			getg(_textForeground), getb(_textForeground));
-	TRACE(" Text Background Color: %d %d %d\n", getr(_textBackground),
-			getg(_textBackground), getb(_textBackground));
-	TRACE(" Text Foreground Color (Inactive): %d %d %d\n", getr(_inactiveTextForeground),
-			getg(_inactiveTextForeground), getb(_inactiveTextForeground));
-	TRACE(" Text Foreground Color (Inactive): %d %d %d\n", getr(_inactiveTextBackground),
-			getg(_inactiveTextBackground), getb(_inactiveTextBackground));
-	TRACE(" Selected Text Foreground Color: %d %d %d\n", getr(_selectionForeground),
-			getg(_selectionForeground), getb(_selectionForeground));
-	TRACE(" Selected Text Background Color: %d %d %d\n", getr(_selectionBackground),
-			getg(_selectionBackground), getb(_selectionBackground));
-	TRACE(" Interior Color: %d %d %d\n", getr(_interior), getg(_interior),
-			getb(_interior));
+	dump_color(sublevel, "Frame", _frame);
+	dump_color(sublevel, "Inactive Text Background", _inactiveTextBackground);
+	dump_color(sublevel, "Inactive Text Foreground", _inactiveTextForeground);
+	dump_color(sublevel, "Interior", _interior);
+	dump_color(sublevel, "Selection Background", _selectionBackground);
+	dump_color(sublevel, "Selection Foreground", _selectionForeground);
+	dump_color(sublevel, "Text Background", _textBackground);
+	dump_color(sublevel, "Text Foreground", _textForeground);
+	
+	_DefaultTheme::dump(level);
 }
 #endif
 

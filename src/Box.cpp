@@ -27,7 +27,6 @@ namespace yacg
 			static const int dirty_frame	= 0x00000001;
 			static const int dirty_interior	= 0x00000002;
 			static const int dirty_title	= 0x00000004;
-			static const int dirty_all		= dirty_frame | dirty_interior | dirty_title;
 		
 		public:
 			Base(Box& o, int x, int y, int w, int h, int f, const char* t);
@@ -36,7 +35,7 @@ namespace yacg
 			int bottom() const;
 			
 #ifdef	_DEBUG
-			void dump() const;
+			void dump(const std::string& i) const;
 #endif
 			
 			FONT* font() const;
@@ -48,7 +47,7 @@ namespace yacg
 			int left() const;
 			void left(int l);
 			
-			virtual void paint(BITMAP* bmp) = 0;
+			virtual void paint(BITMAP* bmp, int dirty) = 0;
 			
 			int right() const;
 			
@@ -96,10 +95,10 @@ namespace yacg
 			Impl3D(Box& o, int x, int y, int w, int h, int f, const char* t);
 
 #ifdef	_DEBUG
-			void dump() const;
+			void dump(const std::string& i) const;
 #endif
 
-			void paint(BITMAP* bmp);
+			void paint(BITMAP* bmp, int dirty);
 
 			void theme(_BoxTheme& t);
 						
@@ -130,10 +129,10 @@ namespace yacg
 			ImplFlat(Box& o, int x, int y, int w, int h, int f, const char* t);
 			
 #ifdef	_DEBUG
-			void dump() const;
+			void dump(const std::string& i) const;
 #endif
 
-			void paint(BITMAP* bmp);
+			void paint(BITMAP* bmp, int dirty);
 
 			void theme(_BoxTheme& t);
 			
@@ -180,15 +179,17 @@ namespace yacg
 		}
 
 #ifdef	_DEBUG
-		void Base::dump() const
+		void Base::dump(const std::string& i) const
 		{
-			dump_xywh(_left, _top, _width, _top, _right, _bottom);
+#if 0
+			dump_xywhrb(_left, _top, _width, _top, _right, _bottom);
 			if ((_owner.flags() & Box::t_mask) == Box::t_title)
 			{
 				TRACE(" Title: %s\n", _title.c_str());
 				TRACE(" Font: $%08X%s\n", _font, (_font == ::font ?
 						" (Allegro Global Font)" : ""));
 			}
+#endif
 		}
 #endif
 
@@ -202,7 +203,7 @@ namespace yacg
 			if (_font != f)
 			{
 				_font = f;
-				_owner.dirty(dirty_title);
+				_owner.dirty(dirty_title | dirty_frame | _Control::update_display);
 			}
 		}
 		
@@ -241,7 +242,7 @@ namespace yacg
 		void Base::theme_changed()
 		{
 			update_from_theme(_owner.manager().theme());
-			_owner.dirty(dirty_all);
+			_owner.dirty(_Control::dirty_all);
 		}
 		
 		const char* Base::title() const
@@ -252,7 +253,7 @@ namespace yacg
 		void Base::title(const char* t)
 		{
 			_title = t;
-			_owner.dirty(dirty_title);
+			_owner.dirty(dirty_title | dirty_frame | _Control::update_display);
 		}
 		
 		const std::string& Base::title_string() const
@@ -314,8 +315,9 @@ namespace yacg
 		}
 		
 #ifdef	_DEBUG
-		void Impl3D::dump() const
+		void Impl3D::dump(const std::string& i) const
 		{
+#if 0
 			// Call base first
 			Base::dump();
 			
@@ -338,12 +340,12 @@ namespace yacg
 					getg(_inactiveBackground), getb(_inactiveBackground));
 			TRACE(" Interior Color: %d %d %d\n", getr(_interior), getg(_interior),
 					getb(_interior));
+#endif
 		}
 #endif
 
-		void Impl3D::paint(BITMAP* bmp)
+		void Impl3D::paint(BITMAP* bmp, int dirty)
 		{
-			const int dirty = _owner.dirty();
 			const bool isFrameDirty = ((dirty & dirty_frame) != 0);
 			const bool isInteriorDirty = ((dirty & dirty_interior) != 0);
 			const bool isTitleDirty = ((dirty & dirty_title) != 0);
@@ -444,7 +446,7 @@ namespace yacg
 				}
 				
 				// Fill interior if desired
-				if (isFilled && (dirty & dirty_interior) != 0)
+				if (isFilled && isInteriorDirty)
 					rectfill(bmp, _left + 2, t + 2, _right - 2, b - 2, _interior);
 			}
 			
@@ -580,8 +582,9 @@ namespace yacg
 		}
 
 #ifdef	_DEBUG
-		void ImplFlat::dump() const
+		void ImplFlat::dump(const std::string& i) const
 		{
+#if 0
 			// Call base first
 			Base::dump();
 			
@@ -597,11 +600,16 @@ namespace yacg
 					getg(_inactiveBackground), getb(_inactiveBackground));
 			TRACE(" Interior Color: %d %d %d\n", getr(_interior), getg(_interior),
 					getb(_interior));
+#endif
 		}
 #endif
 
-		void ImplFlat::paint(BITMAP* bmp)
+		void ImplFlat::paint(BITMAP* bmp, int dirty)
 		{
+			const bool isFrameDirty = ((dirty & dirty_frame) != 0);
+			const bool isInteriorDirty = ((dirty & dirty_interior) != 0);
+			const bool isTitleDirty = ((dirty & dirty_title) != 0);
+
 			const int flags = _owner.flags();
 			
 			const int font_height = text_height(_font);
@@ -640,20 +648,24 @@ namespace yacg
 				}
 				
 				// Frame it
-				rect(bmp, _left, t, _right, b, _frame);
+				if (isFrameDirty)
+					rect(bmp, _left, t, _right, b, _frame);
 			}
 			else
-				rect(bmp, _left, _top, _right, _bottom, _frame);
+			{
+				if (isFrameDirty)
+					rect(bmp, _left, _top, _right, _bottom, _frame);
+			}
 			
 			// Interior if desired
-			if ((flags & Box::i_mask) == Box::i_filled)
+			if ((flags & Box::i_mask) == Box::i_filled && isInteriorDirty)
 			{
 				rectfill(bmp, _left + 1, _top + 1, _right - 1, _bottom - 1,
 						_interior);
 			}
 			
 			// Title if desired
-			if (isTitle)
+			if (isTitle && isTitleDirty)
 			{
 				// Determine left of title
 				int x;
@@ -770,8 +782,6 @@ namespace yacg
 // class _BoxTheme implementation
 //=============================================================================
 
-//-----------------------------------------------------------------------------
-
 _BoxTheme::_BoxTheme(Theme& t)
 	:
 	_ThemeItem(none)
@@ -807,11 +817,8 @@ _BoxTheme& _BoxTheme::operator=(const _BoxTheme& o)
 }
 
 #ifdef	_DEBUG
-void _BoxTheme::dump() const
+void _BoxTheme::dump(const std::string& i) const
 {
-	_ThemeItem::dump();
-
-	dump_font(_font);
 }
 #endif
 
@@ -834,7 +841,7 @@ Box::Box(_Manager& m, int x, int y, int w, int h, int f, const char* t)
 		_Control(m, f)
 {
 	// Only the title gets repainted on active state change
-	_activeChangedHint = BoxImpl::Base::dirty_title;
+	_activeChangedHint = BoxImpl::Base::dirty_title | update_display;
 	
 	// Create correctly styled Box implementation
 	switch (theme().style())
@@ -866,88 +873,53 @@ int Box::bottom() const
 }
 
 #ifdef	_DEBUG
-void Box::dump() const
+void Box::dump(const std::string& i) const
 {
-	TRACE("gui::Box @ $%08X\n", this);
-	TRACE(" Flags:");
-	const int flags = _Control::flags();
-	switch (flags & f_mask)
+	static flags_dump _flags_[] =
 	{
-	case f_flat:
-		TRACE(" f_flat");
-		break;
-	
-	case f_in:
-		TRACE(" f_in");
-		break;
-	
-	case f_out:
-		TRACE(" f_out");
-		break;
-	}
-	switch (flags & t_mask)
-	{
-	case t_title:
-		TRACE(" | t_title");
-		break;
-	
-	case t_notitle:
-		TRACE(" | t_notitle");
-		break;
-	}
-	switch (flags & v_mask)
-	{
-	case v_top:
-		TRACE(" | v_top");
-		break;
-	
-	case v_bottom:
-		TRACE(" | v_bottom");
-		break;
+		// bit				title				mask
+		// frame
+		{ f_flat,			"f_flat",			f_mask },
+		{ f_in,				"f_in",				f_mask },
+		{ f_out,			"f_out",			f_mask },
 
-	case v_centered:
-		TRACE(" | v_centered");
-		break;
-	}
-	switch (flags & h_mask)
-	{
-	case h_left:
-		TRACE(" | h_left");
-		break;
-	
-	case h_right:
-		TRACE(" | h_right");
-		break;
+		// title
+		{ t_title,			"t_title",			t_mask },
+		{ t_notitle,		"t_notitle",		t_mask },
 
-	case h_centered:
-		TRACE(" | h_centered");
-		break;
-	}
-	switch (flags & o_mask)
-	{
-	case o_titlecentered:
-		TRACE(" | o_titlecentered");
-		break;
-	
-	case o_titleabove:
-		TRACE(" | o_titleabove");
-		break;
+		// title vertical alignment
+		{ v_top,			"v_bottom",			v_mask },
+		{ v_bottom,			"v_bottom",			v_mask },
+		{ v_centered,		"v_centered",		v_mask },
 
-	case o_titlebelow:
-		TRACE(" | o_titlebelow");
-		break;
-	}
-	switch (flags & i_mask)
-	{
-	case i_unfilled:
-		TRACE(" | i_unfilled\n");
-		break;
+		// title horizontal alignment
+		{ h_left,			"h_left",			h_mask },
+		{ h_right,			"h_right",			h_mask },
+		{ h_centered,		"h_centered",		h_mask },
+
+		// title cell vertical alignment
+		{ o_titlecentered,	"o_titlecentered",	o_mask },
+		{ o_titleabove,		"o_titleabove",		o_mask },
+		{ o_titlebelow,		"o_titlebelow",		o_mask },
+		
+		// title cell horizontal alignment
+		{ i_unfilled,		"i_unfilled",		i_mask },
+		{ i_filled,			"i_filled",			i_mask },
+
+		// END		
+		{ 0,				0,					0 },
+	};
+
+	std::string sublevel(i);
+	sublevel += "  ";
 	
-	case i_filled:
-		TRACE(" | i_filled\n");
-		break;
-	}
-	_impl->dump();
+	std::string level(i);
+	level += "    ";
+	
+	dump_object(i, "yacg::Box", this);
+	dump_flags(sublevel, _flags_, flags());
+	_impl->dump(sublevel);
+	_Control::dump_control(level);
 }
 #endif
 
@@ -971,7 +943,7 @@ void Box::height(int h)
 	if (h != _impl->height())
 	{
 		_impl->height(h);
-		dirty(BoxImpl::Base::dirty_all);
+		dirty(dirty_all);
 	}
 }
 
@@ -985,13 +957,13 @@ void Box::left(int l)
 	if (l != _impl->left())
 	{
 		_impl->left(l);
-		dirty(BoxImpl::Base::dirty_all);
+		dirty(dirty_all);
 	}
 }
 
-void Box::paint(BITMAP* bmp)
+void Box::paint_control(BITMAP* bmp, int dirty)
 {
-	_impl->paint(bmp);
+	_impl->paint(bmp, dirty);
 }
 
 int Box::right() const
@@ -1046,7 +1018,7 @@ void Box::top(int t)
 	if (t != _impl->top())
 	{
 		_impl->top(t);
-		dirty(BoxImpl::Base::dirty_all);
+		dirty(dirty_all);
 	}
 }
 
@@ -1060,7 +1032,7 @@ void Box::width(int w)
 	if (w != _impl->width())
 	{
 		_impl->width(w);
-		dirty(BoxImpl::Base::dirty_all);
+		dirty(dirty_all);
 	}
 }
 
@@ -1174,8 +1146,9 @@ BoxTheme3D& BoxTheme3D::operator=(const BoxTheme3D& o)
 }
 
 #ifdef	_DEBUG
-void BoxTheme3D::dump() const
+void BoxTheme3D::dump(const std::string& i) const
 {
+#if 0
 	TRACE("yacg::BoxTheme3D @ %08X\n", this);
 
 	_BoxTheme::dump();
@@ -1189,6 +1162,7 @@ void BoxTheme3D::dump() const
 	dump_color("Text Foreground Color (Inactive)", _inactiveTextForeground);
 	dump_color("Text Foreground Color (Inactive)", _inactiveTextBackground);
 	dump_color("Interior Color", _interior);
+#endif
 }
 #endif
 
@@ -1291,8 +1265,9 @@ BoxThemeFlat& BoxThemeFlat::operator=(const BoxThemeFlat& o)
 }
 
 #ifdef	_DEBUG
-void BoxThemeFlat::dump() const
+void BoxThemeFlat::dump(const std::string& i) const
 {
+#if 0
 	TRACE("yacg::BoxThemeFlat @ %08X\n", this);
 
 	_BoxTheme::dump();
@@ -1304,6 +1279,7 @@ void BoxThemeFlat::dump() const
 	dump_color("Text Foreground Color (Inactive)", _inactiveTextForeground);
 	dump_color("Text Foreground Color (Inactive)", _inactiveTextBackground);
 	dump_color("Interior Color", _interior);
+#endif
 }
 #endif
 

@@ -37,7 +37,7 @@ namespace yacg
 	//-------------------------------------------------------------------------
 	public:
 #ifdef	_DEBUG
-		void dump() const;
+		void dump(const std::string& i) const;
 #endif
 	};
 	
@@ -171,7 +171,7 @@ namespace yacg
 	//-------------------------------------------------------------------------
 	public:
 #ifdef	_DEBUG
-		void dump() const;
+		void dump(const std::string& i) const;
 #endif
 	};
 	
@@ -271,7 +271,7 @@ namespace yacg
 
 	//-------------------------------------------------------------------------
 #ifdef	_DEBUG
-		void dump() const;
+		void dump(const std::string& i) const;
 #endif
 	};
 }

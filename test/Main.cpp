@@ -77,6 +77,7 @@ int main(int argc, const char* argv[])
 	install_keyboard(); 
 	install_mouse();
 	
+	set_color_depth(32);
 	if (set_gfx_mode(GFX_AUTODETECT_WINDOWED, 1024, 768, 0, 0) != 0)
 	{
 		set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);

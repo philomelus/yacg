@@ -19,7 +19,7 @@ namespace yacg
 	{
 	//-------------------------------------------------------------------------
 	public:
-		Plane(_Manager& m, int c = 0);
+		Plane(_Manager& m, int c = undefined, int f = auto_delete);
 	
 	//-------------------------------------------------------------------------
 	public:
@@ -39,15 +39,18 @@ namespace yacg
 		
 	//-------------------------------------------------------------------------
 	public:
-		void paint(BITMAP* b);
-
 		void theme_changed();
 	
 	//-------------------------------------------------------------------------
 	public:
 #ifdef	_DEBUG
-		void dump() const;
+		void dump(const std::string& i) const;
 #endif
+
+	//-------------------------------------------------------------------------
+	protected:
+		void paint_control(BITMAP* b, int dirty);
+
 	};
 }
 

@@ -75,7 +75,9 @@ namespace yacg
 
 	//-------------------------------------------------------------------------
 	public:
-		Box(_Manager& m, int x, int y, int w, int h, int f, const char* t = 0);
+		Box(_Manager& m, int x, int y, int w, int h, int f = f_flat | t_notitle
+				| v_top | h_left | o_titlecentered| i_unfilled | auto_delete,
+				const char* t = 0);
 		~Box();
 
 	//-------------------------------------------------------------------------
@@ -83,7 +85,7 @@ namespace yacg
 		
 	//-------------------------------------------------------------------------
 #ifdef	_DEBUG
-		void dump() const;
+		void dump(const std::string& i) const;
 #endif
 
 	//-------------------------------------------------------------------------
@@ -98,9 +100,6 @@ namespace yacg
 		int left() const;
 		void left(int l);
 		
-	//-------------------------------------------------------------------------
-		void paint(BITMAP* bmp);
-
 	//-------------------------------------------------------------------------
 		int right() const;
 		
@@ -125,6 +124,10 @@ namespace yacg
 	//-------------------------------------------------------------------------
 		int width() const;
 		void width(int w);
+
+	//-------------------------------------------------------------------------
+	protected:
+		void paint_control(BITMAP* bmp, int dirty);
 
 	//-------------------------------------------------------------------------
 	private:

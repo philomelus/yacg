@@ -60,7 +60,7 @@ namespace yacg
 
 	//-------------------------------------------------------------------------
 	private:
-		typedef boost::signal<void (_ThemeItem* c, int h)> modified_slot;
+		typedef boost::signal<void (_ThemeItem& c, int h)> modified_slot;
 		typedef modified_slot::slot_type MODIFIED_EVENT;
 		
 	public:
@@ -99,7 +99,11 @@ namespace yacg
 	//-------------------------------------------------------------------------
 	public:
 #ifdef	_DEBUG
-		virtual void dump() const;
+		virtual void dump(const std::string& i) const = 0;
+		
+		void dump_item(const std::string& i) const;
+
+		static std::string format2string(FORMAT f);
 #endif
 
 	//-------------------------------------------------------------------------
@@ -152,7 +156,7 @@ namespace yacg
 	//-------------------------------------------------------------------------
 	public:
 #ifdef	_DEBUG
-		virtual void dump() const;
+		void dump(const std::string& i) const;
 #endif
 	};
 
@@ -308,7 +312,7 @@ namespace yacg
 	//-------------------------------------------------------------------------
 	public:
 #ifdef	_DEBUG
-		virtual void dump() const;
+		void dump(const std::string& i) const;
 #endif
 	};
 	
@@ -431,7 +435,7 @@ namespace yacg
 	//-------------------------------------------------------------------------
 	public:
 #ifdef	_DEBUG
-		virtual void dump() const;
+		void dump(const std::string& i) const;
 #endif
 	};
 
@@ -450,13 +454,10 @@ namespace yacg
 		typedef unsigned short STYLE;
 
 		static const STYLE STYLE_FLAT			= 0;
-
 		static const STYLE STYLE_3D				= STYLE_FLAT + 1;
-
 		static const STYLE STYLE_BITMAP			= STYLE_3D + 1;
 
 		static const STYLE STYLE_USER			= 16384;
-
 		static const STYLE STYLE_USEREND		= std::numeric_limits<STYLE>::max;
 	
 	//-------------------------------------------------------------------------
@@ -606,15 +607,27 @@ namespace yacg
 		template <typename T> T& at(TYPE t);
 		
 	//-------------------------------------------------------------------------
+	// iteration
 	public:
 		iterator begin();
 		
 		const_iterator begin() const;
 		
+		iterator end();
+
+		const_iterator end() const;
+		
 	//-------------------------------------------------------------------------
+	// dump
 	public:
 #ifdef	_DEBUG
-		virtual void dump() const;
+		virtual void dump(const std::string& i) const;
+		
+		static std::string style2string(STYLE s);
+		static std::string type2string(TYPE t);
+		
+		void dump_styles(const Theme::container::value_type& v, const std::string& i) const;
+		void dump_type(const Theme::types::value_type& v, const std::string& i) const;
 #endif
 
 	//-------------------------------------------------------------------------
@@ -622,15 +635,14 @@ namespace yacg
 		bool empty() const;
 
 	//-------------------------------------------------------------------------
+	// storage
 	public:
 		void erase(iterator i);
 		
-	//-------------------------------------------------------------------------
-	public:
-		iterator end();
+		iterator insert(TYPE y, _ThemeItem& ti);
 
-		const_iterator end() const;
-		
+		iterator insert(STYLE s, TYPE t, _ThemeItem& ti);
+
 	//-------------------------------------------------------------------------
 	public:
 		iterator find(TYPE t);
@@ -644,12 +656,6 @@ namespace yacg
 	private:
 		FORMAT _format;
 		
-	//-------------------------------------------------------------------------
-	public:
-		iterator insert(TYPE y, _ThemeItem& ti);
-
-		iterator insert(STYLE s, TYPE t, _ThemeItem& ti);
-
 	//-------------------------------------------------------------------------
 	public:
 		void reset();
@@ -666,9 +672,9 @@ namespace yacg
 
 	//-------------------------------------------------------------------------
 	public:
-		size_t size() const;
+		int size() const;
 		
-		size_t size(STYLE s) const;
+		int size(STYLE s) const;
 	
 	//-------------------------------------------------------------------------
 	public:
@@ -676,13 +682,12 @@ namespace yacg
 		
 		void style(STYLE s);
 
-
 	private:		
 		container::iterator _style;
 
 	//-------------------------------------------------------------------------
 	private:
-		typedef boost::signal<void (Theme* c)> modified_slot;
+		typedef boost::signal<void (Theme& c)> modified_slot;
 		
 		typedef modified_slot::slot_type MODIFIED_EVENT;
 		
@@ -698,7 +703,7 @@ namespace yacg
 		modified_slot _handlers;
 	
 	private:
-		void item_modified(_ThemeItem* i, int h);
+		void item_modified(_ThemeItem& i, int h);
 	
 	//-------------------------------------------------------------------------
 	private:
