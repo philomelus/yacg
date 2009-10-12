@@ -1,25 +1,10 @@
 #ifndef	__YACG_THEME_HPP__
 #define	__YACG_THEME_HPP__
 
-#ifndef	__STD_MAP__
-#define	__STD_MAP__
 #include <map>
-#endif
-
-#ifndef	__STD_LIMITS__
-#define	__STD_LIMITS__
 #include <limits>
-#endif
-
-#ifndef	__BOOST_SIGNALS_HPP__
-#define	__BOOST_SIGNALS_HPP__
-#define	BOOST_SIGNALS_STATIC_LINK
-#include <boost/signals.hpp>
-#endif
-
-#ifndef	__YACG_HPP__
+#include <boost/signals2.hpp>
 #include <yacg.hpp>
-#endif
 
 namespace yacg
 {
@@ -60,7 +45,7 @@ namespace yacg
 
 	//-------------------------------------------------------------------------
 	private:
-		typedef boost::signal<void (_ThemeItem& c, int h)> modified_slot;
+		typedef boost::signals2::signal<void (_ThemeItem& c, int h)> modified_slot;
 		typedef modified_slot::slot_type MODIFIED_EVENT;
 		
 	public:
@@ -452,44 +437,43 @@ namespace yacg
 	//-------------------------------------------------------------------------
 	public:
 		typedef unsigned short STYLE;
-
-		static const STYLE STYLE_FLAT			= 0;
-		static const STYLE STYLE_3D				= STYLE_FLAT + 1;
-		static const STYLE STYLE_BITMAP			= STYLE_3D + 1;
-
-		static const STYLE STYLE_USER			= 16384;
-		static const STYLE STYLE_USEREND		= std::numeric_limits<STYLE>::max;
 	
+		static const STYLE STYLE_FLAT = 0;
+		static const STYLE STYLE_3D = STYLE_FLAT + 1;
+		static const STYLE STYLE_BITMAP = STYLE_3D + 1;
+
+		static const STYLE STYLE_USER = 16384;
+		static const STYLE STYLE_USEREND = USHRT_MAX;
+
 	//-------------------------------------------------------------------------
 	// types
 	public:
 		typedef unsigned short TYPE;
 		
-		static const TYPE TYPE_DEFAULT		= 0;
-		static const TYPE TYPE_BITMAPBUTTON	= TYPE_DEFAULT + 1;
-		static const TYPE TYPE_BOX			= TYPE_BITMAPBUTTON + 1;
-		static const TYPE TYPE_BUTTON		= TYPE_BOX + 1;
-		static const TYPE TYPE_CHECKBOX		= TYPE_BUTTON + 1;
-		static const TYPE TYPE_CHECKEDBOX	= TYPE_CHECKBOX + 1;
-		static const TYPE TYPE_DIALOG		= TYPE_CHECKEDBOX + 1;
-		static const TYPE TYPE_EDITBOX		= TYPE_DIALOG + 1;
-		static const TYPE TYPE_LIST			= TYPE_EDITBOX + 1;
-		static const TYPE TYPE_MENU			= TYPE_LIST + 1;
-		static const TYPE TYPE_PLANE		= TYPE_MENU + 1;
-		static const TYPE TYPE_RADIO		= TYPE_PLANE + 1;
-		static const TYPE TYPE_RADIOGROUP	= TYPE_RADIO + 1;
-		static const TYPE TYPE_SELECTIONBOX	= TYPE_RADIOGROUP + 1;
-		static const TYPE TYPE_SLIDER		= TYPE_SELECTIONBOX + 1;
-		static const TYPE TYPE_TAB			= TYPE_SLIDER + 1;
-		static const TYPE TYPE_TABPAGE		= TYPE_TAB + 1;
-		static const TYPE TYPE_TEXTBOX		= TYPE_TABPAGE + 1;
-		static const TYPE TYPE_TITLE		= TYPE_TEXTBOX + 1;
-		static const TYPE TYPE_WINDOW		= TYPE_TITLE + 1;
+		static const TYPE TYPE_DEFAULT = 0;
+		static const TYPE TYPE_BITMAPBUTTON = TYPE_DEFAULT + 1;
+		static const TYPE TYPE_BOX = TYPE_BITMAPBUTTON + 1;
+		static const TYPE TYPE_BUTTON = TYPE_BOX + 1;
+		static const TYPE TYPE_CHECKBOX = TYPE_BUTTON + 1;
+		static const TYPE TYPE_CHECKEDBOX = TYPE_CHECKBOX + 1;
+		static const TYPE TYPE_DIALOG = TYPE_CHECKEDBOX + 1;
+		static const TYPE TYPE_EDITBOX = TYPE_DIALOG + 1;
+		static const TYPE TYPE_LIST = TYPE_EDITBOX + 1;
+		static const TYPE TYPE_MENU = TYPE_LIST + 1;
+		static const TYPE TYPE_PLANE = TYPE_MENU + 1;
+		static const TYPE TYPE_RADIO = TYPE_PLANE + 1;
+		static const TYPE TYPE_RADIOGROUP = TYPE_RADIO + 1;
+		static const TYPE TYPE_SELECTIONBOX = TYPE_RADIOGROUP + 1;
+		static const TYPE TYPE_SLIDER = TYPE_SELECTIONBOX + 1;
+		static const TYPE TYPE_TAB = TYPE_SLIDER + 1;
+		static const TYPE TYPE_TABPAGE = TYPE_TAB + 1;
+		static const TYPE TYPE_TEXTBOX = TYPE_TABPAGE + 1;
+		static const TYPE TYPE_TITLE = TYPE_TEXTBOX + 1;
+		static const TYPE TYPE_WINDOW = TYPE_TITLE + 1;
 
 		static const TYPE TYPE_USER = 16384;
-		
-		static const TYPE TYPE_USEREND = std::numeric_limits<TYPE>::max;
-	
+		static const TYPE TYPE_USEREND = USHRT_MAX;
+
 	//-------------------------------------------------------------------------
 	public:
 		struct type_data
@@ -535,7 +519,7 @@ namespace yacg
 
 			const Theme* _theme;
 			
-			friend Theme;
+			friend class Theme;
 			friend bool operator==(const Theme::iterator& l, const Theme::const_iterator& r);
 			friend bool operator==(const Theme::const_iterator& l, const Theme::iterator& r);
 			friend bool operator==(const Theme::const_iterator& l, const Theme::const_iterator& r);
@@ -573,8 +557,8 @@ namespace yacg
 			
 			Theme::types::iterator _type;
 
-			friend Theme;
-			friend const_iterator;
+			friend class Theme;
+			friend class const_iterator;
 			friend bool operator==(const Theme::iterator& l, const Theme::iterator& r);
 			friend bool operator==(const Theme::iterator& l, const Theme::const_iterator& r);
 			friend bool operator==(const Theme::const_iterator& l, const Theme::iterator& r);
@@ -687,7 +671,7 @@ namespace yacg
 
 	//-------------------------------------------------------------------------
 	private:
-		typedef boost::signal<void (Theme& c)> modified_slot;
+		typedef boost::signals2::signal<void (Theme& c)> modified_slot;
 		
 		typedef modified_slot::slot_type MODIFIED_EVENT;
 		

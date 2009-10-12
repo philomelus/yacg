@@ -15,18 +15,18 @@ namespace
 
 _Control::_Control(_Manager& m, int f)
 		:
-		_manager(&m),
-		_flags(f),
-		_dirty(dirty_all),
-		_active(true),
-		_visible(true),
-		_theme(&(m.theme())),
 		_activeChangedHint(dirty_all),
+		_active(true),
+		_dirty(dirty_all),
 		_flagsChangedHint(dirty_all),
+		_flags(f),
+		_manager(&m),
 		_themeChangedHint(dirty_all),
-		_visibleChangedHint(dirty_all)
+		_theme(&(m.theme())),
+		_visibleChangedHint(dirty_all),
+		_visible(true)
 {
-	_themeSignal = _theme->connect(bind(theme_signal, this, _1));
+	_themeSignal = _theme->connect(bind(&_Control::theme_signal, this, _1));
 }
 
 _Control::~_Control()
@@ -182,7 +182,7 @@ void _Control::manager(_Manager& m)
 void _Control::attach_theme()
 {
 	if (!_themeSignal.connected())
-		_themeSignal = _theme->connect(bind(theme_signal, this, _1));
+		_themeSignal = _theme->connect(bind(&_Control::theme_signal, this, _1));
 }
 
 EVENTID _Control::connect_theme(THEME_EVENT f)
@@ -470,11 +470,11 @@ _Manager::~_Manager()
 	{
 		c = _controls;
 		_controls.clear();
-		std::for_each(c.begin(), c.end(), bind(delete_control, this, _1));
+		std::for_each(c.begin(), c.end(), bind(&_Manager::delete_control, this, _1));
 	}
 	catch (...)
 	{
-		std::for_each(_controls.begin(), _controls.end(), bind(delete_control, this, _1));
+		std::for_each(_controls.begin(), _controls.end(), bind(&_Manager::delete_control, this, _1));
 		_controls.clear();
 	}
 }
@@ -515,7 +515,7 @@ void _Manager::bitmap(BITMAP* b)
 	{
 		BITMAP* old = _bitmap;
 		_bitmap = b;
-		std::for_each(_controls.begin(), _controls.end(), bind(update_bitmap, this, _1));
+		std::for_each(_controls.begin(), _controls.end(), bind(&_Manager::update_bitmap, this, _1));
 		bitmap_changed(old);
 	}
 }
@@ -565,7 +565,7 @@ void _Manager::dump(const std::string& i) const
 	}
 	{
 		dump_divider d1(sublevel, "CONTROLS");
-		std::for_each(_controls.begin(), _controls.end(), bind(dump_controls, this, _1, level));
+		std::for_each(_controls.begin(), _controls.end(), bind(&_Manager::dump_controls, this, _1, level));
 	}
 }
 #endif
@@ -624,7 +624,7 @@ void _Manager::paint()
 	{
 		Update u(_bitmap);
 		pre_paint();
-		std::for_each(_controls.begin(), _controls.end(), bind(painter, this, _1));
+		std::for_each(_controls.begin(), _controls.end(), bind(&_Manager::painter, this, _1));
 		post_paint();
 	}
 	_dirty = false;
@@ -673,7 +673,7 @@ void _Manager::update()
 	{
 		Update u(_bitmap);
 		pre_paint();
-		std::for_each(_controls.begin(), _controls.end(), bind(updater, this, _1));
+		std::for_each(_controls.begin(), _controls.end(), bind(&_Manager::updater, this, _1));
 		post_paint();
 	}
 	_dirty = false;
@@ -1080,7 +1080,7 @@ void _Manager::theme(Theme& t)
 	if (_theme != &t)
 	{
 		_theme = &t;
-		std::for_each(_controls.begin(), _controls.end(), bind(theme_updater,
+		std::for_each(_controls.begin(), _controls.end(), bind(&_Manager::theme_updater,
 				this, _1));
 	}
 }

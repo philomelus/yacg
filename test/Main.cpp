@@ -1,10 +1,8 @@
-#pragma warning(push)
-#pragma warning(disable:4312)
 #ifdef	_DEBUG
 #define	DEBUGMODE 1
 #endif
+#define ALLEGRO_USE_CONSOLE 1
 #include <allegro.h>
-#pragma warning(pop)
 
 #include "fonts.h"
 
@@ -104,7 +102,7 @@ int main(int argc, const char* argv[])
 	return 0;
 }
 
-END_OF_MAIN();
+END_OF_MAIN()
 
 #if 0
 const char* CheckedBoxWindow::_text =

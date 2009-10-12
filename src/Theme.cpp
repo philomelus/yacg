@@ -104,7 +104,7 @@ struct THEME_COLOR
 //=============================================================================
 
 #define	_THEMERESET(dat, var, func, idx)						\
-var## = func##(dat##[idx##].r, dat##[idx##].g, dat##[idx##].b)
+var = func(dat[idx].r, dat[idx].g, dat[idx].b)
 
 //=============================================================================
 // namespace
@@ -118,30 +118,59 @@ void yacg::yacg_init()
 	DefaultTheme.reset();
 }
 
-#define	IMPL(LA, RA)													\
-bool yacg::operator==(const Theme::##LA##& l, const Theme::##RA##& r)	\
-{																		\
-	if (l._theme != r._theme)											\
-		return false;													\
-	if (l._theme == 0)													\
-		return true;													\
-	if (l._style != r._style)											\
-		return false;													\
-	if (l._style == l._theme->_styles.end())							\
-		return true;													\
-	return (l._type == r._type);										\
-}																		\
-bool yacg::operator!=(const Theme::##LA##& l, const Theme::##RA##& r)	\
-{																		\
-	return (!(l == r));													\
-}
+#define	IMPL(LA, RA)												\
+	bool yacg::operator==(const Theme::LA& l, const Theme::RA& r)	\
+	{																\
+		if (l._theme != r._theme)									\
+			return false;											\
+		if (l._theme == 0)											\
+			return true;											\
+		if (l._style != r._style)									\
+			return false;											\
+		if (l._style == l._theme->_styles.end())					\
+			return true;											\
+		return (l._type == r._type);								\
+	}																\
+	bool yacg::operator!=(const Theme::LA& l, const Theme::RA& r)	\
+	{																\
+		return (!(l == r));											\
+	}
 
-IMPL(iterator, iterator);
-IMPL(iterator, const_iterator);
-IMPL(const_iterator, iterator);
-IMPL(const_iterator, const_iterator);
+IMPL(iterator, iterator)
+IMPL(iterator, const_iterator)
+IMPL(const_iterator, iterator)
+IMPL(const_iterator, const_iterator)
 
 #undef	IMPL
+
+const yacg::Theme::STYLE yacg::Theme::STYLE_FLAT;
+const yacg::Theme::STYLE yacg::Theme::STYLE_3D;
+const yacg::Theme::STYLE yacg::Theme::STYLE_BITMAP;
+const yacg::Theme::STYLE yacg::Theme::STYLE_USER;
+const yacg::Theme::STYLE yacg::Theme::STYLE_USEREND;
+
+const yacg::Theme::TYPE yacg::Theme::TYPE_DEFAULT;
+const yacg::Theme::TYPE yacg::Theme::TYPE_BITMAPBUTTON;
+const yacg::Theme::TYPE yacg::Theme::TYPE_BOX;
+const yacg::Theme::TYPE yacg::Theme::TYPE_BUTTON;
+const yacg::Theme::TYPE yacg::Theme::TYPE_CHECKBOX;
+const yacg::Theme::TYPE yacg::Theme::TYPE_CHECKEDBOX;
+const yacg::Theme::TYPE yacg::Theme::TYPE_DIALOG;
+const yacg::Theme::TYPE yacg::Theme::TYPE_EDITBOX;
+const yacg::Theme::TYPE yacg::Theme::TYPE_LIST;
+const yacg::Theme::TYPE yacg::Theme::TYPE_MENU;
+const yacg::Theme::TYPE yacg::Theme::TYPE_PLANE;
+const yacg::Theme::TYPE yacg::Theme::TYPE_RADIO;
+const yacg::Theme::TYPE yacg::Theme::TYPE_RADIOGROUP;
+const yacg::Theme::TYPE yacg::Theme::TYPE_SELECTIONBOX;
+const yacg::Theme::TYPE yacg::Theme::TYPE_SLIDER;
+const yacg::Theme::TYPE yacg::Theme::TYPE_TAB;
+const yacg::Theme::TYPE yacg::Theme::TYPE_TABPAGE;
+const yacg::Theme::TYPE yacg::Theme::TYPE_TEXTBOX;
+const yacg::Theme::TYPE yacg::Theme::TYPE_TITLE;
+const yacg::Theme::TYPE yacg::Theme::TYPE_WINDOW;
+const yacg::Theme::TYPE yacg::Theme::TYPE_USER;
+const yacg::Theme::TYPE yacg::Theme::TYPE_USEREND;
 
 //=============================================================================
 // class _DefaultTheme implementation
@@ -410,54 +439,6 @@ void _ThemeItem::modified(int h)
 // class Theme implementation
 //=============================================================================
 
-#define	_RESET(var, func, idx)	_THEMERESET(Theme_colors, var, func, idx)
-
-#define	RESET(var, idx)			_RESET(var, ::makecol, idx)
-#define	RESET8(var, idx)		_RESET(var, makecol8, idx)
-#define	RESET15(var, idx)		_RESET(var, makecol15, idx)
-#define	RESET16(var, idx)		_RESET(var, makecol16, idx)
-#define	RESET24(var, idx)		_RESET(var, makecol24, idx)
-#define	RESET32(var, idx)		_RESET(var, makecol32, idx)
-
-#define	RESET_ALL(macro)							\
-macro##(_AQUA, p_aqua);								\
-macro##(_AQUA_DARK, p_aqua_dark);					\
-macro##(_AQUA_LIGHT, p_aqua_light);					\
-macro##(_AQUA_VERY_DARK, p_aqua_very_dark);			\
-macro##(_AQUA_VERY_LIGHT, p_aqua_very_light);		\
-macro##(_BLACK, p_black);							\
-macro##(_BLUE, p_blue);								\
-macro##(_BLUE_DARK, p_blue_dark);					\
-macro##(_BLUE_LIGHT, p_blue_light);					\
-macro##(_BLUE_VERY_DARK, p_blue_very_dark);			\
-macro##(_BLUE_VERY_LIGHT, p_blue_very_light);		\
-macro##(_GRAY, p_gray);								\
-macro##(_GRAY_DARK, p_gray_dark);					\
-macro##(_GRAY_LIGHT, p_gray_light);					\
-macro##(_GRAY_VERY_DARK, p_gray_very_dark);			\
-macro##(_GRAY_VERY_LIGHT, p_gray_very_light);		\
-macro##(_GREEN, p_green);							\
-macro##(_GREEN_DARK, p_green_dark);					\
-macro##(_GREEN_LIGHT, p_green_light);				\
-macro##(_GREEN_VERY_DARK, p_green_very_dark);		\
-macro##(_GREEN_VERY_LIGHT, p_green_very_light);		\
-macro##(_PURPLE, p_purple);							\
-macro##(_PURPLE_DARK, p_purple_dark);				\
-macro##(_PURPLE_LIGHT, p_purple_light);				\
-macro##(_PURPLE_VERY_DARK, p_purple_very_dark);		\
-macro##(_PURPLE_VERY_LIGHT, p_purple_very_light);	\
-macro##(_RED, p_red);								\
-macro##(_RED_DARK, p_red_dark);						\
-macro##(_RED_LIGHT, p_red_light);					\
-macro##(_RED_VERY_DARK, p_red_very_dark);			\
-macro##(_RED_VERY_LIGHT, p_red_very_light);			\
-macro##(_YELLOW, p_yellow);							\
-macro##(_YELLOW_DARK, p_yellow_dark);				\
-macro##(_YELLOW_LIGHT, p_yellow_light);				\
-macro##(_YELLOW_VERY_DARK, p_yellow_very_dark);		\
-macro##(_YELLOW_VERY_LIGHT, p_yellow_very_light);	\
-macro##(_WHITE, p_white)
-
 namespace
 {
 	const THEME_COLOR Theme_colors[] =
@@ -579,7 +560,7 @@ Theme::Theme(_ThemeItem::FORMAT f)
 	{
 		std::auto_ptr<types> t(new types);
 		type_data td;
-		td.connection = _3d.connect(bind(item_modified, this, _1, _2));
+		td.connection = _3d.connect(bind(&Theme::item_modified, this, _1, _2));
 		td.item = &_3d;
 		t->insert(std::make_pair(TYPE_DEFAULT, td));
 		_styles.insert(std::make_pair(STYLE_3D, t.get()));
@@ -590,7 +571,7 @@ Theme::Theme(_ThemeItem::FORMAT f)
 	{
 		std::auto_ptr<types> t(new types);
 		type_data td;
-		td.connection = _flat.connect(bind(item_modified, this, _1, _2));
+		td.connection = _flat.connect(bind(&Theme::item_modified, this, _1, _2));
 		td.item = &_flat;
 		t->insert(std::make_pair(TYPE_DEFAULT, td));
 		_styles.insert(std::make_pair(STYLE_FLAT, t.get()));
@@ -629,7 +610,7 @@ Theme::Theme(_ThemeItem::FORMAT f)
 	
 #ifdef	_DEBUG
 	default:
-		TRACE("yacg::Theme: Format %f unknown to constructor!", f);
+		TRACE("yacg::Theme: Format %d unknown to constructor!", f);
 		break;
 #endif
 	}
@@ -644,7 +625,7 @@ Theme::~Theme()
 {
 	// Clean up allocated types containers
 	std::for_each(_styles.begin(), _styles.end(),
-			bind(delete_styles, this, _1));
+			bind(&Theme::delete_styles, this, _1));
 	_styles.clear();
 }
 
@@ -655,7 +636,7 @@ Theme& Theme::operator=(const Theme& r)
 		_style = r._style;
 		_3d = r._3d;
 		_flat = r._flat;
-		std::for_each(r._styles.begin(), r._styles.end(), bind(copy_theme, this, _1));
+		std::for_each(r._styles.begin(), r._styles.end(), bind(&Theme::copy_theme, this, _1));
 	}
 	return *this;
 }
@@ -664,7 +645,7 @@ void Theme::copy_theme(const Theme::container::value_type& i)
 {
 	// Copy all _ThemeItems for the style
 	std::for_each(i.second->begin(), i.second->end(),
-			bind(copy_types, this, _1, i.first));
+			bind(&Theme::copy_types, this, _1, i.first));
 }
 
 void Theme::copy_types(const Theme::types::value_type& i, STYLE s)
@@ -680,7 +661,7 @@ void Theme::delete_styles(Theme::container::value_type& i)
 	
 	// Disconnect modified event handler from all items
 	std::for_each(i.second->begin(), i.second->end(),
-			bind(disconnect_type, this, _1));
+			bind(&Theme::disconnect_type, this, _1));
 	
 	// Delete collection object
 	delete i.second;
@@ -792,7 +773,7 @@ void Theme::dump(const std::string& i) const
 	}
 	{
 		dump_divider d1(sublevel, "STYLES");
-		std::for_each(_styles.begin(), _styles.end(), bind(dump_styles, this, _1, level));
+		std::for_each(_styles.begin(), _styles.end(), bind(&Theme::dump_styles, this, _1, level));
 	}
 }
 
@@ -808,7 +789,7 @@ void Theme::dump_styles(const Theme::container::value_type& v, const std::string
 	TRACE("%sStyle: %s\n", sublevel.c_str(), style2string(v.first).c_str());
 	{
 		dump_divider d2(sublevel, "TYPES");
-		std::for_each(v.second->begin(), v.second->end(), bind(dump_type, this, _1, level));
+		std::for_each(v.second->begin(), v.second->end(), bind(&Theme::dump_type, this, _1, level));
 	}
 }
 
@@ -959,7 +940,7 @@ Theme::iterator Theme::insert(TYPE t, _ThemeItem& ti)
 	
 	// Connect up the item modified event handler
 	type_data td;
-	td.connection = ti.connect(bind(item_modified, this, _1, _2));
+	td.connection = ti.connect(bind(&Theme::item_modified, this, _1, _2));
 	td.item = &ti;
 	
 	// Associate type with item data
@@ -990,7 +971,7 @@ Theme::iterator Theme::insert(STYLE s, TYPE t, _ThemeItem& ti)
 
 	// Prepare type data by connecting up modification handler	
 	type_data td;
-	td.connection = ti.connect(bind(item_modified, this, _1, _2));
+	td.connection = ti.connect(bind(&Theme::item_modified, this, _1, _2));
 	td.item = &ti;
 	
 	// Insert theme item into style
@@ -1052,13 +1033,61 @@ void Theme::format(FORMAT f)
 	
 #ifdef	_DEBUG
 	default:
-		TRACE("yacg::Theme::format: Format %f unknown!", f);
+		TRACE("yacg::Theme::format: Format %d unknown!", f);
 		break;
 #endif
 	}
 }
 
 //-----------------------------------------------------------------------------
+
+#define	_RESET(var, func, idx)	_THEMERESET(Theme_colors, var, func, idx)
+
+#define	RESET(var, idx)			_RESET(var, makecol, idx)
+#define	RESET8(var, idx)		_RESET(var, makecol8, idx)
+#define	RESET15(var, idx)		_RESET(var, makecol15, idx)
+#define	RESET16(var, idx)		_RESET(var, makecol16, idx)
+#define	RESET24(var, idx)		_RESET(var, makecol24, idx)
+#define	RESET32(var, idx)		_RESET(var, makecol32, idx)
+
+#define	RESET_ALL(macro)							\
+	macro(_AQUA, p_aqua);							\
+	macro(_AQUA_DARK, p_aqua_dark);					\
+	macro(_AQUA_LIGHT, p_aqua_light);				\
+	macro(_AQUA_VERY_DARK, p_aqua_very_dark);		\
+	macro(_AQUA_VERY_LIGHT, p_aqua_very_light);		\
+	macro(_BLACK, p_black);							\
+	macro(_BLUE, p_blue);							\
+	macro(_BLUE_DARK, p_blue_dark);					\
+	macro(_BLUE_LIGHT, p_blue_light);				\
+	macro(_BLUE_VERY_DARK, p_blue_very_dark);		\
+	macro(_BLUE_VERY_LIGHT, p_blue_very_light);		\
+	macro(_GRAY, p_gray);							\
+	macro(_GRAY_DARK, p_gray_dark);					\
+	macro(_GRAY_LIGHT, p_gray_light);				\
+	macro(_GRAY_VERY_DARK, p_gray_very_dark);		\
+	macro(_GRAY_VERY_LIGHT, p_gray_very_light);		\
+	macro(_GREEN, p_green);							\
+	macro(_GREEN_DARK, p_green_dark);				\
+	macro(_GREEN_LIGHT, p_green_light);				\
+	macro(_GREEN_VERY_DARK, p_green_very_dark);		\
+	macro(_GREEN_VERY_LIGHT, p_green_very_light);	\
+	macro(_PURPLE, p_purple);						\
+	macro(_PURPLE_DARK, p_purple_dark);				\
+	macro(_PURPLE_LIGHT, p_purple_light);			\
+	macro(_PURPLE_VERY_DARK, p_purple_very_dark);	\
+	macro(_PURPLE_VERY_LIGHT, p_purple_very_light);	\
+	macro(_RED, p_red);								\
+	macro(_RED_DARK, p_red_dark);					\
+	macro(_RED_LIGHT, p_red_light);					\
+	macro(_RED_VERY_DARK, p_red_very_dark);			\
+	macro(_RED_VERY_LIGHT, p_red_very_light);		\
+	macro(_YELLOW, p_yellow);						\
+	macro(_YELLOW_DARK, p_yellow_dark);				\
+	macro(_YELLOW_LIGHT, p_yellow_light);			\
+	macro(_YELLOW_VERY_DARK, p_yellow_very_dark);	\
+	macro(_YELLOW_VERY_LIGHT, p_yellow_very_light);	\
+	macro(_WHITE, p_white)
 
 void Theme::reset()
 {
@@ -1350,17 +1379,17 @@ Theme::const_iterator Theme::const_iterator::operator++(int)
 #define	RESET32(var, idx)		_RESET(var, makecol32, idx)
 
 #define	RESET_ALL(macro)										\
-macro##(_frameDark, t3d_FrameDark);								\
-macro##(_frameDarkest, t3d_FrameDarkest);						\
-macro##(_frameLight, t3d_FrameLight);							\
-macro##(_frameLightest, t3d_FrameLightest);						\
-macro##(_inactiveTextBackground, t3d_InactiveTextBackground);	\
-macro##(_inactiveTextForeground, t3d_InactiveTextForeground);	\
-macro##(_interior, t3d_Interior);								\
-macro##(_selectionBackground, t3d_SelectionBackground);			\
-macro##(_selectionForeground, t3d_SelectionForeground);			\
-macro##(_textBackground, t3d_TextBackground);					\
-macro##(_textForeground, t3d_TextForeground)
+	macro(_frameDark, t3d_FrameDark);							\
+	macro(_frameDarkest, t3d_FrameDarkest);						\
+	macro(_frameLight, t3d_FrameLight);							\
+	macro(_frameLightest, t3d_FrameLightest);					\
+	macro(_inactiveTextBackground, t3d_InactiveTextBackground);	\
+	macro(_inactiveTextForeground, t3d_InactiveTextForeground);	\
+	macro(_interior, t3d_Interior);								\
+	macro(_selectionBackground, t3d_SelectionBackground);		\
+	macro(_selectionForeground, t3d_SelectionForeground);		\
+	macro(_textBackground, t3d_TextBackground);					\
+	macro(_textForeground, t3d_TextForeground)
 
 namespace
 {
@@ -1486,17 +1515,17 @@ void DefaultTheme3D::reset32()
 	RESET_ALL(RESET32);
 }
 
-IMPL(_frameDark, frame_dark);
-IMPL(_frameDarkest, frame_darkest);
-IMPL(_frameLight, frame_light);
-IMPL(_frameLightest, frame_lightest);
-IMPL(_inactiveTextBackground, inactive_text_background);
-IMPL(_inactiveTextForeground, inactive_text_foreground);
-IMPL(_interior, interior);
-IMPL(_selectionBackground, selection_background);
-IMPL(_selectionForeground, selection_foreground);
-IMPL(_textBackground, text_background);
-IMPL(_textForeground, text_foreground);
+IMPL(_frameDark, frame_dark)
+IMPL(_frameDarkest, frame_darkest)
+IMPL(_frameLight, frame_light)
+IMPL(_frameLightest, frame_lightest)
+IMPL(_inactiveTextBackground, inactive_text_background)
+IMPL(_inactiveTextForeground, inactive_text_foreground)
+IMPL(_interior, interior)
+IMPL(_selectionBackground, selection_background)
+IMPL(_selectionForeground, selection_foreground)
+IMPL(_textBackground, text_background)
+IMPL(_textForeground, text_foreground)
 
 #undef	IMPL
 #undef	_RESET
@@ -1523,15 +1552,15 @@ IMPL(_textForeground, text_foreground);
 #define	RESET24(var, idx)		_RESET(var, makecol24, idx)
 #define	RESET32(var, idx)		_RESET(var, makecol32, idx)
 
-#define	RESET_ALL(macro)									\
-macro##(_frame, f_Frame);									\
-macro##(_inactiveTextBackground, f_InactiveTextBackground);	\
-macro##(_inactiveTextForeground, f_InactiveTextForeground);	\
-macro##(_interior, f_Interior);								\
-macro##(_selectionBackground, f_SelectionBackground);		\
-macro##(_selectionForeground, f_SelectionForeground);		\
-macro##(_textBackground, f_TextBackground);					\
-macro##(_textForeground, f_TextForeground)
+#define	RESET_ALL(macro)										\
+	macro(_frame, f_Frame);										\
+	macro(_inactiveTextBackground, f_InactiveTextBackground);	\
+	macro(_inactiveTextForeground, f_InactiveTextForeground);	\
+	macro(_interior, f_Interior);								\
+	macro(_selectionBackground, f_SelectionBackground);			\
+	macro(_selectionForeground, f_SelectionForeground);			\
+	macro(_textBackground, f_TextBackground);					\
+	macro(_textForeground, f_TextForeground)
 
 namespace
 {
@@ -1596,14 +1625,14 @@ DefaultThemeFlat& DefaultThemeFlat::operator=(const DefaultThemeFlat& r)
 	return *this;
 }
 
-IMPL(_frame, frame);
-IMPL(_inactiveTextBackground, inactive_text_background);
-IMPL(_inactiveTextForeground, inactive_text_foreground);
-IMPL(_interior, interior);
-IMPL(_selectionBackground, selection_background);
-IMPL(_selectionForeground, selection_foreground);
-IMPL(_textBackground, text_background);
-IMPL(_textForeground, text_foreground);
+IMPL(_frame, frame)
+IMPL(_inactiveTextBackground, inactive_text_background)
+IMPL(_inactiveTextForeground, inactive_text_foreground)
+IMPL(_interior, interior)
+IMPL(_selectionBackground, selection_background)
+IMPL(_selectionForeground, selection_foreground)
+IMPL(_textBackground, text_background)
+IMPL(_textForeground, text_foreground)
 
 #ifdef	_DEBUG
 void DefaultThemeFlat::dump(const std::string& i) const

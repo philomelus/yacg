@@ -231,8 +231,8 @@ namespace utility
 			else
 				start += i;
 			int end = start + current - 1;
-if (end > size - 1)	// Shouldn't, and hasn't yet, be true
-	_asm int 3;
+			//if (end > size - 1)	// Shouldn't, and hasn't yet, be true
+			//	_asm int 3;
 			d.push_back(std::make_pair(start, end));
 		}
 	}

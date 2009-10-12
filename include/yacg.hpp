@@ -1,26 +1,10 @@
 #ifndef	__YACG_HPP__
 #define	__YACG_HPP__
 
-#ifndef	__STD_ALGORITHM__
-#define	__STD_ALGORITHM__
 #include <algorithm>
-#endif
-
-#ifndef	__STD_VECTOR__
-#define	__STD_VECTOR__
 #include <vector>
-#endif
-
-#ifndef	__BOOST_SIGNALS_HPP__
-#define	__BOOST_SIGNALS_HPP__
-#define	BOOST_SIGNALS_STATIC_LINK
-#include <boost/signals.hpp>
-#endif
-
-#ifndef	__BOOST_UTILITY_HPP__
-#define	__BOOST_UTILITY_HPP__
+#include <boost/signals2.hpp>
 #include <boost/utility.hpp>
-#endif
 
 namespace yacg
 {
@@ -34,7 +18,7 @@ namespace yacg
 	extern void yacg_init();
 
 	//-------------------------------------------------------------------------
-	typedef boost::signals::connection EVENTID;
+	typedef boost::signals2::connection EVENTID;
 }
 
 #ifndef	__YACG_THEME_HPP__
@@ -73,7 +57,7 @@ namespace yacg
 	// active
 	
 	private:
-		typedef boost::signal<void (_Control& c, bool n)> active_changed_slot;
+		typedef boost::signals2::signal<void (_Control& c, bool n)> active_changed_slot;
 		
 	public:
 		typedef active_changed_slot::slot_type ACTIVE_EVENT;
@@ -101,7 +85,7 @@ namespace yacg
 	// dirty
 	
 	private:
-		typedef boost::signal<void (_Control& c, int o)> dirty_changed_slot;
+		typedef boost::signals2::signal<void (_Control& c, int o)> dirty_changed_slot;
 		
 	public:
 		typedef dirty_changed_slot::slot_type DIRTY_EVENT;
@@ -129,7 +113,7 @@ namespace yacg
 	// flags
 	
 	private:
-		typedef boost::signal<void (_Control& c)> flags_changed_slot;
+		typedef boost::signals2::signal<void (_Control& c)> flags_changed_slot;
 		
 	public:
 		typedef flags_changed_slot::slot_type FLAGS_EVENT;
@@ -166,7 +150,7 @@ namespace yacg
 	// theme
 
 	private:
-		typedef boost::signal<void (_Control& c)> theme_changed_slot;
+		typedef boost::signals2::signal<void (_Control& c)> theme_changed_slot;
 		
 	public:
 		typedef theme_changed_slot::slot_type THEME_EVENT;
@@ -203,7 +187,7 @@ namespace yacg
 	// visibility
 	
 	private:
-		typedef boost::signal<void (_Control& c)> visible_changed_slot;
+		typedef boost::signals2::signal<void (_Control& c)> visible_changed_slot;
 		
 	public:
 		typedef visible_changed_slot::slot_type VISIBLE_EVENT;
@@ -229,8 +213,8 @@ namespace yacg
 				
 	//-------------------------------------------------------------------------
 	private:
-		typedef boost::signal<void (_Control& c, BITMAP* bmp)> pre_paint_slot;
-		typedef boost::signal<void (_Control& c, BITMAP* bmp)> post_paint_slot;
+		typedef boost::signals2::signal<void (_Control& c, BITMAP* bmp)> pre_paint_slot;
+		typedef boost::signals2::signal<void (_Control& c, BITMAP* bmp)> post_paint_slot;
 	
 	public:
 		typedef pre_paint_slot::slot_type PRE_PAINT_EVENT;
@@ -267,7 +251,7 @@ namespace yacg
 #endif
 
 	//-------------------------------------------------------------------------	
-		friend _Manager;
+		friend class _Manager;
 	};
 
 //=============================================================================
@@ -332,15 +316,16 @@ namespace yacg
 			{
 				if (b == e)
 					return false;
-				while (b++ != e)
+				do
 				{
 					if (*b)
 						return true;
-				}
+					++b;
+				} while (b != e);
 				return false;
 			}
 		};
-		typedef boost::signal<bool (_ControlEx& c, BITMAP* bmp, int f, int x, int y, int m), isTrue> mouse_down_slot;
+		typedef boost::signals2::signal<bool (_ControlEx& c, BITMAP* bmp, int f, int x, int y, int m), isTrue> mouse_down_slot;
 	
 	public:
 		typedef mouse_down_slot::slot_type MOUSE_DOWN_EVENT;
@@ -360,7 +345,7 @@ namespace yacg
 	
 	//-------------------------------------------------------------------------
 	private:
-		typedef boost::signal<void (_ControlEx& c, BITMAP* bmp, int f, int x, int y)> mouse_move_slot;
+		typedef boost::signals2::signal<void (_ControlEx& c, BITMAP* bmp, int f, int x, int y)> mouse_move_slot;
 	
 	public:
 		typedef mouse_move_slot::slot_type MOUSE_MOVE_EVENT;
@@ -386,7 +371,7 @@ namespace yacg
 
 	//-------------------------------------------------------------------------
 	private:
-		friend _Manager;
+		friend class _Manager;
 	};
 
 //=============================================================================
@@ -416,7 +401,7 @@ namespace yacg
 	/// bitmap
 	
 	private:
-		typedef boost::signal<void (_Manager& m, BITMAP* o)> bitmap_changed_slot;
+		typedef boost::signals2::signal<void (_Manager& m, BITMAP* o)> bitmap_changed_slot;
 	
 	public:
 		typedef bitmap_changed_slot::slot_type BITMAP_CHANGED_EVENT;
@@ -455,8 +440,8 @@ namespace yacg
 	/// painting
 
 	private:
-		typedef boost::signal<void (_Manager&)> pre_paint_slot;
-		typedef boost::signal<void (_Manager&)> post_paint_slot;
+		typedef boost::signals2::signal<void (_Manager&)> pre_paint_slot;
+		typedef boost::signals2::signal<void (_Manager&)> post_paint_slot;
 	
 	public:
 		typedef pre_paint_slot::slot_type PRE_PAINT_EVENT;
@@ -498,7 +483,7 @@ namespace yacg
 	// mouse down event
 	
 	private:
-		typedef boost::signal<bool (_Manager& m, int x, int y, int b), _ControlEx::isTrue> mouse_down_slot;
+		typedef boost::signals2::signal<bool (_Manager& m, int x, int y, int b), _ControlEx::isTrue> mouse_down_slot;
 	
 	public:
 		typedef mouse_down_slot::slot_type MOUSE_DOWN_EVENT;
@@ -515,14 +500,14 @@ namespace yacg
 		mouse_down_slot _mouseDownHandlers;
 		
 		events _mouseDownControls;
-		boost::signal<void (BITMAP* bmp, int x, int y, int b)> _mouseDownControlsPre;
-		boost::signal<void (BITMAP* bmp, int x, int y, int b)> _mouseDownControlsPost;
+		boost::signals2::signal<void (BITMAP* bmp, int x, int y, int b)> _mouseDownControlsPre;
+		boost::signals2::signal<void (BITMAP* bmp, int x, int y, int b)> _mouseDownControlsPost;
 		
 	//-------------------------------------------------------------------------
 	// mouse move event
 	
 	private:
-		typedef boost::signal<void (_Manager& m, int x, int y)> mouse_move_slot;
+		typedef boost::signals2::signal<void (_Manager& m, int x, int y)> mouse_move_slot;
 	
 	public:
 		typedef mouse_move_slot::slot_type MOUSE_MOVE_EVENT;
@@ -541,15 +526,15 @@ namespace yacg
 
 		mouse_move_slot _mouseMoveHandlers;	// _Manager-wide
 
-		boost::signal<void (BITMAP* bmp, int x, int y)> _mouseMoveControls;
-		boost::signal<void (BITMAP* bmp, int x, int y)> _mouseMoveControlsPre;
-		boost::signal<void (BITMAP* bmp, int x, int y)> _mouseMoveControlsPost;
+		boost::signals2::signal<void (BITMAP* bmp, int x, int y)> _mouseMoveControls;
+		boost::signals2::signal<void (BITMAP* bmp, int x, int y)> _mouseMoveControlsPre;
+		boost::signals2::signal<void (BITMAP* bmp, int x, int y)> _mouseMoveControlsPost;
 
 	//-------------------------------------------------------------------------
 	// common event
 	
 	private:
-		typedef boost::signal<void (_Manager& m)> idle_slot;
+		typedef boost::signals2::signal<void (_Manager& m)> idle_slot;
 		typedef idle_slot::slot_type IDLE;
 
 	public:
@@ -592,7 +577,7 @@ namespace yacg
 		private:
 			iterator(const container::iterator& r);
 			
-			friend _Manager;
+			friend class _Manager;
 		};
 		class const_iterator : public container::const_iterator
 		{
@@ -611,7 +596,7 @@ namespace yacg
 		private:
 			const_iterator(const container::const_iterator& r);
 			
-			friend _Manager;
+			friend class _Manager;
 		};
 
 	public:		
@@ -625,7 +610,7 @@ namespace yacg
 		
 	//-------------------------------------------------------------------------
 	private:
-		typedef boost::signal<void (_Manager& m)> controls_changed_slot;
+		typedef boost::signals2::signal<void (_Manager& m)> controls_changed_slot;
 	
 	public:
 		typedef controls_changed_slot::slot_type CONTROLS_CHANGED_EVENT;

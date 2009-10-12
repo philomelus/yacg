@@ -168,22 +168,21 @@ IMPL(_color, color)
 
 //-----------------------------------------------------------------------------
 
-#define	IMPL_RESET(type, num)		\
-void PlaneTheme::reset##num()		\
-{									\
-	const FORMAT old = format();	\
-	CONVERT_COLOR(_color, type##);	\
-	format(type##);					\
-	modified();						\
-}
+#define	IMPL_RESET(type, num)					\
+	void PlaneTheme::reset##num()				\
+	{											\
+		const FORMAT old = format();			\
+		CONVERT_COLOR(_color, type);			\
+		format(type);							\
+		modified();								\
+	}
 
-#define	IMPL_RESETS()		\
-IMPL_RESET(none,)			\
-IMPL_RESET(eight, 8)		\
-IMPL_RESET(fifteen, 15)		\
-IMPL_RESET(sixteen, 16)		\
-IMPL_RESET(twentyfour, 24)	\
-IMPL_RESET(thirtytwo, 32)
+#define	IMPL_RESETS()							\
+	IMPL_RESET(eight, 8)						\
+	IMPL_RESET(fifteen, 15)						\
+	IMPL_RESET(sixteen, 16)						\
+	IMPL_RESET(twentyfour, 24)					\
+	IMPL_RESET(thirtytwo, 32)
 
 //-----------------------------------------------------------------------------
 
@@ -258,9 +257,17 @@ void PlaneTheme::dump(const std::string& i) const
 }
 #endif
 
-IMPL_PROPS();
+IMPL_PROPS()
 
-IMPL_RESETS();
+void PlaneTheme::reset()
+{
+	const FORMAT old = format();
+	CONVERT_COLOR(_color, none);
+	format(none);
+	modified();
+}
+
+IMPL_RESETS()
 
 #undef	IMPL
 #undef	IMPL_PROPS

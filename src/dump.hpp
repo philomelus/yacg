@@ -17,10 +17,9 @@ namespace utility
 			bmps = "Allegro Global Screen";
 		else
 		{
-			std::ostrstream o;
+			std::ostringstream o;
 			o << "$" << std::hex << std::setw(8) << std::setfill('0') << bmp << std::ends;
 			bmps = o.str();
-			o.freeze(false);
 		}
 		TRACE("%s%s: %s (%d x %d @ %d bpp)\n", i.c_str(), t.c_str(), bmps.c_str(),
 				bmp->w, bmp->h, bitmap_color_depth(bmp));
@@ -62,11 +61,10 @@ namespace utility
 			ds = "clean";
 		else
 		{
-			std::ostrstream o;
+			std::ostringstream o;
 			o << "$" << std::hex << std::setw(8) << std::setfill('0')
 					<< (d & (~yacg::_Control::update_display)) << std::ends;
 			ds = o.str();
-			o.freeze(false);
 			if ((d & yacg::_Control::update_display) != 0)
 				ds += " | update_display";
 		}
@@ -100,7 +98,7 @@ namespace utility
 
 	inline void dump_count(const std::string& i, const std::string& t, unsigned long v)
 	{
-		TRACE("%s%s: %d\n", i.c_str(), t.c_str(), v);
+		TRACE("%s%s: %lu\n", i.c_str(), t.c_str(), v);
 	}
 	
 	class dump_divider
@@ -125,7 +123,7 @@ namespace utility
 	
 	inline void dump_flags(const std::string& i, const flags_dump* f, int v)
 	{
-		std::ostrstream o;
+		std::ostringstream o;
 		o << i << "Flags:";
 		bool first = true;
 		int index = 0;
@@ -141,8 +139,7 @@ namespace utility
 			++index;
 		}
 		o << std::endl << std::ends;
-		TRACE(o.str());
-		o.freeze(false);
+		TRACE(o.str().c_str());
 	}
 	
 #if 0
@@ -165,10 +162,9 @@ namespace utility
 			fs = "Allegro Global Font";
 		else
 		{
-			std::ostrstream o;
+			std::ostringstream o;
 			o << "$" << std::hex << std::setw(8) << std::setfill('0') << f << std::ends;
 			fs = o.str();
-			o.freeze(false);
 		}
 		TRACE("%s%s: %s\n", i.c_str(), t.c_str(), fs.c_str());
 	}
@@ -185,12 +181,12 @@ namespace utility
 	
 	inline void dump_hex(const std::string& i, const std::string& t, const void* v)
 	{
-		TRACE("%s%s: $%08X\n", i.c_str(), t.c_str(), v);
+		TRACE("%s%s: $%08X\n", i.c_str(), t.c_str(), reinterpret_cast<unsigned int>(v));
 	}
 	
 	inline void dump_object(const std::string& i, const std::string& n, const void* o)
 	{
-		TRACE("%s%s @ $%08X\n", i.c_str(), n.c_str(), o);
+		TRACE("%s%s @ $%08X\n", i.c_str(), n.c_str(), reinterpret_cast<unsigned int>(o));
 	}
 
 #if 0	

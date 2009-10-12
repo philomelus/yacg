@@ -1053,45 +1053,44 @@ void Box::width(int w)
 #define	IMPL(var, func)			_THEMEFUNC(BoxTheme3D, var, func)
 
 #define	IMPL_PROPS()										\
-IMPL(_frameDark, frame_dark);								\
-IMPL(_frameDarkest, frame_darkest);							\
-IMPL(_frameLight, frame_light);								\
-IMPL(_frameLightest, frame_lightest);						\
-IMPL(_textBackground, text_background);						\
-IMPL(_textForeground, text_foreground);						\
-IMPL(_inactiveTextBackground, inactive_text_background);	\
-IMPL(_inactiveTextForeground, inactive_text_foreground);	\
-IMPL(_interior, interior)
+	IMPL(_frameDark, frame_dark)							\
+	IMPL(_frameDarkest, frame_darkest)						\
+	IMPL(_frameLight, frame_light)							\
+	IMPL(_frameLightest, frame_lightest)					\
+	IMPL(_textBackground, text_background)					\
+	IMPL(_textForeground, text_foreground)					\
+	IMPL(_inactiveTextBackground, inactive_text_background)	\
+	IMPL(_inactiveTextForeground, inactive_text_foreground)	\
+	IMPL(_interior, interior)
 
 //-----------------------------------------------------------------------------
 
-#define	IMPL_RESET(type, num)							\
-void BoxTheme3D::reset##num()							\
-{														\
-	const FORMAT old = format();						\
-	if (old != type##)									\
-	{													\
-		CONVERT_COLOR(_frameDark, type##);				\
-		CONVERT_COLOR(_frameDarkest, type##);			\
-		CONVERT_COLOR(_frameLight, type##);				\
-		CONVERT_COLOR(_frameLightest, type##);			\
-		CONVERT_COLOR(_textBackground, type##);			\
-		CONVERT_COLOR(_textForeground, type##);			\
-		CONVERT_COLOR(_inactiveTextBackground, type##);	\
-		CONVERT_COLOR(_inactiveTextForeground, type##);	\
-		CONVERT_COLOR(_interior, type##);				\
-		format(type##);									\
-		modified();										\
-	}													\
-}
+#define	IMPL_RESET(type, num)								\
+	void BoxTheme3D::reset##num()							\
+	{														\
+		const FORMAT old = format();						\
+		if (old != type)									\
+		{													\
+			CONVERT_COLOR(_frameDark, type);				\
+			CONVERT_COLOR(_frameDarkest, type);				\
+			CONVERT_COLOR(_frameLight, type);				\
+			CONVERT_COLOR(_frameLightest, type);			\
+			CONVERT_COLOR(_textBackground, type);			\
+			CONVERT_COLOR(_textForeground, type);			\
+			CONVERT_COLOR(_inactiveTextBackground, type);	\
+			CONVERT_COLOR(_inactiveTextForeground, type);	\
+			CONVERT_COLOR(_interior, type);					\
+			format(type);									\
+			modified();										\
+		}													\
+	}
 
-#define	IMPL_RESETS()			\
-IMPL_RESET(none,)				\
-IMPL_RESET(eight, 8)			\
-IMPL_RESET(fifteen, 15)			\
-IMPL_RESET(sixteen, 16)			\
-IMPL_RESET(twentyfour, 24)		\
-IMPL_RESET(thirtytwo, 32)
+#define	IMPL_RESETS()							\
+	IMPL_RESET(eight, 8)						\
+	IMPL_RESET(fifteen, 15)						\
+	IMPL_RESET(sixteen, 16)						\
+	IMPL_RESET(twentyfour, 24)					\
+	IMPL_RESET(thirtytwo, 32)
 
 //-----------------------------------------------------------------------------
 
@@ -1123,10 +1122,10 @@ BoxTheme3D::BoxTheme3D(Theme& t)
 BoxTheme3D::BoxTheme3D(const BoxTheme3D& o)
 		:
 		_BoxTheme(o),
+		_frameLightest(o._frameLightest),
+		_frameLight(o._frameLight),
 		_frameDark(o._frameDark),
 		_frameDarkest(o._frameDarkest),
-		_frameLight(o._frameLight),
-		_frameLightest(o._frameLightest),
 		_inactiveTextBackground(o._inactiveTextBackground),
 		_inactiveTextForeground(o._inactiveTextForeground),
 		_interior(o._interior),
@@ -1174,9 +1173,28 @@ void BoxTheme3D::dump(const std::string& i) const
 }
 #endif
 
-IMPL_PROPS();
+IMPL_PROPS()
 
-IMPL_RESETS();
+void BoxTheme3D::reset()
+{
+	const FORMAT old = format();
+	if (old != none)
+	{
+		CONVERT_COLOR(_frameDark, none);
+		CONVERT_COLOR(_frameDarkest, none);
+		CONVERT_COLOR(_frameLight, none);
+		CONVERT_COLOR(_frameLightest, none);
+		CONVERT_COLOR(_textBackground, none);
+		CONVERT_COLOR(_textForeground, none);
+		CONVERT_COLOR(_inactiveTextBackground, none);
+		CONVERT_COLOR(_inactiveTextForeground, none);
+		CONVERT_COLOR(_interior, none);
+		format(none);
+		modified();
+	}
+}
+
+IMPL_RESETS()
 
 #undef	IMPL
 #undef	IMPL_PROPS
@@ -1192,39 +1210,38 @@ IMPL_RESETS();
 #define	IMPL(var, func)			_THEMEFUNC(BoxThemeFlat, var, func)
 
 #define	IMPL_PROPS()										\
-IMPL(_frame, frame);										\
-IMPL(_textBackground, text_background);						\
-IMPL(_textForeground, text_foreground);						\
-IMPL(_inactiveTextBackground, inactive_text_background);	\
-IMPL(_inactiveTextForeground, inactive_text_foreground);	\
-IMPL(_interior, interior)
+	IMPL(_frame, frame)										\
+	IMPL(_textBackground, text_background)					\
+	IMPL(_textForeground, text_foreground)					\
+	IMPL(_inactiveTextBackground, inactive_text_background)	\
+	IMPL(_inactiveTextForeground, inactive_text_foreground)	\
+	IMPL(_interior, interior)
 
 //-----------------------------------------------------------------------------
 
-#define	IMPL_RESET(type, num)							\
-void BoxThemeFlat::reset##num()							\
-{														\
-	const FORMAT old = format();						\
-	if (old != type##)									\
-	{													\
-		CONVERT_COLOR(_frame, type##);					\
-		CONVERT_COLOR(_textBackground, type##);			\
-		CONVERT_COLOR(_textForeground, type##);			\
-		CONVERT_COLOR(_inactiveTextBackground, type##);	\
-		CONVERT_COLOR(_inactiveTextForeground, type##);	\
-		CONVERT_COLOR(_interior, type##);				\
-		format(type##);									\
-		modified();										\
-	}													\
-}
+#define	IMPL_RESET(type, num)								\
+	void BoxThemeFlat::reset##num()							\
+	{														\
+		const FORMAT old = format();						\
+		if (old != type)									\
+		{													\
+			CONVERT_COLOR(_frame, type);					\
+			CONVERT_COLOR(_textBackground, type);			\
+			CONVERT_COLOR(_textForeground, type);			\
+			CONVERT_COLOR(_inactiveTextBackground, type);	\
+			CONVERT_COLOR(_inactiveTextForeground, type);	\
+			CONVERT_COLOR(_interior, type);					\
+			format(type);									\
+			modified();										\
+		}													\
+	}
 
-#define	IMPL_RESETS()			\
-IMPL_RESET(none,)				\
-IMPL_RESET(eight, 8)			\
-IMPL_RESET(fifteen, 15)			\
-IMPL_RESET(sixteen, 16)			\
-IMPL_RESET(twentyfour, 24)		\
-IMPL_RESET(thirtytwo, 32)
+#define	IMPL_RESETS()							\
+	IMPL_RESET(eight, 8)						\
+	IMPL_RESET(fifteen, 15)						\
+	IMPL_RESET(sixteen, 16)						\
+	IMPL_RESET(twentyfour, 24)					\
+	IMPL_RESET(thirtytwo, 32)
 
 //-----------------------------------------------------------------------------
 
@@ -1291,9 +1308,25 @@ void BoxThemeFlat::dump(const std::string& i) const
 }
 #endif
 
-IMPL_PROPS();
+IMPL_PROPS()
 
-IMPL_RESETS();
+void BoxThemeFlat::reset()
+{
+	const FORMAT old = format();
+	if (old != none)
+	{
+		CONVERT_COLOR(_frame, none);
+		CONVERT_COLOR(_textBackground, none);
+		CONVERT_COLOR(_textForeground, none);
+		CONVERT_COLOR(_inactiveTextBackground, none);
+		CONVERT_COLOR(_inactiveTextForeground, none);
+		CONVERT_COLOR(_interior, none);
+		format(none);
+		modified();
+	}													\
+}
+
+IMPL_RESETS()
 
 #undef	IMPL
 #undef	IMPL_PROPS
