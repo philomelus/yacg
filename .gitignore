@@ -1,0 +1,6 @@
+*.o
+*.i
+*.S
+*.gch
+*.exe
+allegro.log
